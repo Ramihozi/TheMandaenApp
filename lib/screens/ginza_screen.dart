@@ -50,7 +50,7 @@ class _GinzaScreenState extends State<GinzaScreen> {
         .map((e) => " [${e.book} ${e.chapter}:${e.verse}] ${e.text.trim()}")
         .join();
 
-    return "$result [KJV]";
+    return "$result [Al-Saadi]";
   }
 
   @override

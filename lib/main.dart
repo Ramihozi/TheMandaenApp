@@ -102,12 +102,10 @@ class _MainAppState extends State<MainApp> {
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
       theme: ThemeData(
-        colorSchemeSeed: Colors.brown,
-        brightness: Brightness.light,
-      ),
-      darkTheme: ThemeData(
-        colorSchemeSeed: Colors.brown,
-        brightness: Brightness.dark,
+        primarySwatch: Constants.kSwatchColor,
+        primaryColor: Constants.kPrimary,
+        scaffoldBackgroundColor: Colors.white,
+        fontFamily: 'Poppins',
       ),
       home: _loading
           ? const Center(
