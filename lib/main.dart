@@ -1,5 +1,8 @@
+import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:the_mandean_app/constants/constants.dart';
+import 'package:the_mandean_app/routes/routes.dart';
 import 'package:the_mandean_app/screens/ginza_screen.dart';
 import 'package:the_mandean_app/screens/splash_screen.dart';
 import 'package:the_mandean_app/services/fetch_books.dart';
@@ -9,8 +12,14 @@ import 'package:the_mandean_app/models/verse.dart';
 import 'package:the_mandean_app/services/save_current_index.dart';
 import 'package:the_mandean_app/providers/main_provider.dart';
 import 'package:get/get.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const MyApp());
 
   runApp(
@@ -36,7 +45,8 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         fontFamily: 'Poppins',
       ),
-      home: const SplashScreen(), // Assuming SplashScreen leads to MainApp after some logic
+      home: const SplashScreen(),
+        getPages: getPages()// Assuming SplashScreen leads to MainApp after some logic
     );
   }
 }
@@ -113,7 +123,9 @@ class _MainAppState extends State<MainApp> {
           strokeCap: StrokeCap.round,
         ),
       )
-          : const GinzaScreen(),
+          : const GinzaScreen(), getPages: getPages(),
     );
   }
 }
+
+

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:the_mandean_app/constants/constants.dart';
-import 'package:the_mandean_app/screens/community_screen.dart';
+import 'package:the_mandean_app/screens/community_main_screen.dart';
 import 'package:the_mandean_app/screens/ginza_screen.dart';
 import 'package:the_mandean_app/screens/home_screen.dart';
 import 'package:the_mandean_app/screens/calendar_screen.dart';
@@ -20,7 +18,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
 
   int selectindex = 0;
-  List<Widget> _widgetsList = [HomeScreen(),GinzaScreen(),AudioScreen(),PrayerScreen()];
+  List<Widget> _widgetsList = [HomeScreen(),GinzaScreen(),CommunityMainScreen(),PrayerScreen()];
 
 
   @override

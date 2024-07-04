@@ -1,11 +1,16 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:the_mandean_app/constants/constants.dart';
-import 'package:the_mandean_app/screens/main_screen.dart';
+
 
 
 class OnBoardingScreen extends StatefulWidget {
-  const OnBoardingScreen({Key? key}) : super(key: key);
+  const OnBoardingScreen({super.key});
 
   @override
   _OnBoardingScreenState createState() => _OnBoardingScreenState();
@@ -71,8 +76,17 @@ class _OnBoardingScreenState extends State<OnBoardingScreen>{
           next: const Icon(Icons.arrow_forward, color: Colors.black),
           done: const Text("Done", style: TextStyle(fontWeight: FontWeight.w600,color: Colors.black)),
           onDone: () {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context)=>MainScreen()));
+            User? user = FirebaseAuth.instance.currentUser;
+            // user is already logged in go to main screen
+            if(user != null){
+              Timer(const Duration(seconds: 3),(){
+                Get.offNamed('/main_screen');
+              });
+            }else{
+              Timer(const Duration(seconds: 3),(){
+                Get.offNamed('/login_screen');
+              });
+            }
           },
 
           dotsDecorator: DotsDecorator(
