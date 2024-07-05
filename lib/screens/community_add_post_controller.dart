@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -23,6 +22,7 @@ class AddPostController extends GetxController{
 
   @override
   void onInit() {
+    super.onInit();
     postTxtController = TextEditingController();
   }
 
@@ -60,7 +60,7 @@ class AddPostController extends GetxController{
     // then we will get download url that we will save in database
     try {
       await storage
-          .ref('uploads/post/${randomStr}')
+          .ref('uploads/post/$randomStr')
           .putFile(file);
     } on FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
@@ -68,7 +68,7 @@ class AddPostController extends GetxController{
     }
 
     String downloadURL = await storage
-        .ref('uploads/post/${randomStr}')
+        .ref('uploads/post/$randomStr')
         .getDownloadURL();
 
     return downloadURL;

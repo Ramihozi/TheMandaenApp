@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CreateStory extends StatelessWidget {
-  const CreateStory({Key? key, required this.onTap}) : super(key: key);
+  const CreateStory({super.key, required this.onTap});
   final VoidCallback onTap;
 
   @override
@@ -21,7 +21,7 @@ class CreateStory extends StatelessWidget {
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
-                      image: AssetImage('assets/manzara.jpg'),
+                      image: AssetImage('assets/images/account.png'),
                       fit: BoxFit.cover,
                     ),
                   ),

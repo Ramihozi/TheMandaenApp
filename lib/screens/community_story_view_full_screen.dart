@@ -4,6 +4,8 @@ import 'package:story_view/controller/story_controller.dart';
 import 'package:story_view/widgets/story_view.dart';
 
 class StoryViewFullScreen extends StatefulWidget {
+  const StoryViewFullScreen({super.key});
+
 
   @override
   State<StoryViewFullScreen> createState() => _StoryViewFullScreenState();

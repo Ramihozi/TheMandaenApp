@@ -5,7 +5,7 @@ import 'package:the_mandean_app/screens/community_main_screen_controller.dart';
 
 
 class CommunityMainScreen extends StatelessWidget {
-  CommunityMainScreen({Key? key}) : super(key: key);
+  CommunityMainScreen({super.key});
 
   final _controller = Get.put(MainScreenController(),permanent: true);
   @override

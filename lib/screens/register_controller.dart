@@ -130,7 +130,7 @@ class RegisterController extends GetxController{
     // then we will get download url that we will save in database
     try {
       await storage
-          .ref('uploads/pic/${randomStr}')
+          .ref('uploads/pic/$randomStr')
           .putFile(file);
     } on FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
@@ -138,7 +138,7 @@ class RegisterController extends GetxController{
     }
 
     String downloadURL = await storage
-        .ref('uploads/pic/${randomStr}')
+        .ref('uploads/pic/$randomStr')
         .getDownloadURL();
 
     return downloadURL;

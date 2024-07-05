@@ -10,10 +10,9 @@ import 'package:unicons/unicons.dart';
 
 class PostItem extends StatelessWidget {
   PostItem({
-    Key? key,
+    super.key,
     required this.post,
-  })
-      : super(key: key);
+  });
   final Post post;
   // GetX dependency injection
   final _homeController = Get.find<HomeController>();
@@ -27,7 +26,7 @@ class PostItem extends StatelessWidget {
 
     return Card(
       elevation: 1,
-      color: Theme.of(context).cardColor,
+      color: Colors.white,
       margin: const EdgeInsets.all(16),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -43,11 +42,11 @@ class PostItem extends StatelessWidget {
               ),
               title: Text(post.userName!, style: Theme.of(context).textTheme.titleSmall),
               subtitle: Text(dateString),
-              trailing: IconButton(
+              trailing: const IconButton(
                 onPressed: null,
                 icon: Icon(
                   Icons.more_horiz,
-                  color: Theme.of(context).iconTheme.color,
+                  color: Colors.black,
                 ),
               ),
             ),
@@ -89,11 +88,11 @@ class PostItem extends StatelessWidget {
                     ),
                   ],
                 ),
-                IconButton(
+                const IconButton(
                     onPressed: null,
                     icon: Icon(
                       UniconsLine.telegram_alt,
-                      color: Theme.of(context).iconTheme.color,
+                      color: Colors.amber,
                     ))
               ],
             )

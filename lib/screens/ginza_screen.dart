@@ -4,10 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:the_mandean_app/models/verse.dart';
 import 'package:provider/provider.dart';
+import 'package:get/get.dart';
 import 'package:the_mandean_app/pages/books_page.dart';
 import 'package:the_mandean_app/pages/search_page.dart';
 import 'package:the_mandean_app/providers/main_provider.dart';
-import 'package:get/get.dart';
 import 'package:the_mandean_app/services/read_last_index.dart';
 import 'package:the_mandean_app/widgets/verse_widget.dart';
 
@@ -16,8 +16,6 @@ class GinzaScreen extends StatefulWidget {
 
   @override
   State<GinzaScreen> createState() => _GinzaScreenState();
-
-
 }
 
 class _GinzaScreenState extends State<GinzaScreen> {
@@ -28,8 +26,7 @@ class _GinzaScreenState extends State<GinzaScreen> {
     Future.delayed(
       const Duration(milliseconds: 100),
           () async {
-        MainProvider mainProvider =
-        Provider.of<MainProvider>(context, listen: false);
+        MainProvider mainProvider = Provider.of<MainProvider>(context, listen: false);
 
         // Read the last index and scroll to it
         await ReadLastIndex.execute().then(
@@ -62,55 +59,54 @@ class _GinzaScreenState extends State<GinzaScreen> {
         Verse? currentVerse = mainProvider.currentVerse;
         bool isSelected = mainProvider.selectedVerses.isNotEmpty;
         return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle(
-            systemNavigationBarColor: Theme.of(context).colorScheme.surface,
-            systemNavigationBarIconBrightness:
-            Theme.of(context).brightness == Brightness.dark
-                ? Brightness.light
-                : Brightness.dark,
+          value: const SystemUiOverlayStyle(
+            systemNavigationBarColor: Colors.white, // Example color
+            systemNavigationBarIconBrightness: Brightness.dark,
           ),
           child: Scaffold(
             appBar: AppBar(
+              backgroundColor: Colors.white, // Example color
+              elevation: 0,
               title: currentVerse == null || isSelected
                   ? null
                   : GestureDetector(
                 onTap: () {
                   // Navigate to BooksPage on tap
-                  Get.to(
-                        () => BooksPage(
-                        chapterIdx: currentVerse.chapter,
-                        bookIdx: currentVerse.book),
-                    transition: Transition.leftToRight,
-                  );
+                  Get.to(() => BooksPage(
+                    chapterIdx: currentVerse.chapter,
+                    bookIdx: currentVerse.book,
+                  ),
+                      transition: Transition.leftToRight);
                 },
-                child: Text(currentVerse.book),
+                child: Text(
+                  currentVerse.book,
+                  style: const TextStyle(color: Colors.black), // Example color
+                ),
               ),
               actions: [
                 if (isSelected)
                   IconButton(
                     onPressed: () async {
                       // Copy selected verses to clipboard
-                      String string = formattedSelectedVerses(
-                          verses: mainProvider.selectedVerses);
+                      String string = formattedSelectedVerses(verses: mainProvider.selectedVerses);
                       await FlutterClipboard.copy(string).then(
                             (_) => mainProvider.clearSelectedVerses(),
                       );
                     },
                     icon: const Icon(
                       Icons.copy_rounded,
+                      color: Colors.black, // Example color
                     ),
                   ),
                 if (!isSelected)
                   IconButton(
                     onPressed: () async {
-                      /// Navigate to [SearchPage] on tap
-                      Get.to(
-                            () => SearchPage(verses: verses),
-                        transition: Transition.rightToLeft,
-                      );
+                      // Navigate to SearchPage on tap
+                      Get.to(() => SearchPage(verses: verses), transition: Transition.rightToLeft);
                     },
                     icon: const Icon(
                       Icons.search_rounded,
+                      color: Colors.black, // Example color
                     ),
                   ),
               ],

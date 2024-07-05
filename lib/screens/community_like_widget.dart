@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';
 
 class LikeWidget extends StatelessWidget {
-  LikeWidget({
-    Key? key,
+  const LikeWidget({
+    super.key,
     required this.postId,
     required this.likes,
     required this.isLiked,
     required this.likePressed
-  }) : super(key: key);
+  });
 
   final String postId;
   final int likes;

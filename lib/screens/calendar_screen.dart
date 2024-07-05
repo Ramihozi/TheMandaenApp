@@ -5,10 +5,10 @@ import 'package:the_mandean_app/calendar/meeting_data_source.dart';
 
 
 class PrayerScreen extends StatefulWidget {
-  const PrayerScreen({super.key});
+const PrayerScreen({super.key});
 
-  @override
-  State<PrayerScreen> createState() => _PrayerScreenState();
+@override
+State<PrayerScreen> createState() => _PrayerScreenState();
 }
 
 class _PrayerScreenState extends State<PrayerScreen> {
@@ -211,59 +211,73 @@ class _PrayerScreenState extends State<PrayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Mandaean Calendar'),
+      ),
       body: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              OutlinedButton(onPressed: (){
-                setState(() {
-                  calendarView = CalendarView.month;
-                  calendarController.view = calendarView;
-                });
-              }, child: Text("Month View")),
-              OutlinedButton(onPressed: (){
-                setState(() {
-                  calendarView = CalendarView.week;
-                  calendarController.view = calendarView;
-                });
-              }, child: Text("Week View")),
-              OutlinedButton(onPressed: (){
-                setState(() {
-                  calendarView = CalendarView.day;
-                  calendarController.view = calendarView;
-                });
-              }, child: Text("Day View")),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    calendarView = CalendarView.month;
+                    calendarController.view = calendarView;
+                  });
+                },
+                child: const Text("Month View"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    calendarView = CalendarView.week;
+                    calendarController.view = calendarView;
+                  });
+                },
+                child: const Text("Week View"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    calendarView = CalendarView.day;
+                    calendarController.view = calendarView;
+                  });
+                },
+                child: const Text("Day View"),
+              ),
             ],
           ),
           Expanded(
-          child: SfCalendar(
-            view: calendarView,
-            initialSelectedDate: DateTime.now(),
-            controller: calendarController,
-            cellBorderColor: Colors.transparent,
-            dataSource: MeetingDataSource(_getDataSource()),
-            selectionDecoration: BoxDecoration(
-              color: Colors.transparent,
-              border: Border.all(color: Colors.amber, width: 2),
-              borderRadius: const BorderRadius.all(Radius.circular(4)),
-              shape: BoxShape.rectangle
+            child: Container(
+              margin: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: SfCalendar(
+                view: calendarView,
+                initialSelectedDate: DateTime.now(),
+                controller: calendarController,
+                cellBorderColor: Colors.transparent,
+                dataSource: MeetingDataSource(_getDataSource()),
+                selectionDecoration: BoxDecoration(
+                  color: Colors.transparent,
+                  border: Border.all(color: Colors.amber, width: 2),
+                  borderRadius: const BorderRadius.all(Radius.circular(4)),
+                  shape: BoxShape.rectangle,
+                ),
+                monthViewSettings: const MonthViewSettings(
+                  appointmentDisplayMode: MonthAppointmentDisplayMode.indicator,
+                  showAgenda: true,
+                ),
+                todayHighlightColor: Colors.amber,
+                showNavigationArrow: true,
+              ),
             ),
-            monthViewSettings: const MonthViewSettings(
-                appointmentDisplayMode: MonthAppointmentDisplayMode.indicator,
-                showAgenda: true,
-            ),
-            todayHighlightColor: Colors.amber,
-            showNavigationArrow: true,
-          ),
           ),
         ],
       ),
     );
-
   }
-
-
-
 }
-

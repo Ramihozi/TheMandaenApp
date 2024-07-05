@@ -9,7 +9,7 @@ import 'package:the_mandean_app/screens/register_controller.dart';
 
 
 class RegisterScreen extends StatelessWidget {
-  RegisterScreen({Key? key}) : super(key: key);
+  RegisterScreen({super.key});
 
   final _registrationController = Get.put(RegisterController());
 

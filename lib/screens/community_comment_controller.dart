@@ -33,9 +33,9 @@ class CommentController extends GetxController{
           .map((QuerySnapshot querySnapshot) {
 
         List<Comment> list = [];
-        querySnapshot.docs.forEach((element) {
+        for (var element in querySnapshot.docs) {
           list.add(Comment.fromDocumentSnapshot(element));
-        });
+        }
         return list;
       }),
     );

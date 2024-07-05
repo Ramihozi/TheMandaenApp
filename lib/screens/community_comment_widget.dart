@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';
 
 class CommentWidget extends StatelessWidget {
-  CommentWidget({
-    Key? key,
+  const CommentWidget({
+    super.key,
     required this.comments,
     required this.onPressed
-  }) : super(key: key);
+  });
 
   final int comments;
   final VoidCallback onPressed;

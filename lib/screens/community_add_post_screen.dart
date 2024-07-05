@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -8,11 +7,9 @@ import 'package:get/instance_manager.dart';
 import 'package:the_mandean_app/screens/community_add_post_controller.dart';
 import 'package:the_mandean_app/screens/community_profile_controller.dart';
 
-
 class AddPostScreen extends StatelessWidget {
-  AddPostScreen({Key? key}) : super(key: key);
+  AddPostScreen({super.key});
 
-  // here i'm using the same controller for getting only current user image and name
   final _profileController = Get.put(ProfileController());
   final _postController = Get.put(AddPostController());
 
@@ -67,6 +64,7 @@ class AddPostScreen extends StatelessWidget {
                   maxLines: 1,
                   decoration: const InputDecoration(
                     hintText: "Write here...",
+                    hintStyle: TextStyle(color: Colors.amber), // Set hint text color to white
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(width: 1),
                     ),
@@ -79,7 +77,7 @@ class AddPostScreen extends StatelessWidget {
                   height: 14,
                 ),
                 GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     _postController.getImage();
                   },
                   child: Container(
@@ -87,6 +85,7 @@ class AddPostScreen extends StatelessWidget {
                     height: 300,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1),
+                      color: Colors.white, // Light shade of black
                     ),
                     child: Obx(() {
                       return _postController.selectedImagePath.value == ''
@@ -104,19 +103,32 @@ class AddPostScreen extends StatelessWidget {
                 const SizedBox(
                   height: 14,
                 ),
-                Obx((){
+                Obx(() {
                   return SizedBox(
                     width: double.infinity,
                     height: 45,
                     child: ElevatedButton(
                       onPressed: () {
-                        _postController.addPost(userName: _profileController.name.value,
-                            userUrl: _profileController.url.value);
+                        _postController.addPost(
+                          userName: _profileController.name.value,
+                          userUrl: _profileController.url.value,
+                        );
                       },
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all<Color>(
+                          Colors.white, // Light shade of black
+                        ),
+                      ),
                       child: _postController.isLoading.value
-                          ? const CircularProgressIndicator(color: Colors.white,)
-                          : Text('Post',
-                        style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.white),
+                          ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                          : Text(
+                        'Post',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall!
+                            .copyWith(color: Colors.amber),
                       ),
                     ),
                   );

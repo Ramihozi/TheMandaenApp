@@ -10,7 +10,7 @@ import 'package:the_mandean_app/screens/community_story_widget.dart';
 
 
 class HomeScreen extends StatelessWidget {
-  HomeScreen({Key? key}) : super(key: key);
+  HomeScreen({super.key});
 
   final _homeController = Get.put(HomeController());
   final _profileController = Get.put(ProfileController());
@@ -18,7 +18,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -32,7 +32,7 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           children: [
             SizedBox(
-              height: _size.height * 0.13,
+              height: size.height * 0.13,
               child: Row(
                 children: [
                   CreateStory(

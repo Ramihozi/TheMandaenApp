@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 class StoryWidget extends StatelessWidget {
-  StoryWidget({Key? key, required this.image, required this.name, required this.onTap})
-      : super(key: key);
+  const StoryWidget({super.key, required this.image, required this.name, required this.onTap});
   final String name;
   final String image;
   final VoidCallback onTap;

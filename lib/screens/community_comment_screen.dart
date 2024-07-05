@@ -5,7 +5,7 @@ import 'package:the_mandean_app/constants/constants.dart';
 import 'package:the_mandean_app/screens/community_comment_controller.dart';
 
 class CommentsScreen extends StatelessWidget {
-  CommentsScreen({Key? key}) : super(key: key);
+  CommentsScreen({super.key});
 
   final _commentController = Get.put(CommentController());
   final _arguments = Get.arguments;

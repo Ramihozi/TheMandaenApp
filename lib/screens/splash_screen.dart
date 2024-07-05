@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:the_mandean_app/screens/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});  // Added super.key
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -16,7 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(
       const Duration(seconds: 3),
           () {
-        if (mounted) {  // Ensure context is still valid
+        if (mounted) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const OnBoardingScreen()),
@@ -28,24 +28,25 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Stack(
-          children: [
-            const Center(
-              child: Text(
-                'Mandean App',
-                style: TextStyle(color: Colors.black, fontSize: 30),
-              ),
+    return Scaffold(
+      body: Stack(
+        children: [
+          const Center(
+            child: Text(
+              'Mandean App',
+              style: TextStyle(color: Colors.black, fontSize: 30),
             ),
-            Positioned(
-              bottom: -30,
-              left: 0,
-              right: 0,
-              child: Image.asset('assets/images/mandean.png'),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Image.asset(
+              'assets/images/mandean.png',
+              fit: BoxFit.cover, // Adjust the fit as needed
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
