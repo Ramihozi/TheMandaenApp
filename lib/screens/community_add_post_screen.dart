@@ -64,7 +64,7 @@ class AddPostScreen extends StatelessWidget {
                   maxLines: 1,
                   decoration: const InputDecoration(
                     hintText: "Write here...",
-                    hintStyle: TextStyle(color: Colors.amber), // Set hint text color to white
+                    hintStyle: TextStyle(color: Colors.grey), // Set hint text color to white
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(width: 1),
                     ),
@@ -128,7 +128,7 @@ class AddPostScreen extends StatelessWidget {
                         style: Theme.of(context)
                             .textTheme
                             .titleSmall!
-                            .copyWith(color: Colors.amber),
+                            .copyWith(color: Colors.black),
                       ),
                     ),
                   );

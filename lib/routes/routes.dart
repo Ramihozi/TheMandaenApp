@@ -11,11 +11,11 @@ import 'package:get/get_navigation/src/routes/get_route.dart';
 
 List<GetPage<dynamic>> getPages() {
   return [
-    GetPage(name: "/", page: ()=>  OnBoardingScreen()),
+    GetPage(name: "/", page: ()=>  const OnBoardingScreen()),
     GetPage(name: "/login_screen", page: ()=>  LoginScreen()),
     GetPage(name: "/register_screen", page: ()=>  RegisterScreen()),
-    GetPage(name: "/main_screen", page: ()=>  MainScreen()),
+    GetPage(name: "/main_screen", page: ()=>  const MainScreen()),
     GetPage(name: "/comments_screen", page: ()=>  CommentsScreen()),
-    GetPage(name: "/story_view_screen", page: ()=>  StoryViewFullScreen()),
+    GetPage(name: "/story_view_screen", page: ()=>  const StoryViewFullScreen()),
   ];
 }

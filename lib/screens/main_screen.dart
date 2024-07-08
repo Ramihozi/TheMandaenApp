@@ -1,50 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+import 'package:flutter/cupertino.dart'; // Import for CupertinoTabBar
 import 'package:the_mandean_app/screens/community_main_screen.dart';
 import 'package:the_mandean_app/screens/ginza_screen.dart';
 import 'package:the_mandean_app/screens/home_screen.dart';
 import 'package:the_mandean_app/screens/calendar_screen.dart';
 
-
-
-
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  const MainScreen({Key? key}) : super(key: key);
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
 
-  int selectindex = 0;
-  final List<Widget> _widgetsList = [const HomeScreen(),const GinzaScreen(),CommunityMainScreen(),const PrayerScreen()];
+  static final List<Widget> _widgetOptions = <Widget>[
+    const HomeScreen(),
+    const GinzaScreen(),
+    CommunityMainScreen(),
+    const PrayerScreen(),
+  ];
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
-          body: _widgetsList[selectindex],
-        bottomNavigationBar: ConvexAppBar(
-            items:  [
-              TabItem(icon: Image.asset('assets/images/home.png',color: Colors.white,), title: 'Home'),
-              TabItem(icon: Image.asset('assets/images/holyQuran.png',color: Colors.white), title: 'Ginza'),
-              TabItem(icon: Image.asset('assets/images/community.png',color: Colors.white), title: 'Community'),
-              TabItem(icon: Image.asset('assets/images/calendar.png',color: Colors.white), title: 'Calendar'),
-            ],
-                    initialActiveIndex: 0,
-                    onTap: updateIndex,
-                  backgroundColor: Colors.black,
-                  activeColor: Colors.black,
-              )
-            )
-        );
-  }
-
-  void updateIndex(index) {
-    setState(() {
-      selectindex = index;
-    });
+    return Scaffold(
+      body: _widgetOptions.elementAt(_selectedIndex),
+      bottomNavigationBar: CupertinoTabBar( // Replace BottomNavigationBar with CupertinoTabBar
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.book),
+            label: 'Ginza',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Community',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today),
+            label: 'Calendar',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        activeColor: Colors.amber, // Active tab color
+        inactiveColor: Colors.grey, // Inactive tab color
+        backgroundColor: Colors.white, // Background color
+      ),
+    );
   }
 }

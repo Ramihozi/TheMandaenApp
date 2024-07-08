@@ -92,7 +92,7 @@ class PostItem extends StatelessWidget {
                     onPressed: null,
                     icon: Icon(
                       UniconsLine.telegram_alt,
-                      color: Colors.amber,
+                      color: Colors.black,
                     ))
               ],
             )

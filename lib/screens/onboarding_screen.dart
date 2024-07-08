@@ -59,11 +59,11 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   void _handleDone() {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      Timer(const Duration(seconds: 3), () {
+      Timer(const Duration(milliseconds: 350), () {
         Get.offNamed('/main_screen');
       });
     } else {
-      Timer(const Duration(seconds: 3), () {
+      Timer(const Duration(milliseconds: 350), () {
         Get.offNamed('/login_screen');
       });
     }

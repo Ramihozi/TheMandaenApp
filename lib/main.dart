@@ -36,15 +36,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Mandean App',
-      theme: ThemeData(
-        primarySwatch: Constants.kSwatchColor,
-        primaryColor: Constants.kPrimary,
-        scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'Poppins',
-      ),
-      home: const SplashScreen(),
+        debugShowCheckedModeBanner: false,
+        title: 'Mandean App',
+        theme: ThemeData(
+          primarySwatch: Constants.kSwatchColor,
+          primaryColor: Constants.kPrimary,
+          scaffoldBackgroundColor: Colors.white,
+          fontFamily: 'Poppins',
+        ),
+        home: const SplashScreen(),
         getPages: getPages()// Assuming SplashScreen leads to MainApp after some logic
     );
   }
@@ -126,5 +126,3 @@ class _MainAppState extends State<MainApp> {
     );
   }
 }
-
-

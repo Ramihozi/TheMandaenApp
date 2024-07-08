@@ -1,21 +1,32 @@
+
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:the_mandean_app/calendar/meeting.dart';
 import 'package:the_mandean_app/calendar/meeting_data_source.dart';
 
-
 class PrayerScreen extends StatefulWidget {
-const PrayerScreen({super.key});
+  const PrayerScreen({Key? key}) : super(key: key);
 
-@override
-State<PrayerScreen> createState() => _PrayerScreenState();
+  @override
+  State<PrayerScreen> createState() => _PrayerScreenState();
 }
 
 class _PrayerScreenState extends State<PrayerScreen> {
+  late CalendarView _calendarView;
+  late CalendarController _calendarController;
+
+  @override
+  void initState() {
+    super.initState();
+    _calendarView = CalendarView.month;
+    _calendarController = CalendarController();
+  }
 
   List<Meeting> _getDataSource() {
     final List<Meeting> meetings = <Meeting>[];
-    final DateTime startTime = DateTime(2024, 1, 5, 0, 0, 0);
+
+
+      final DateTime startTime = DateTime(2024, 1, 5, 0, 0, 0);
     final DateTime startTime2 = DateTime(2024, 1, 13, 0, 0, 0);
     final DateTime startTime3 = DateTime(2024, 1, 18, 0, 0, 0);
     final DateTime startTime4 = DateTime(2024, 2, 12, 0, 0, 0);
@@ -198,56 +209,35 @@ class _PrayerScreenState extends State<PrayerScreen> {
     meetings.add(Meeting('Light Day Fasting', startTime54, endTime54, Colors.amber, false));
     meetings.add(Meeting('Al-Ganzura Sheikh Jabbar Tawoos', startTime54, endTime54, Colors.black, false));
 
-
-
-
-
     return meetings;
   }
-
-  CalendarView calendarView = CalendarView.month;
-  CalendarController calendarController = CalendarController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mandaean Calendar'),
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Mandaean Calendar',
+          style: TextStyle(color: Colors.black),
+        ),
+        elevation: 0, // Remove app bar shadow
       ),
       body: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    calendarView = CalendarView.month;
-                    calendarController.view = calendarView;
-                  });
-                },
-                child: const Text("Month View"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    calendarView = CalendarView.week;
-                    calendarController.view = calendarView;
-                  });
-                },
-                child: const Text("Week View"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    calendarView = CalendarView.day;
-                    calendarController.view = calendarView;
-                  });
-                },
-                child: const Text("Day View"),
-              ),
-            ],
+          // Calendar view buttons
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildCalendarButton("Month", CalendarView.month),
+                _buildCalendarButton("Week", CalendarView.week),
+                _buildCalendarButton("Day", CalendarView.day),
+              ],
+            ),
           ),
+          // Calendar widget
           Expanded(
             child: Container(
               margin: const EdgeInsets.all(10),
@@ -256,28 +246,50 @@ class _PrayerScreenState extends State<PrayerScreen> {
                 border: Border.all(color: Colors.grey.shade300),
               ),
               child: SfCalendar(
-                view: calendarView,
+                view: _calendarView,
                 initialSelectedDate: DateTime.now(),
-                controller: calendarController,
+                controller: _calendarController,
                 cellBorderColor: Colors.transparent,
                 dataSource: MeetingDataSource(_getDataSource()),
                 selectionDecoration: BoxDecoration(
                   color: Colors.transparent,
-                  border: Border.all(color: Colors.amber, width: 2),
+                  border: Border.all(color: Colors.black, width: 2),
                   borderRadius: const BorderRadius.all(Radius.circular(4)),
-                  shape: BoxShape.rectangle,
                 ),
                 monthViewSettings: const MonthViewSettings(
                   appointmentDisplayMode: MonthAppointmentDisplayMode.indicator,
                   showAgenda: true,
+                  monthCellStyle: MonthCellStyle(
+                    backgroundColor: Colors.white,
+                    textStyle: TextStyle(color: Colors.black),
+                  ),
                 ),
-                todayHighlightColor: Colors.amber,
+                todayHighlightColor: Colors.black,
                 showNavigationArrow: true,
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCalendarButton(String text, CalendarView view) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          _calendarView = view;
+          _calendarController.view = _calendarView;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        foregroundColor: _calendarView == view ? Colors.white : Colors.black, backgroundColor: _calendarView == view ? Colors.blue : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: Colors.blue),
+        ),
+      ),
+      child: Text(text),
     );
   }
 }

@@ -10,7 +10,8 @@ import 'package:expandable/expandable.dart';
 class BooksPage extends StatefulWidget {
   final int chapterIdx;
   final String bookIdx;
-  const BooksPage({super.key, required this.chapterIdx, required this.bookIdx});
+
+  const BooksPage({Key? key, required this.chapterIdx, required this.bookIdx}) : super(key: key);
 
   @override
   State<BooksPage> createState() => _BooksPageState();
@@ -20,41 +21,36 @@ class _BooksPageState extends State<BooksPage> {
   // AutoScrollController for automatic scrolling to the selected book
   final AutoScrollController _autoScrollController = AutoScrollController();
 
-  // List of books and the current selected book
-  List<Book> books = [];
-  Book? currentBook;
-
   @override
   void initState() {
-    // Accessing the MainProvider to get books and current selected book
-    MainProvider mainProvider =
-    Provider.of<MainProvider>(context, listen: false);
-    books = mainProvider.books;
-    currentBook = mainProvider.books.firstWhere(
-            (element) => element.title == mainProvider.currentVerse!.book);
-
-    // Finding the index of the current book and scrolling to it
-    int index = mainProvider.books.indexOf(currentBook!);
-    _autoScrollController.scrollToIndex(
-      index,
-      preferPosition: AutoScrollPosition.begin,
-      duration: Duration(milliseconds: (10 * books.length)),
-    );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MainProvider>(
-      builder: (context, mainProvider, child) {
-        return ExpandableNotifier(
-          child: Scaffold(
-            appBar: AppBar(
-              title: const Text("Books"),
-            ),
-            body: ListView.builder(
+    MainProvider mainProvider = Provider.of<MainProvider>(context, listen: false);
+    List<Book> books = mainProvider.books;
+    Book? currentBook = mainProvider.books.firstWhere((element) => element.title == mainProvider.currentVerse!.book, orElse: () => books.first);
+
+    // Finding the index of the current book and scrolling to it
+    int index = books.indexOf(currentBook);
+    _autoScrollController.scrollToIndex(
+      index,
+      preferPosition: AutoScrollPosition.begin,
+      duration: Duration(milliseconds: (10 * books.length)),
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Books"),
+        backgroundColor: Colors.white, // Set background color of the app bar to white
+      ),
+      body: Consumer<MainProvider>(
+        builder: (context, mainProvider, child) {
+          return ExpandableNotifier(
+            child: ListView.builder(
               itemCount: books.length,
-              physics: const BouncingScrollPhysics(),
+              physics: BouncingScrollPhysics(),
               controller: _autoScrollController,
               itemBuilder: (context, index) {
                 Book book = books[index];
@@ -63,12 +59,15 @@ class _BooksPageState extends State<BooksPage> {
                   controller: _autoScrollController,
                   index: index,
                   child: ListTile(
-                    // ExpandablePanel to show chapters when the book is tapped
                     title: ExpandablePanel(
                       controller: ExpandableController(
-                          initialExpanded: currentBook == book),
-                      collapsed: const SizedBox.shrink(),
-                      header: Text(book.title),
+                        initialExpanded: currentBook == book,
+                      ),
+                      collapsed: SizedBox.shrink(),
+                      header: Container(
+                        color: Colors.white, // Set background color of the header to white
+                        child: Text(book.title),
+                      ),
                       expanded: Wrap(
                         children: List.generate(
                           book.chapters.length,
@@ -79,31 +78,30 @@ class _BooksPageState extends State<BooksPage> {
                               width: 45,
                               child: GestureDetector(
                                 onTap: () {
-                                  // Scroll to the selected chapter and close the page
                                   int idx = mainProvider.verses.indexWhere(
+                                        (element) =>
+                                    element.chapter == chapter.title &&
+                                        element.book == book.title,
+                                  );
+                                  mainProvider.updateCurrentVerse(
+                                    verse: mainProvider.verses.firstWhere(
                                           (element) =>
                                       element.chapter == chapter.title &&
-                                          element.book == book.title);
-                                  mainProvider.updateCurrentVerse(
-                                      verse: mainProvider.verses.firstWhere(
-                                              (element) =>
-                                          element.chapter ==
-                                              chapter.title &&
-                                              element.book == book.title));
+                                          element.book == book.title,
+                                    ),
+                                  );
                                   mainProvider.scrollToIndex(index: idx);
                                   Get.back();
                                 },
                                 child: Card(
-                                  // Styling based on the selected chapter
                                   color: chapter.title == widget.chapterIdx &&
                                       widget.bookIdx == book.title
-                                      ? Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer
-                                      : null,
+                                      ? Colors.white // Set background color to white when condition is true
+                                      : Colors.white,
                                   elevation: 1,
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(7.5)),
+                                    borderRadius: BorderRadius.circular(7.5),
+                                  ),
                                   child: Center(
                                     child: Text(
                                       chapter.title.toString(),
@@ -121,9 +119,9 @@ class _BooksPageState extends State<BooksPage> {
                 );
               },
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

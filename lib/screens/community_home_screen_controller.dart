@@ -27,9 +27,9 @@ class HomeController extends GetxController{
         .map((QuerySnapshot querySnapshot){
 
       List<Post> list = [];
-      querySnapshot.docs.forEach((element) {
+      for (var element in querySnapshot.docs) {
         list.add(Post.fromDocumentSnapshot(element));
-      });
+      }
       return list;
     });
   }
