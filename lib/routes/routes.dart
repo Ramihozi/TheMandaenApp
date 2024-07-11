@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:the_mandean_app/screens/community_comment_screen.dart';
 import 'package:the_mandean_app/screens/community_story_view_full_screen.dart';
 import 'package:the_mandean_app/screens/login_screen.dart';

@@ -283,10 +283,10 @@ class _PrayerScreenState extends State<PrayerScreen> {
         });
       },
       style: ElevatedButton.styleFrom(
-        foregroundColor: _calendarView == view ? Colors.white : Colors.black, backgroundColor: _calendarView == view ? Colors.blue : Colors.white,
+        foregroundColor: _calendarView == view ? Colors.amber : Colors.black, backgroundColor: _calendarView == view ? Colors.white : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Colors.blue),
+          side: const BorderSide(color: Colors.black),
         ),
       ),
       child: Text(text),

@@ -24,7 +24,7 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         centerTitle: true,
         title: const Text(
-          'Mandaean Social',
+          '',
           style: TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
@@ -32,7 +32,7 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           children: [
             SizedBox(
-              height: size.height * 0.13,
+              height: size.height * 0.12,
               child: Row(
                 children: [
                   CreateStory(

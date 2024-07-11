@@ -1,46 +1,91 @@
 import 'package:flutter/material.dart';
-import 'package:the_mandean_app/constants/constants.dart';
 import 'package:get/get.dart';
 import 'package:the_mandean_app/screens/community_main_screen_controller.dart';
 
-
 class CommunityMainScreen extends StatelessWidget {
-  CommunityMainScreen({super.key});
+  final Color drawerBackgroundColor;
+  final Color drawerHeaderColor;
 
-  final _controller = Get.put(MainScreenController(),permanent: true);
+  CommunityMainScreen({
+    super.key,
+    this.drawerBackgroundColor = Colors.white, // Default background color for Drawer
+    this.drawerHeaderColor = Colors.white, // Default background color for DrawerHeader
+  });
+
+  final MainScreenController _controller = Get.put(MainScreenController(), permanent: true);
+
   @override
   Widget build(BuildContext context) {
-    return Obx((){
+    return Obx(() {
       return Scaffold(
-        body: _controller.widgetOptions.elementAt(_controller.selectedIndex.value),
-        bottomNavigationBar: BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.add),
-                label: 'Post',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.chat),
-                label: 'Chat',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile',
-              ),
-            ],
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: lightPrimaryColor.withOpacity(0.3),
-            currentIndex: _controller.selectedIndex.value,
-            selectedItemColor: Colors.white,
-            unselectedItemColor: Colors.black,
-            iconSize: 40,
-            onTap: _controller.onItemTapped,
-            elevation: 5
+        appBar: AppBar(
+          title: const Text('Social Network'),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
+          ),
         ),
+        drawer: Drawer(
+          child: Container(
+            color: drawerBackgroundColor,
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: drawerHeaderColor,
+                  ),
+                  child: const Text(
+                    'Menu Bar',
+                    style: TextStyle(
+                      color: Colors.amber,
+                      fontSize: 24,
+                    ),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.home),
+                  title: const Text('Home'),
+                  onTap: () {
+                    _controller.onItemTapped(0); // Navigate to HomeScreen
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.add),
+                  title: const Text('Post'),
+                  onTap: () {
+                    _controller.onItemTapped(1); // Navigate to AddPostScreen
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.chat),
+                  title: const Text('Chat'),
+                  onTap: () {
+                    _controller.onItemTapped(2); // Navigate to ChatScreen
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.person),
+                  title: const Text('Profile'),
+                  onTap: () {
+                    _controller.onItemTapped(3); // Navigate to ProfileScreen
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        body: _controller.widgetOptions[_controller.selectedIndex.value],
       );
     });
   }

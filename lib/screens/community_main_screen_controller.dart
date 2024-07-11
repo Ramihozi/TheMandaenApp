@@ -12,7 +12,7 @@ class MainScreenController extends GetxController{
   final widgetOptions =  [
     HomeScreen(),
     AddPostScreen(),
-    const ChatScreen(),
+    CommunityChatScreen(),
     ProfileScreen()
   ];
 
