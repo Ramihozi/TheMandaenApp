@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'Community_dm_message.dart'; // Adjust import based on your actual message model location
+import 'community_chat_service.dart'; // Import ChatService
 
 class ChatScreen extends StatefulWidget {
   final String friendId;
@@ -14,9 +15,9 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _controller = TextEditingController();
+  final ChatService _chatService = ChatService(); // Instantiate ChatService
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +29,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: <Widget>[
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: _firestore
-                  .collection('messages')
-                  .doc(_getChatRoomId())
-                  .collection('chats')
-                  .orderBy('timestamp', descending: true)
-                  .snapshots(),
+              stream: _chatService.getChatMessagesStream(widget.friendId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -53,10 +49,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     Message message = messages[index];
                     bool isMe = message.senderId == _auth.currentUser!.uid;
                     return FutureBuilder<DocumentSnapshot>(
-                      future: _firestore.collection('user').doc(message.senderId).get(),
+                      future: FirebaseFirestore.instance.collection('user').doc(message.senderId).get(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
+                          return SizedBox(); // Return an empty widget while waiting
                         }
                         if (snapshot.hasError || !snapshot.hasData || !snapshot.data!.exists) {
                           return _buildMessage(message, isMe, null);
@@ -90,19 +86,18 @@ class _ChatScreenState extends State<ChatScreen> {
                   : const AssetImage('assets/images/account.png') as ImageProvider<Object>?,
             ),
           const SizedBox(width: 8.0),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: isMe ? Colors.blue : Colors.grey[300],
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-              child: Text(
-                message.text,
-                style: TextStyle(
-                  color: isMe ? Colors.white : Colors.black,
-                  fontSize: 16.0,
-                ),
+          Container(
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+            decoration: BoxDecoration(
+              color: isMe ? Colors.blue : Colors.grey[300],
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+            child: Text(
+              message.text,
+              style: TextStyle(
+                color: isMe ? Colors.white : Colors.black,
+                fontSize: 16.0,
               ),
             ),
           ),
@@ -133,7 +128,7 @@ class _ChatScreenState extends State<ChatScreen> {
             icon: const Icon(Icons.send),
             onPressed: () {
               if (_controller.text.isNotEmpty) {
-                sendMessage(_controller.text);
+                _sendMessage(_controller.text);
               }
             },
           ),
@@ -142,40 +137,12 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void sendMessage(String text) async {
+  void _sendMessage(String text) async {
     try {
-      String userId = _auth.currentUser!.uid;
-
-      // Fetch sender's name from Firestore based on userId
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('user')
-          .doc(userId)
-          .get();
-
-      String userName = userDoc.exists ? userDoc.get('name') ?? 'Unknown' : 'Unknown';
-
-      Message message = Message(
-        senderId: userId,
-        senderName: userName,
-        text: text,
-        timestamp: Timestamp.now(),
-      );
-
-      await FirebaseFirestore.instance
-          .collection('messages')
-          .doc(_getChatRoomId())
-          .collection('chats')
-          .add(message.toMap());
-
+      await _chatService.sendMessage(widget.friendId, text);
       _controller.clear();
     } catch (e) {
       print('Error sending message: $e');
     }
-  }
-
-  String _getChatRoomId() {
-    List<String> ids = [_auth.currentUser!.uid, widget.friendId];
-    ids.sort();
-    return ids.join('_');
   }
 }

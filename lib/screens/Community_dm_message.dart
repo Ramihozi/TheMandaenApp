@@ -13,23 +13,21 @@ class Message {
     required this.timestamp,
   });
 
-  // Convert a Message object into a Map for Firestore
+  factory Message.fromMap(Map<String, dynamic> map) {
+    return Message(
+      senderId: map['senderId'] ?? '',
+      senderName: map['senderName'] ?? 'Unknown',
+      text: map['message'] ?? '',
+      timestamp: map['timestamp'] ?? Timestamp.now(),
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'senderId': senderId,
-      'senderName': senderName,
+      'message': senderName,
       'text': text,
       'timestamp': timestamp,
     };
-  }
-
-  // Create a Message object from a Map retrieved from Firestore
-  static Message fromMap(Map<String, dynamic> map) {
-    return Message(
-      senderId: map['senderId'],
-      senderName: map['senderName'],
-      text: map['text'],
-      timestamp: map['timestamp'],
-    );
   }
 }
