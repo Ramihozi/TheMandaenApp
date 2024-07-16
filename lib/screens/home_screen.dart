@@ -233,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                                     Text(
                                       (informationalItems[index]['paragraphs'] as List<String>).first,
                                       style: const TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 18,
                                         color: Colors.white,
                                       ),
                                       maxLines: 2,
