@@ -5,7 +5,7 @@ class CommentWidget extends StatelessWidget {
   const CommentWidget({
     super.key,
     required this.comments,
-    required this.onPressed
+    required this.onPressed, required Row child
   });
 
   final int comments;

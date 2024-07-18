@@ -8,8 +8,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:developer' as log;
 
-class AddPostController extends GetxController{
-
+class AddPostController extends GetxController {
   RxBool isImgAvailable = false.obs;
   final _picker = ImagePicker();
   RxString selectedImagePath = ''.obs;
@@ -17,8 +16,8 @@ class AddPostController extends GetxController{
   RxBool isLoading = false.obs;
 
   late TextEditingController postTxtController;
-  CollectionReference userDatBaseReference = FirebaseFirestore.instance.collection("post");
-
+  CollectionReference userDatBaseReference =
+  FirebaseFirestore.instance.collection("post");
 
   @override
   void onInit() {
@@ -38,8 +37,8 @@ class AddPostController extends GetxController{
     if (pickedFile != null) {
       selectedImagePath.value = pickedFile.path;
 
-      selectedImageSize.value = "${((File(selectedImagePath.value)).
-      lengthSync() / 1024 / 1024).toStringAsFixed(2)} Mb";
+      selectedImageSize.value =
+      "${((File(selectedImagePath.value)).lengthSync() / 1024 / 1024).toStringAsFixed(2)} Mb";
 
       isImgAvailable.value = true;
     } else {
@@ -47,77 +46,92 @@ class AddPostController extends GetxController{
     }
   }
 
-  Future<String?> uploadImage() async{
+  Future<String?> uploadImage() async {
     File file = File(selectedImagePath.value);
     FirebaseStorage storage = FirebaseStorage.instance;
 
-    const chars ='AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-    Random rnd = Random();
-    String randomStr = String.fromCharCodes(Iterable.generate(
-        8, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+    // Generate a random string for image name
+    String randomStr = getRandomString(8);
 
-    // first we upload image
-    // then we will get download url that we will save in database
     try {
-      await storage
-          .ref('uploads/post/$randomStr')
-          .putFile(file);
-    } on FirebaseException catch (e) {
-      // e.g, e.code == 'canceled'
-      log.log(e.code.toString());
+      // Upload image to Firebase Storage
+      await storage.ref('uploads/post/$randomStr').putFile(file);
+      // Get download URL for the uploaded image
+      String downloadURL =
+      await storage.ref('uploads/post/$randomStr').getDownloadURL();
+      return downloadURL;
+    } catch (e) {
+      log.log('Error uploading image: $e');
+      return null;
     }
-
-    String downloadURL = await storage
-        .ref('uploads/post/$randomStr')
-        .getDownloadURL();
-
-    return downloadURL;
   }
 
-  Future<void> addPost({required String userName, required String userUrl}) async{
+  String getRandomString(int length) {
+    const chars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    Random rnd = Random();
+    return String.fromCharCodes(
+        Iterable.generate(length, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+  }
 
-    if(isImgAvailable.value && postTxtController.text.isNotEmpty){
-
+  Future<void> addPost({required String userName, required String userUrl}) async {
+    if (isImgAvailable.value && postTxtController.text.isNotEmpty) {
       isLoading.value = true;
-      uploadImage().then((url){
 
-        if(url != null){
+      // Upload image and get download URL
+      String? imageUrl = await uploadImage();
 
-          saveDataToDb(url: url, userName: userName, userUrl: userUrl).then((value){
-            isLoading.value = false;
+      if (imageUrl != null) {
+        // Save post data to Firestore
+        await saveDataToDb(
+          url: imageUrl,
+          userName: userName,
+          userUrl: userUrl,
+        );
 
-            postTxtController.text = '';
-            selectedImagePath.value = '';
-          });
+        isLoading.value = false;
 
-        }else{
-          isLoading.value = false;
-        }
-      });
-
-    }else{
-      Get.snackbar("Warning", "Please enter details",
-          snackPosition: SnackPosition.BOTTOM, margin: const EdgeInsets.all(20),
-          backgroundColor: Colors.red,colorText: Colors.white);
+        // Clear text field and selected image path after posting
+        postTxtController.text = '';
+        selectedImagePath.value = '';
+      } else {
+        isLoading.value = false;
+        Get.snackbar(
+          "Error",
+          "Failed to upload image",
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(20),
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } else {
+      Get.snackbar(
+        "Warning",
+        "Please enter details and select an image",
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(20),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
-  Future<void> saveDataToDb ({
+  Future<void> saveDataToDb({
     required String url,
     required String userName,
-    required String userUrl }) async {
+    required String userUrl,
+  }) async {
     User? user = FirebaseAuth.instance.currentUser;
     await userDatBaseReference.add({
-      'postTitle': postTxtController.text, // add this line in your code
+      'postTitle': postTxtController.text,
       'userUid': user!.uid,
       'userName': userName,
       'userUrl': userUrl,
       'postUrl': url,
       'time': DateTime.now().millisecondsSinceEpoch,
-      'likes' : [],
-      'commentsCount' : 0
+      'likes': [],
+      'commentsCount': 0,
     });
-    return;
   }
-
 }

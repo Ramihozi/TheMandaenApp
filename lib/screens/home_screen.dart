@@ -62,6 +62,36 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     },
   ];
 
+  List<Map<String, String>> resourceItems = [
+    {
+      'title': 'Wikipedia',
+      'link': 'https://en.wikipedia.org/wiki/Mandaeans',
+      'description': 'Official Mandaean Wikipedia',
+    },
+    {
+      'title': 'Podcast',
+      'link': 'https://www.youtube.com/@WeTheMandaeans',
+      'description': 'Official Podcast For Mandaeans',
+    },
+    {
+      'title': 'Nasorean Instagram',
+      'link': 'https://www.instagram.com/nasoraean/',
+      'description': 'Informational Instagram For Mandaeans',
+    },
+    {
+      'title': 'I-Am-Mandaean instagram',
+      'link': 'https://www.instagram.com/nasoraean/',
+      'description': 'Further Information About Mandaeans',
+    },
+    {
+      'title': 'The Mandaean Association',
+      'link': 'https://www.facebook.com/SabianMandaeanAssociation',
+      'description': 'Official Mandaean Facebook ',
+    }
+
+    // Add more resources as needed
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -72,12 +102,14 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     String data = await rootBundle.loadString('assets/ginzas/al-saadiENG.json');
     List verses = json.decode(data);
     final random = Random();
+    int randomIndex = random.nextInt(verses.length);
+
     setState(() {
       dailyVerse = {
-        'book': verses[random.nextInt(verses.length)]['book'],
-        'chapter': verses[random.nextInt(verses.length)]['chapter'],
-        'verse': verses[random.nextInt(verses.length)]['verse'],
-        'text': verses[random.nextInt(verses.length)]['text'],
+        'book': verses[randomIndex]['book'],
+        'chapter': verses[randomIndex]['chapter'],
+        'verse': verses[randomIndex]['verse'],
+        'text': verses[randomIndex]['text'],
       };
     });
   }
@@ -98,9 +130,9 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Religious App'),
+          title: const Text('GinzApp'),
           backgroundColor: Colors.white,
-          iconTheme: IconThemeData(color: Colors.black), // Change the color of the icons
+          iconTheme: IconThemeData(color: Colors.black),
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh, color: Colors.black),
@@ -124,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
               const SizedBox(height: 20),
               if (dailyVerse != null)
                 Card(
-                  color: Colors.white, // Set the background color of the card to white
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
@@ -157,7 +189,8 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                             icon: const Icon(Icons.copy),
                             label: const Text('Copy Quote'),
                             style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.black, backgroundColor: Colors.white, // Change text/icon color if needed
+                              foregroundColor: Colors.black,
+                              backgroundColor: Colors.white,
                             ),
                           ),
                         ),
@@ -177,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
               ),
               const SizedBox(height: 10),
               SizedBox(
-                height: 250, // Increased height for larger cards
+                height: 250,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: informationalItems.length,
@@ -201,8 +234,8 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                         ),
                         elevation: 6,
                         margin: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Container(
-                          width: 300, // Increased width for larger cards
+                        child: SizedBox(
+                          width: 300,
                           child: Stack(
                             children: [
                               ClipRRect(
@@ -249,6 +282,40 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                     );
                   },
                 ),
+              ),
+              const SizedBox(height: 40),
+              const Text(
+                'Resources',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: resourceItems.map((resource) {
+                  return ListTile(
+                    title: Text(
+                      resource['title']!,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      resource['description']!,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.link),
+                      onPressed: () {
+                        // Handle tapping on the link
+                        // Example: launchURL(resource['link']!);
+                      },
+                    ),
+                  );
+                }).toList(),
               ),
             ],
           ),

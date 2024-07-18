@@ -18,16 +18,19 @@ class CommunityMainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Social Network'),
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight - 30), // Adjust this value as needed
+          child: AppBar(
+            title: const Text('GinzApp Network'),
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              ),
             ),
           ),
         ),
@@ -50,6 +53,7 @@ class CommunityMainScreen extends StatelessWidget {
                   ),
                 ),
                 ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
                   leading: const Icon(Icons.home),
                   title: const Text('Home'),
                   onTap: () {
@@ -58,6 +62,7 @@ class CommunityMainScreen extends StatelessWidget {
                   },
                 ),
                 ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
                   leading: const Icon(Icons.add),
                   title: const Text('Post'),
                   onTap: () {
@@ -66,6 +71,7 @@ class CommunityMainScreen extends StatelessWidget {
                   },
                 ),
                 ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
                   leading: const Icon(Icons.chat),
                   title: const Text('Chat'),
                   onTap: () {
@@ -74,6 +80,7 @@ class CommunityMainScreen extends StatelessWidget {
                   },
                 ),
                 ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
                   leading: const Icon(Icons.person),
                   title: const Text('Profile'),
                   onTap: () {

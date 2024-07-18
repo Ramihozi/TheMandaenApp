@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:the_mandean_app/constants/constants.dart';
 import 'package:the_mandean_app/screens/community_comment_controller.dart';
 
 class CommentsScreen extends StatelessWidget {
-  CommentsScreen({super.key});
+  CommentsScreen({Key? key}) : super(key: key);
 
   final _commentController = Get.put(CommentController());
   final _arguments = Get.arguments;
@@ -16,93 +15,92 @@ class CommentsScreen extends StatelessWidget {
     _commentController.getPostId(_arguments[3]);
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: SizedBox(
-          width: size.width,
-          height: size.height,
-          child: Column(
-            children: [
-              Obx((){
-                return Expanded(
-                  child: ListView.builder(
-                      itemCount: _commentController.comments.length,
-                      itemBuilder: (context, index) {
-                        final comment = _commentController.comments[index];
+      appBar: AppBar(
+        title: Text('Comments'),
+        backgroundColor: Colors.amber, // Customize as needed
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Obx(() {
+              final reversedComments = _commentController.comments.reversed.toList();
 
-                        final date =  DateTime.fromMillisecondsSinceEpoch(comment.time!);
-                        final format =  DateFormat('dd/MM/yyyy HH:mm');
-                        final dateString = format.format(date);
+              return ListView.builder(
+                itemCount: reversedComments.length,
+                itemBuilder: (context, index) {
+                  final comment = reversedComments[index];
 
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.black,
-                            backgroundImage: NetworkImage(comment.userUrl!),
-                          ),
-                          title: Row(
-                            children: [
-                              Text(
-                                comment.userName!,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                  final date = DateTime.fromMillisecondsSinceEpoch(comment.time!);
+                  final format = DateFormat('dd/MM/yyyy HH:mm');
+                  final dateString = format.format(date);
+
+                  return Card(
+                    color: Colors.white, // Set background color to white
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    elevation: 2,
+                    child: Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(comment.userUrl!),
+                            ),
+                            title: Text(
+                              comment.userName!,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
-                              const SizedBox(width: 8,),
-                              Text(
-                                dateString,
-                                style:  const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.black,
-                                ),
+                            ),
+                            subtitle: Text(
+                              dateString,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
                               ),
-                            ],
-                          ),
-                          subtitle: Text(
-                            comment.comment!,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        );
-                      }),
-                );
-              }),
-              const Divider(color: Colors.black,),
-              ListTile(
-                title: TextFormField(
-                  controller: _commentController.commentTextController,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: lightPrimaryColor,
-                  ),
-                  decoration: const InputDecoration(
-                    labelText: 'Comment',
-                    labelStyle: TextStyle(
-                      fontSize: 20,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w700,
+                          SizedBox(height: 8),
+                          Text(
+                            comment.comment!,
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ),
-                trailing: TextButton(
-                  onPressed: () {
-                    _commentController.addComment(_arguments[0], _arguments[1], _arguments[2], _arguments[3]);
-                  },
-                  child: const Text(
-                    'Send',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+                  );
+                },
+              );
+            }),
           ),
-        ),
+          Divider(height: 0),
+          ListTile(
+            tileColor: Colors.grey[200],
+            contentPadding: EdgeInsets.symmetric(horizontal: 16),
+            title: TextFormField(
+              controller: _commentController.commentTextController,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+              ),
+              decoration: const InputDecoration(
+                hintText: 'Write a comment...',
+                border: InputBorder.none,
+              ),
+            ),
+            trailing: IconButton(
+              icon: Icon(Icons.send),
+              onPressed: () {
+                _commentController.addComment(_arguments[3]);
+                _commentController.commentTextController.clear();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

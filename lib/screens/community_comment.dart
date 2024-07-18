@@ -10,11 +10,11 @@ class Comment {
 
   Comment(this.postId, this.userName, this.userUrl, this.userUid, this.comment, this.time);
 
-  Comment.fromDocumentSnapshot( DocumentSnapshot documentSnapshot ) {
+  Comment.fromDocumentSnapshot(DocumentSnapshot documentSnapshot) {
     postId = documentSnapshot['postId'];
-    userName = documentSnapshot['userName'];
-    userUrl = documentSnapshot['userUrl'];
-    userUid = documentSnapshot['userUid'];
+    userName = documentSnapshot['name']; // Update to 'name' from Firestore
+    userUrl = documentSnapshot['url']; // Update to 'url' from Firestore
+    userUid = documentSnapshot['uid']; // Keep 'uid' as is
     comment = documentSnapshot['comment'];
     time = documentSnapshot['time'];
   }

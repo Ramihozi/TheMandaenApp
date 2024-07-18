@@ -4,6 +4,8 @@ import 'package:the_mandean_app/screens/user.dart';
 class FirebaseService {
   final CollectionReference usersCollection =
   FirebaseFirestore.instance.collection('user');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
 
   Future<List<User>> getUsers() async {
     List<User> userList = [];
@@ -19,5 +21,14 @@ class FirebaseService {
     }
 
     return userList;
+  }
+
+  Future<void> deletePost(String postId) async {
+    try {
+      await _firestore.collection('posts').doc(postId).delete();
+    } catch (e) {
+      print('Error deleting post from Firestore: $e');
+      throw e;
+    }
   }
 }

@@ -1,9 +1,7 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-import 'package:get/instance_manager.dart';
+import 'package:get/get.dart';
 import 'package:the_mandean_app/screens/community_add_post_controller.dart';
 import 'package:the_mandean_app/screens/community_profile_controller.dart';
 
@@ -26,16 +24,10 @@ class AddPostScreen extends StatelessWidget {
                   return _profileController.url.value.isNotEmpty
                       ? Row(
                     children: [
-                      ClipOval(
-                        child: CachedNetworkImage(
-                          height: 80,
-                          width: 80,
-                          fit: BoxFit.cover,
-                          imageUrl: _profileController.url.value,
-                          placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              Image.asset('assets/images/account.png'),
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundImage: NetworkImage(
+                          _profileController.url.value,
                         ),
                       ),
                       const SizedBox(
@@ -43,7 +35,7 @@ class AddPostScreen extends StatelessWidget {
                       ),
                       Text(
                         _profileController.name.value,
-                        style: Theme.of(context).textTheme.titleSmall,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ],
                   )
@@ -64,7 +56,7 @@ class AddPostScreen extends StatelessWidget {
                   maxLines: 1,
                   decoration: const InputDecoration(
                     hintText: "Write here...",
-                    hintStyle: TextStyle(color: Colors.grey), // Set hint text color to white
+                    hintStyle: TextStyle(color: Colors.grey),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(width: 1),
                     ),
@@ -85,18 +77,25 @@ class AddPostScreen extends StatelessWidget {
                     height: 300,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1),
-                      color: Colors.white, // Light shade of black
+                      color: Colors.white,
                     ),
                     child: Obx(() {
-                      return _postController.selectedImagePath.value == ''
-                          ? const Icon(
-                        Icons.image,
-                        size: 45,
-                      )
-                          : Image.file(
-                        File(_postController.selectedImagePath.value),
-                        fit: BoxFit.fill,
-                      );
+                      if (_postController.selectedImagePath.value.isEmpty) {
+                        return Center(
+                          child: Icon(
+                            Icons.image,
+                            size: 45,
+                            color: Colors.grey,
+                          ),
+                        );
+                      } else {
+                        return Image.file(
+                          File(_postController.selectedImagePath.value),
+                          fit: BoxFit.contain,
+                          width: double.infinity,
+                          height: double.infinity,
+                        );
+                      }
                     }),
                   ),
                 ),
@@ -114,21 +113,21 @@ class AddPostScreen extends StatelessWidget {
                           userUrl: _profileController.url.value,
                         );
                       },
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all<Color>(
-                          Colors.white, // Light shade of black
-                        ),
-                      ),
                       child: _postController.isLoading.value
-                          ? const CircularProgressIndicator(
+                          ? CircularProgressIndicator(
                         color: Colors.white,
                       )
                           : Text(
                         'Post',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall!
-                            .copyWith(color: Colors.black),
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
+                      ),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          Colors.white,
+                        ),
                       ),
                     ),
                   );

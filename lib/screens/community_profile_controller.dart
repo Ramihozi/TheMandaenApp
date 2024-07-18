@@ -1,28 +1,77 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
-class ProfileController extends GetxController{
+import 'community_post.dart'; // Assuming this is where your Post class is defined
 
+class ProfileController extends GetxController {
   RxString name = ''.obs;
   RxString email = ''.obs;
   RxString url = ''.obs;
   User? user = FirebaseAuth.instance.currentUser;
+  RxList<Post> posts = RxList<Post>();
 
   Future<void> getUserData() async {
-    FirebaseFirestore.instance.collection("user")
-        .doc(user!.uid).get().then((DocumentSnapshot documentSnapshot) {
+    if (user != null) {
+      try {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection("user")
+            .doc(user!.uid)
+            .get();
 
-      name.value = documentSnapshot['name'];
-      email.value = documentSnapshot['email'];
-      url.value = documentSnapshot['url'];
-    });
+        name.value = userDoc['name'] ?? '';
+        email.value = userDoc['email'] ?? '';
+        url.value = userDoc['url'] ?? '';
+      } catch (e) {
+        print("Error fetching user data: $e");
+      }
+    }
+  }
+
+  Future<void> getUserPosts() async {
+    if (user != null) {
+      try {
+        QuerySnapshot postDocs = await FirebaseFirestore.instance
+            .collection("post")
+            .where('userUid', isEqualTo: user!.uid)
+            .get();
+
+        posts.clear();
+        for (DocumentSnapshot doc in postDocs.docs) {
+          List<String> likes = List<String>.from(doc['likes'] ?? []);
+          int commentsCount = doc['commentsCount'] ?? 0;
+
+          // Fetch comments for this post from 'comments' collection
+          QuerySnapshot commentsQuery = await FirebaseFirestore.instance
+              .collection("comment")
+              .where('postId', isEqualTo: doc.id)
+              .get();
+
+          List<String> comments = commentsQuery.docs.map((commentDoc) => commentDoc['comment'].toString()).toList();
+
+          posts.add(Post(
+            postId: doc.id,
+            postTitle: doc['postTitle'] ?? '',
+            postUrl: doc['postUrl'] ?? '',
+            comments: comments,
+            likes: likes,
+            userName: doc['userName'] ?? '',
+            userUid: doc['userUid'] ?? '',
+            userUrl: doc['userUrl'] ?? '',
+            time: doc['time'] ?? 0,
+            commentsCount: comments.length, // Update commentsCount based on fetched comments
+          ));
+        }
+      } catch (e) {
+        print("Error fetching user posts: $e");
+      }
+    }
   }
 
   @override
   void onInit() async {
-    getUserData();
+    await getUserData();
+    await getUserPosts();
     super.onInit();
   }
 }
