@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import 'community_post.dart'; // Import your Post class
 
 class HomeController extends GetxController {
   final _postList = RxList<Post>([]);
-  List<Post> get posts => _postList.value;
+  List<Post> get posts => _postList;
 
   final _postsCollection = FirebaseFirestore.instance.collection("post");
   final _commentsCollection = FirebaseFirestore.instance.collection("comment");
@@ -42,7 +43,9 @@ class HomeController extends GetxController {
         });
       }
     } catch (e) {
-      print("Error setting like: $e");
+      if (kDebugMode) {
+        print("Error setting like: $e");
+      }
       rethrow; // Rethrow the exception for handling in UI if needed
     }
   }
@@ -73,7 +76,9 @@ class HomeController extends GetxController {
       // Optionally, update local state if needed
       _postList.removeWhere((post) => post.postId == postId);
     } catch (e) {
-      print('Error deleting post: $e');
+      if (kDebugMode) {
+        print('Error deleting post: $e');
+      }
       rethrow; // Rethrow the exception for handling in UI if needed
     }
   }

@@ -5,7 +5,7 @@ import 'package:the_mandean_app/calendar/meeting.dart';
 import 'package:the_mandean_app/calendar/meeting_data_source.dart';
 
 class PrayerScreen extends StatefulWidget {
-  const PrayerScreen({Key? key}) : super(key: key);
+  const PrayerScreen({super.key});
 
   @override
   State<PrayerScreen> createState() => _PrayerScreenState();

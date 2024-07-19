@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:the_mandean_app/screens/community_profile_controller.dart';
 
 class ProfileScreen extends StatelessWidget {
-  ProfileScreen({Key? key}) : super(key: key);
+  ProfileScreen({super.key});
 
   final _controller = Get.put(ProfileController());
 
@@ -78,24 +78,24 @@ class ProfileScreen extends StatelessWidget {
                   return Column(
                     children: _controller.posts.map((post) {
                       return Card(
-                        margin: EdgeInsets.symmetric(vertical: 10),
+                        margin: const EdgeInsets.symmetric(vertical: 10),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (post.postUrl!.isNotEmpty)
+                            if (post.postUrl.isNotEmpty)
                               AspectRatio(
                                 aspectRatio: 16 / 9,
                                 child: CachedNetworkImage(
                                   imageUrl: post.postUrl,
                                   fit: BoxFit.cover,
                                   placeholder: (context, url) =>
-                                      CircularProgressIndicator(),
+                                      const CircularProgressIndicator(),
                                   errorWidget: (context, url, error) =>
-                                      Icon(Icons.error),
+                                      const Icon(Icons.error),
                                 ),
                               ),
                             Padding(
-                              padding: EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -119,7 +119,7 @@ class ProfileScreen extends StatelessWidget {
                                     crossAxisAlignment:
                                     CrossAxisAlignment.start,
                                     children: post.comments
-                                        !.map((comment) => Text(
+                                        .map((comment) => Text(
                                       '- $comment',
                                       style: TextStyle(
                                         fontSize: 14,

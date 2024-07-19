@@ -8,7 +8,7 @@ import 'package:the_mandean_app/screens/community_stories_controller.dart';
 import 'package:the_mandean_app/screens/community_story_widget.dart';
 
 class HomeScreen extends StatelessWidget {
-  HomeScreen({Key? key}) : super(key: key);
+  HomeScreen({super.key});
 
   final _homeController = Get.put(HomeController());
   final _profileController = Get.put(ProfileController());

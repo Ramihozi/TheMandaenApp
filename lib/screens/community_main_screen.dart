@@ -19,7 +19,7 @@ class CommunityMainScreen extends StatelessWidget {
     return Obx(() {
       return Scaffold(
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(kToolbarHeight - 30), // Adjust this value as needed
+          preferredSize: const Size.fromHeight(kToolbarHeight - 30), // Adjust this value as needed
           child: AppBar(
             title: const Text('GinzApp Network'),
             backgroundColor: Colors.white,
@@ -53,7 +53,7 @@ class CommunityMainScreen extends StatelessWidget {
                   ),
                 ),
                 ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
                   leading: const Icon(Icons.home),
                   title: const Text('Home'),
                   onTap: () {
@@ -62,7 +62,7 @@ class CommunityMainScreen extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
                   leading: const Icon(Icons.add),
                   title: const Text('Post'),
                   onTap: () {
@@ -71,7 +71,7 @@ class CommunityMainScreen extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
                   leading: const Icon(Icons.chat),
                   title: const Text('Chat'),
                   onTap: () {
@@ -80,7 +80,7 @@ class CommunityMainScreen extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
                   leading: const Icon(Icons.person),
                   title: const Text('Profile'),
                   onTap: () {

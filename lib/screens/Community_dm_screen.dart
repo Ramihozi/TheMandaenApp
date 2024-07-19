@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -52,7 +53,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       future: FirebaseFirestore.instance.collection('user').doc(message.senderId).get(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return SizedBox(); // Return an empty widget while waiting
+                          return const SizedBox(); // Return an empty widget while waiting
                         }
                         if (snapshot.hasError || !snapshot.hasData || !snapshot.data!.exists) {
                           return _buildMessage(message, isMe, null);
@@ -142,7 +143,9 @@ class _ChatScreenState extends State<ChatScreen> {
       await _chatService.sendMessage(widget.friendId, text);
       _controller.clear();
     } catch (e) {
-      print('Error sending message: $e');
+      if (kDebugMode) {
+        print('Error sending message: $e');
+      }
     }
   }
 }

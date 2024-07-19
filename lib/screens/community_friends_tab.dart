@@ -6,6 +6,8 @@ import 'firebase_service.dart'; // Import your ChatScreen
 class FriendsTab extends StatelessWidget {
   final FirebaseService firebaseService = FirebaseService();
 
+  FriendsTab({super.key});
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<User>>(

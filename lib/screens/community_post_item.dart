@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:the_mandean_app/screens/community_home_screen_controller.dart';
 import 'package:the_mandean_app/screens/community_like_widget.dart';
 import 'package:the_mandean_app/screens/community_post.dart';
-import 'package:the_mandean_app/screens/community_profile_controller.dart';
 import 'package:unicons/unicons.dart';
 
 import 'community_comment_widget.dart';
@@ -19,7 +18,7 @@ class PostItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final HomeController _homeController = HomeController(); // Replace with your HomeController setup
+    final HomeController homeController = HomeController(); // Replace with your HomeController setup
 
     final date = DateTime.fromMillisecondsSinceEpoch(post.time);
     final format = DateFormat.yMd();
@@ -40,9 +39,9 @@ class PostItem extends StatelessWidget {
                 radius: 30,
                 backgroundImage: NetworkImage(post.userUrl),
               ),
-              title: Text(post.userName, style: Theme.of(context).textTheme.headlineSmall),
+              title: Text(post.userName, style: Theme.of(context).textTheme.titleMedium),
               subtitle: Text(dateString),
-              trailing: post.userUid == _homeController.user?.uid
+              trailing: post.userUid == homeController.user?.uid
                   ? PopupMenuButton(
                 itemBuilder: (context) => [
                   const PopupMenuItem(
@@ -77,14 +76,14 @@ class PostItem extends StatelessWidget {
                   children: [
                     LikeWidget(
                       likePressed: (){
-                        _homeController.setLike(post.postId!);
+                        homeController.setLike(post.postId);
                       },
-                      likes: post.likes!.length,
-                      isLiked: post.likes!.contains(_homeController.user?.uid),
-                      postId: post.postId!,
+                      likes: post.likes.length,
+                      isLiked: post.likes.contains(homeController.user?.uid),
+                      postId: post.postId,
                     ),
                     CommentWidget(
-                      comments: post.commentsCount!,
+                      comments: post.commentsCount,
                       onPressed: (){
                         Get.toNamed('/comments_screen', arguments: [
                           post.userName, //0

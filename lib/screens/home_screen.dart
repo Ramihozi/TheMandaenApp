@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
         'Our history spans centuries, full of rich traditions and significant events.',
         'Here we discuss important milestones and figures in our religion.',
       ],
-      'image': 'assets/images/darfesh2.png',
+      'image': 'assets/images/darfesh1.jpeg',
     },
     {
       'title': 'Beliefs',
@@ -210,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
               ),
               const SizedBox(height: 10),
               SizedBox(
-                height: 250,
+                height: 175,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: informationalItems.length,
@@ -219,12 +219,26 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => InfoDetailScreen(
+                          PageRouteBuilder(
+                            transitionDuration: const Duration(milliseconds: 500),
+                            pageBuilder: (context, animation, secondaryAnimation) => InfoDetailScreen(
                               title: informationalItems[index]['title']!,
                               paragraphs: List<String>.from(informationalItems[index]['paragraphs']),
                               image: informationalItems[index]['image']!,
                             ),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              const begin = Offset(1.0, 0.0);
+                              const end = Offset.zero;
+                              const curve = Curves.ease;
+
+                              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                              var offsetAnimation = animation.drive(tween);
+
+                              return SlideTransition(
+                                position: offsetAnimation,
+                                child: child,
+                              );
+                            },
                           ),
                         );
                       },
@@ -235,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                         elevation: 6,
                         margin: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: SizedBox(
-                          width: 300,
+                          width: 200,
                           child: Stack(
                             children: [
                               ClipRRect(
@@ -262,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                                         color: Colors.white,
                                       ),
                                     ),
-                                    const SizedBox(height: 10),
+                                    const SizedBox(height: 5),
                                     Text(
                                       (informationalItems[index]['paragraphs'] as List<String>).first,
                                       style: const TextStyle(

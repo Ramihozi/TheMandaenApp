@@ -20,7 +20,7 @@ class StoriesController extends GetxController{
   final _userDatBaseReference = FirebaseFirestore.instance.collection("story");
 
   final _storyList = RxList<Story>([]);
-  List<Story> get stories => _storyList.value;
+  List<Story> get stories => _storyList;
 
 
   @override
@@ -35,10 +35,10 @@ class StoriesController extends GetxController{
         .map((QuerySnapshot querySnapshot){
 
       List<Story> list = [];
-      querySnapshot.docs.forEach((element) {
+      for (var element in querySnapshot.docs) {
         list.add(Story.fromDocumentSnapshot(element));
         log.log(element.toString());
-      });
+      }
       return list;
     });
   }
@@ -88,7 +88,7 @@ class StoriesController extends GetxController{
     // then we will get download url that we will save in database
     try {
       await storage
-          .ref('uploads/story/${randomStr}')
+          .ref('uploads/story/$randomStr')
           .putFile(file);
     } on FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
@@ -96,7 +96,7 @@ class StoriesController extends GetxController{
     }
 
     String downloadURL = await storage
-        .ref('uploads/story/${randomStr}')
+        .ref('uploads/story/$randomStr')
         .getDownloadURL();
 
     return downloadURL;

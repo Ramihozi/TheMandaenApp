@@ -21,25 +21,28 @@ class AddPostScreen extends StatelessWidget {
             child: Column(
               children: [
                 Obx(() {
-                  return _profileController.url.value.isNotEmpty
-                      ? Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundImage: NetworkImage(
-                          _profileController.url.value,
+                  return AnimatedSwitcher(
+                    duration: Duration(milliseconds: 500),
+                    child: _profileController.url.value.isNotEmpty
+                        ? Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: NetworkImage(
+                            _profileController.url.value,
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 12,
-                      ),
-                      Text(
-                        _profileController.name.value,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ],
-                  )
-                      : Container();
+                        const SizedBox(
+                          width: 12,
+                        ),
+                        Text(
+                          _profileController.name.value,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                    )
+                        : Container(),
+                  );
                 }),
                 const SizedBox(
                   height: 14,
@@ -54,14 +57,16 @@ class AddPostScreen extends StatelessWidget {
                 TextField(
                   controller: _postController.postTxtController,
                   maxLines: 1,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: "Write here...",
                     hintStyle: TextStyle(color: Colors.grey),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(width: 1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(width: 1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
@@ -77,11 +82,12 @@ class AddPostScreen extends StatelessWidget {
                     height: 300,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1),
+                      borderRadius: BorderRadius.circular(12),
                       color: Colors.white,
                     ),
                     child: Obx(() {
                       if (_postController.selectedImagePath.value.isEmpty) {
-                        return Center(
+                        return const Center(
                           child: Icon(
                             Icons.image,
                             size: 45,
@@ -89,11 +95,14 @@ class AddPostScreen extends StatelessWidget {
                           ),
                         );
                       } else {
-                        return Image.file(
-                          File(_postController.selectedImagePath.value),
-                          fit: BoxFit.contain,
-                          width: double.infinity,
-                          height: double.infinity,
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            File(_postController.selectedImagePath.value),
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
                         );
                       }
                     }),
@@ -113,20 +122,21 @@ class AddPostScreen extends StatelessWidget {
                           userUrl: _profileController.url.value,
                         );
                       },
-                      child: _postController.isLoading.value
-                          ? CircularProgressIndicator(
-                        color: Colors.white,
-                      )
-                          : Text(
-                        'Post',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.white,
+                      child: _postController.isLoading.value
+                          ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                          : const Text(
+                        'Post',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
                         ),
                       ),
                     ),

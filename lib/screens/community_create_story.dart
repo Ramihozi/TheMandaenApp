@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreateStory extends StatelessWidget {
-  const CreateStory({Key? key, required this.onTap}) : super(key: key);
+  const CreateStory({super.key, required this.onTap});
   final VoidCallback onTap;
 
   @override
@@ -69,7 +69,7 @@ class CreateStory extends StatelessWidget {
           );
         }
 
-        return CircularProgressIndicator(); // While loading
+        return const CircularProgressIndicator(); // While loading
       },
     );
   }

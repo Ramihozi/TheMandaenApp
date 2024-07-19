@@ -23,7 +23,7 @@ class ProfileController extends GetxController {
         email.value = userDoc['email'] ?? '';
         url.value = userDoc['url'] ?? '';
       } catch (e) {
-        print("Error fetching user data: $e");
+        return;
       }
     }
   }
@@ -39,7 +39,6 @@ class ProfileController extends GetxController {
         posts.clear();
         for (DocumentSnapshot doc in postDocs.docs) {
           List<String> likes = List<String>.from(doc['likes'] ?? []);
-          int commentsCount = doc['commentsCount'] ?? 0;
 
           // Fetch comments for this post from 'comments' collection
           QuerySnapshot commentsQuery = await FirebaseFirestore.instance
@@ -63,7 +62,7 @@ class ProfileController extends GetxController {
           ));
         }
       } catch (e) {
-        print("Error fetching user posts: $e");
+        return;
       }
     }
   }

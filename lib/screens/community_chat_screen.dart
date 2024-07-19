@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,7 +8,7 @@ import 'community_friends_tab.dart'; // Import your FriendsTab widget
 import 'community_chat_service.dart'; // Import ChatService
 
 class CommunityChatScreen extends StatefulWidget {
-  const CommunityChatScreen({Key? key}) : super(key: key);
+  const CommunityChatScreen({super.key});
 
   @override
   _CommunityChatScreenState createState() => _CommunityChatScreenState();
@@ -68,7 +69,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen>
 class ChatTab extends StatelessWidget {
   final ChatService chatService; // Receive ChatService instance
 
-  ChatTab({required this.chatService});
+  ChatTab({super.key, required this.chatService});
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -86,19 +87,25 @@ class ChatTab extends StatelessWidget {
         }
 
         if (snapshot.hasError) {
-          print('Error fetching chats: ${snapshot.error}');
+          if (kDebugMode) {
+            print('Error fetching chats: ${snapshot.error}');
+          }
           return const Center(child: Text('Error fetching chats.'));
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          print('No chats available. Snapshot data: ${snapshot.data}');
+          if (kDebugMode) {
+            print('No chats available. Snapshot data: ${snapshot.data}');
+          }
           return const Center(child: Text('No chats available'));
         }
 
         List<DocumentSnapshot> chatRooms = snapshot.data!.docs;
-        chatRooms.forEach((chatRoom) {
-          print('Chat room data: ${chatRoom.data()}');
-        });
+        for (var chatRoom in chatRooms) {
+          if (kDebugMode) {
+            print('Chat room data: ${chatRoom.data()}');
+          }
+        }
 
         return ListView.builder(
           itemCount: chatRooms.length,
@@ -113,7 +120,9 @@ class ChatTab extends StatelessWidget {
                 }
 
                 if (snapshot.hasError) {
-                  print('Error fetching user data: ${snapshot.error}');
+                  if (kDebugMode) {
+                    print('Error fetching user data: ${snapshot.error}');
+                  }
                   return const ListTile(title: Text('Error loading user data.'));
                 }
 
