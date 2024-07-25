@@ -26,7 +26,7 @@ class _PrayerScreenState extends State<PrayerScreen> {
     final List<Meeting> meetings = <Meeting>[];
 
 
-      final DateTime startTime = DateTime(2024, 1, 5, 0, 0, 0);
+    final DateTime startTime = DateTime(2024, 1, 5, 0, 0, 0);
     final DateTime startTime2 = DateTime(2024, 1, 13, 0, 0, 0);
     final DateTime startTime3 = DateTime(2024, 1, 18, 0, 0, 0);
     final DateTime startTime4 = DateTime(2024, 2, 12, 0, 0, 0);
@@ -264,7 +264,7 @@ class _PrayerScreenState extends State<PrayerScreen> {
                     textStyle: TextStyle(color: Colors.black),
                   ),
                 ),
-                todayHighlightColor: Colors.black,
+                todayHighlightColor: Colors.amber,
                 showNavigationArrow: true,
               ),
             ),

@@ -7,7 +7,7 @@ import 'package:introduction_screen/introduction_screen.dart';
 import 'package:the_mandean_app/constants/constants.dart';
 
 class OnBoardingScreen extends StatefulWidget {
-  const OnBoardingScreen({Key? key}) : super(key: key);
+  const OnBoardingScreen({super.key});
 
   @override
   _OnBoardingScreenState createState() => _OnBoardingScreenState();
@@ -39,8 +39,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           ),
         ],
         showNextButton: true,
-        next: Icon(Icons.arrow_forward, color: Colors.black),
-        done: Text("Done", style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black)),
+        next: const Icon(Icons.arrow_forward, color: Colors.black),
+        done: const Text("Done", style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black)),
         onDone: () => _handleDone(),
         dotsDecorator: DotsDecorator(
           size: const Size.square(10.0),
@@ -59,11 +59,11 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   void _handleDone() {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      Timer(const Duration(milliseconds: 350), () {
+      Timer(const Duration(milliseconds: 0), () {
         Get.offNamed('/main_screen');
       });
     } else {
-      Timer(const Duration(milliseconds: 350), () {
+      Timer(const Duration(milliseconds: 0), () {
         Get.offNamed('/login_screen');
       });
     }
@@ -75,21 +75,36 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     required String image,
   }) {
     return PageViewModel(
-      title: title,
-      bodyWidget: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              body,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
-        ],
+      titleWidget: Transform.translate(
+        offset: const Offset(0, 60), // Moves the title down by 20 pixels
+        child: Text(
+          title,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
       ),
-      image: Center(child: Image.asset(image, fit: BoxFit.fitWidth)),
+      bodyWidget: Transform.translate(
+        offset: const Offset(0, 60), // Moves the body text down by 20 pixels
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                body,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+      ),
+      image: Center(
+        child: Transform.translate(
+          offset: const Offset(0, 55), // Moves the image down by 20 pixels
+          child: Image.asset(image, fit: BoxFit.fitWidth),
+        ),
+      ),
     );
   }
 }

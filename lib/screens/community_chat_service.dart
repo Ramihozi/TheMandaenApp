@@ -19,9 +19,12 @@ class ChatService {
     // Check if the document already exists
     DocumentSnapshot chatSnapshot = await chatDoc.get();
 
+    // Batch to perform multiple writes atomically
+    WriteBatch batch = _firestore.batch();
+
     if (!chatSnapshot.exists) {
       // If the chat document does not exist, create it with initial data
-      await chatDoc.set({
+      batch.set(chatDoc, {
         'participants': [currentUserId, friendId],
         'latestMessage': message,
         'updatedAt': FieldValue.serverTimestamp(), // Optional: To track the last update time
@@ -32,7 +35,7 @@ class ChatService {
       });
     } else {
       // If the chat document exists, update the latestMessage field
-      await chatDoc.update({
+      batch.update(chatDoc, {
         'latestMessage': message,
         'updatedAt': FieldValue.serverTimestamp(), // Optional: To track the last update time
         'isRead.$friendId': false,
@@ -40,7 +43,8 @@ class ChatService {
     }
 
     // Add the message to a subcollection (e.g., 'chats') inside the chat document
-    await chatDoc.collection('chats').add({
+    DocumentReference messageDoc = chatDoc.collection('chats').doc();
+    batch.set(messageDoc, {
       'senderId': currentUserId,
       'message': message,
       'timestamp': FieldValue.serverTimestamp(),
@@ -49,6 +53,9 @@ class ChatService {
         friendId: false,
       }
     });
+
+    // Commit the batch
+    await batch.commit();
   }
 
   Stream<QuerySnapshot> getChatMessagesStream(String friendId) {

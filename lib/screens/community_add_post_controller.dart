@@ -75,13 +75,16 @@ class AddPostController extends GetxController {
   }
 
   Future<void> addPost({required String userName, required String userUrl}) async {
-    if (isImgAvailable.value && postTxtController.text.isNotEmpty) {
+    if (postTxtController.text.isNotEmpty || isImgAvailable.value) {
       isLoading.value = true;
 
-      // Upload image and get download URL
-      String? imageUrl = await uploadImage();
+      String? imageUrl;
+      if (isImgAvailable.value) {
+        // Upload image and get download URL
+        imageUrl = await uploadImage();
+      }
 
-      if (imageUrl != null) {
+      if (imageUrl != null || !isImgAvailable.value) {
         // Save post data to Firestore
         await saveDataToDb(
           url: imageUrl,
@@ -94,6 +97,9 @@ class AddPostController extends GetxController {
         // Clear text field and selected image path after posting
         postTxtController.text = '';
         selectedImagePath.value = '';
+
+        // Show success dialog
+        showSuccessDialog();
       } else {
         isLoading.value = false;
         Get.snackbar(
@@ -108,7 +114,7 @@ class AddPostController extends GetxController {
     } else {
       Get.snackbar(
         "Warning",
-        "Please enter details and select an image",
+        "Please enter details or select an image",
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.all(20),
         backgroundColor: Colors.red,
@@ -118,7 +124,7 @@ class AddPostController extends GetxController {
   }
 
   Future<void> saveDataToDb({
-    required String url,
+    required String? url,
     required String userName,
     required String userUrl,
   }) async {
@@ -128,10 +134,52 @@ class AddPostController extends GetxController {
       'userUid': user!.uid,
       'userName': userName,
       'userUrl': userUrl,
-      'postUrl': url,
+      'postUrl': url ?? '',
       'time': DateTime.now().millisecondsSinceEpoch,
       'likes': [],
       'commentsCount': 0,
     });
+  }
+
+  void showSuccessDialog() {
+    Get.dialog(
+      Center(
+        child: Container(
+          width: 200,
+          height: 200,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10,
+                offset: Offset(0, 10),
+              ),
+            ],
+          ),
+          child: const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.check_circle_outline,
+                color: Colors.green,
+                size: 80,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Post Successful!',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: true,
+    );
   }
 }

@@ -17,7 +17,7 @@ class CommentsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Comments'),
-        backgroundColor: Colors.amber,
+        backgroundColor: Colors.amber, // Customize as needed
       ),
       body: Column(
         children: [
@@ -30,13 +30,12 @@ class CommentsScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final comment = reversedComments[index];
 
-                  // Convert millisecondsSinceEpoch to DateTime in local timezone
-                  DateTime localTime = DateTime.fromMillisecondsSinceEpoch(comment.time!);
-                  // Format date in MM/dd/yyyy hh:mm a format (12-hour with AM/PM)
-                  String dateString = DateFormat('MM/dd/yyyy hh:mm a').format(localTime);
+                  final date = DateTime.fromMillisecondsSinceEpoch(comment.time!);
+                  final format = DateFormat('dd/MM/yyyy HH:mm');
+                  final dateString = format.format(date);
 
                   return Card(
-                    color: Colors.white,
+                    color: Colors.white, // Set background color to white
                     margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                     elevation: 2,
                     child: Padding(
@@ -94,9 +93,10 @@ class CommentsScreen extends StatelessWidget {
               ),
             ),
             trailing: IconButton(
-              icon: const Icon(Icons.send),
+              icon: Icon(Icons.send),
               onPressed: () {
                 _commentController.addComment(_arguments[3]);
+                _commentController.commentTextController.clear();
               },
             ),
           ),

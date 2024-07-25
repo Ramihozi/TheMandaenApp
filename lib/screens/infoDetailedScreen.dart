@@ -4,12 +4,16 @@ class InfoDetailScreen extends StatelessWidget {
   final String title;
   final List<String> paragraphs;
   final String image;
+  final double imageWidth;
+  final double imageHeight;
 
   const InfoDetailScreen({
     super.key,
     required this.title,
     required this.paragraphs,
     required this.image,
+    this.imageWidth = 400, // Default width
+    this.imageHeight = 300, // Default height
   });
 
   @override
@@ -23,8 +27,22 @@ class InfoDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset(image),
-            const SizedBox(height: 20),
+            // Centered image with fixed dimensions
+            Align(
+              alignment: Alignment.center,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: SizedBox(
+                  width: imageWidth,
+                  height: imageHeight,
+                  child: Image.asset(
+                    image,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+            // Title section
             Text(
               title,
               style: const TextStyle(
@@ -33,6 +51,7 @@ class InfoDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
+            // Paragraphs
             for (var paragraph in paragraphs) ...[
               Text(
                 paragraph,

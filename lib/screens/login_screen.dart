@@ -1,9 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:the_mandean_app/constants/constants.dart';
 import 'package:the_mandean_app/screens/login_controller.dart';
-import 'package:the_mandean_app/screens/text_field_decoration_widget.dart';
 import 'package:get/get.dart';
 
+InputDecoration decorationWidget(BuildContext context, String labelText, IconData icon) {
+  return InputDecoration(
+    labelText: labelText,
+    prefixIcon: Icon(icon, color: Colors.grey),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(30),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(30),
+      borderSide: const BorderSide(
+        color: lightPrimaryColor,
+        width: 2.0,
+      ),
+    ),
+  );
+}
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -17,156 +32,131 @@ class LoginScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Stack(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: height * 0.3,
-                    decoration: const BoxDecoration(
-                      color: lightPrimaryColor,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(70),
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.person,
-                        size: 90,
-                        color: Colors.white,
-                      ),
-                    ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: height * 0.05),
+                Center(
+                  child: Image.asset(
+                    'assets/images/darfesh1.jpeg', // replace with your logo asset path
+                    height: 250,
                   ),
-                  Positioned(
-                    bottom: 40,
-                    right: 30,
-                    child: Text(
-                      'Login',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),
-                      // you can see it, I make changes here
-                    ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Welcome To GinzApp!',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 38, left: 8, right: 8),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Form(
-                      key: _loginController.formKey,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: TextFormField(
-                              autocorrect: false,
-                              keyboardType: TextInputType.emailAddress,
-                              // The validator receives the text that the user has entered.
-                              controller: _loginController.emailController,
-                              onSaved: (value) {
-                                _loginController.email = value!;
-                              },
-                              validator: (value) {
-                                return _loginController.validEmail(value!);
-                              },
-                              decoration: decorationWidget(
-                                  context, "Enter Email", Icons.email),
+                ),
+                const SizedBox(height: 30),
+                Form(
+                  key: _loginController.formKey,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          autocorrect: false,
+                          keyboardType: TextInputType.emailAddress,
+                          controller: _loginController.emailController,
+                          onSaved: (value) {
+                            _loginController.email = value!;
+                          },
+                          validator: (value) {
+                            return _loginController.validEmail(value!);
+                          },
+                          decoration: decorationWidget(
+                            context,
+                            "Email Address",
+                            Icons.email,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          obscureText: true,
+                          controller: _loginController.passwordController,
+                          onSaved: (value) {
+                            _loginController.password = value!;
+                          },
+                          validator: (value) {
+                            return _loginController.validPassword(value!);
+                          },
+                          decoration: decorationWidget(
+                            context,
+                            "Password",
+                            Icons.lock,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              side: BorderSide(color: Colors.amber, width: 2),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              textStyle: Theme.of(context).textTheme.headlineMedium,
                             ),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: TextFormField(
-                              obscureText: true,
-                              controller: _loginController.passwordController,
-                              onSaved: (value) {
-                                _loginController.password = value!;
-                              },
-                              validator: (value) {
-                                return _loginController.validPassword(value!);
-                              },
-                              decoration: decorationWidget(
-                                  context, "Enter Password", Icons.vpn_key),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Container(
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                            height: 40,
-                            child: TextButton(
-                              onPressed: () {
-                                //Get.toNamed('/forgetPassword');
-                              },
-                              child: Text('Forgot Password?',
-                                  style: Theme.of(context).textTheme.titleSmall),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    foregroundColor: Colors.white, elevation: 5,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30)),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 50, vertical: 10),
-                                    textStyle: Theme.of(context).textTheme.headlineMedium
-                                ),
-                                child: FittedBox(
-                                  child: Obx(
-                                        () => _loginController.isLoading.value
-                                        ? const Center(
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                        : const Text(
-                                      'Login',
-                                    ),
+                            child: FittedBox(
+                              child: Obx(
+                                    () => _loginController.isLoading.value
+                                    ? const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.amber,
+                                  ),
+                                )
+                                    : const Text(
+                                  'Login',
+                                  style: TextStyle(
+                                    color: Colors.black,
                                   ),
                                 ),
-                                onPressed: () {
-                                  _loginController.login();
-                                },
                               ),
                             ),
+                            onPressed: () {
+                              _loginController.login();
+                            },
                           ),
-                        ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Don\'t have an account? ',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 16),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Get.offNamed('/register_screen');
+                      },
+                      child: Text(
+                        'Register',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.amber),
                       ),
                     ),
                   ],
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Don\'t have an account ? ',style: Theme.of(context).textTheme.
-                  titleSmall?.copyWith(fontSize: 16),),
-                  TextButton(
-                    onPressed: () {
-                      Get.offNamed('/register_screen');
-                    },
-                    child: Text(
-                      'Register',
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

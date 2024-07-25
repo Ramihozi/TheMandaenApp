@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'infoDetailedScreen.dart';
 
@@ -18,45 +19,68 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     {
       'title': 'History',
       'paragraphs': [
-        'Learn about the history of our religion in detail.',
-        'Our history spans centuries, full of rich traditions and significant events.',
-        'Here we discuss important milestones and figures in our religion.',
+        'Mandaeaism is the oldest surviving religion that can be traced back to the pre-Christian era. A large number of the Mandaeans lived in the Jordan valley, Syria and its surrounding areas. Other communities of the Mandaeans had also long settled throughout the Mesopotamian and Persian lands. '
+            'They are considered as the indigenous Mesopotamian people. After the death of their last great Teacher, John the Baptist, '
+            'the communities in Jordan and Palestine came under persecution and eventually migrated to join other Mandaeans. '
+            'They settled in Iraq and Iran, especially around the upper middle and lower Euphrates, the Tigris and the Kāron Rivers in Khuzestan Province. Today, the Mandaeans number more than 80,000 strong believers, but no longer concentrate in Iraq and Iran.',
+
+        'The twentieth century has brought about a dramatic change in the geographical location of Mandaean communities. The majority of Mandaeans now live in diaspora due to the severe persecution and regional wars in Iraq and Iran. The most recent disruption to Mandaean life in the Middle East was due to the United States’ invasion of Iraq.'
+            ' The Mandaeans can be found in large numbers now living in Europe, Australia, the United States, Canada, New Zealand, as well as Syria, Jordan, Turkey and Indonesia.'
+
+        '\n\nThere are probably less than 5,000 Mandaeans living in Iraq and roughly less than 1,700 remaining in Iran. The Mandaeans have been traditionally involved in various artisan trades. They are well-educated and highly skilled professionals, usually working as gold and silversmiths or as jewelers.'
       ],
       'image': 'assets/images/darfesh1.jpeg',
     },
     {
       'title': 'Beliefs',
       'paragraphs': [
-        'Understand our core beliefs and values.',
-        'Our beliefs are the foundation of our faith.',
-        'Explore the teachings that guide our daily lives and spiritual journey.',
+        'Life: Recognition of the existence of one God, whom Nasurai call "Hayyi" which in Aramaic means "the Living" or life itself. The Great Life (or Supreme Deity) is a personification of the creative and sustaining force of the universe, and is spoken of always in the impersonal plural, it remains mystery and abstraction. '
+            'The symbol of the Great Life is flowing living water or yardna. Because of this, flowing water holds a central place in all Nasurai rituals, hence the necessity of living near rivers.',
+        'Light: The second vivifying power is light, which is represented by a personification of light, Melka d Nhura (the King of Light) and the light spirits, who bestow health, strength, virtue and justice. In the ethical system of the Mandaeans, cleanliness, health of body and ritual obedience must be accompanied by purity of mind, health of conscience and obedience to moral laws. '
+            'A phrase in the Manual of Discipline reads: that they may behold the Light of Life.',
+        'Immortality: The third important rite of the religion is the belief in the immortality of the soul, and its close relationship with the souls of its ancestors, immediate and divine. The fate of the soul is a chief concern, while the body is treated with disdain. '
+            'Belief in the existence of the next life, in which there will be reward and punishment. The sinner will be punished in al-Matarathi and then enter Paradise. There is no eternal punishment because God is merciful and forgiving.',
       ],
       'image': 'assets/images/hayyi.jpeg',
     },
     {
       'title': 'Practices',
       'paragraphs': [
-        'Discover our religious practices and rituals.',
-        'These include daily prayers, ceremonies, and moral codes.',
-        'These practices help us stay connected to our faith.',
+        'PRAYER: Mandaeans must face the North (Pole) Star during prayers. This mis-conception of star worship comes from the fact that although the Mandaean are monotheists, they pay adoration to the angels and the good and free spirits which they believe reside in the stars and from which they govern the world under the Supreme Deity. Kneeling and prostration during prayer is unknown, neither is the covering of the face with the hands at any time.'
+            ' The head is held erect, and the hands are not used. Priests are required to pray a different set prayer each day of the week. Prayer hours are dawn, noon and dusk.',
+        'NO CIRCUMCISION: One of their inviolable beliefs was the integrity of the physical body. No part of it should be cut off, for just as God created the person sound and complete so should this trust be returned to him. Circumcision is included in this prohibition.',
+        'RESPECT FOR RIVERS: Respect for and sanctification of rivers is such that Mandaeans always try to live near their banks. A major sin as mentioned in the Holy Books is that a person should urinate in a river. However, it is recommended to throw left-over food in water especially the food remaining from ceremonies remembering a deceased person which will be eaten by the river fish.'
+            ' This is because the river or Yardna represents Life and Light from which everything was formed and so will return to it. - It involves communion with the Light World and the long departed Souls.',
+        'MASBUTA BAPTISM: The third ablution, or full baptism, encompasses all aspects of baptism and must be performed by a priest or priestess. This ablution is known as masbuta (maswetta) includes the sacraments of oil, bread (known as pihtha) and water (from the river only, known as mambuha), the kushta (the hand grasp and kiss) and the final blessing by laying the right hand of the priest on the head of the baptized person.'
+            ' The masbuta should take place on Sunday, after major defilement\'s (i.e.. childbirth, marriage, illness and even after a journey) and especially for those who have lied or who have had violent quarrels, indeed after any action which is ashamed of. Major sins such as theft, murder, and adultery require more than one baptism.',
+        'DIET & PURITY: Food is also ritually cleansed, such as fruits and vegetables before consumption. Other items like the rasta (robes) and kitchen utensils such as pots and pans undergo frequent ritual purifications. Salt is the only exception. Ganzivri (Bishops) and priests must only eat of the food they prepare themselves and their bread may not be baked with that of lay persons. For Ganzivri (Bishops) wine, coffee and tobacco are forbidden to them and they must avoid eating hot or cooked food. '
+            'All their fruits and vegetables must be eaten raw. Water is the only beverage of a priest and this must be taken directly from the river or spring. The Mandaeans also use other terms to differentiate amongst themselves on basis of ritual cleanliness, Suwadi is used for laymen, Hallali is applied to ritually pure men, who of their own will follow a high religious standard, and of course Nasurai used for priests. Only that grows from a seed is lawful for food (hence a mushroom is forbidden).'
+            ' In practice little meat is eaten, and the attitude towards slaughter is always apologetic, perhaps because all original Nasurai were vegetarians and meat eating only crept in after a departure from their original faith. All killing and blood letting is supposedly sinful and it is forbidden to kill female beasts. Flies, scorpions and all harmful stinging things may be slain without sin. Under Mandaean customs every mother must suckle her own child, it is forbidden to act as a foster mother for hire. The child\'s education and upbringing is the duty of the father, until the child reaches the age of 15 (or 20 according to others, which was the age of adulthood in the Dead Sea Scrolls and Pythagorean tradition).'
       ],
       'image': 'assets/images/masbutta.jpeg',
     },
     {
       'title': 'Festivals',
       'paragraphs': [
-        'Explore our religious festivals and celebrations.',
-        'Each festival holds unique significance.',
-        'Festivals are celebrated with great enthusiasm.',
+        'Parwanaya (Dehwa Rabba) \nWhen: Celebrated in late winter, typically in March. \nDuration: 5 days. \nSignificance: This is the most important festival in the Mandaean calendar, marking the creation of the world and the renewal of life. It is a time for major rituals, including baptisms (masbuta), and for making offerings to spirits and deities. \nActivities: The festival involves daily rituals of purification and baptism in flowing water, prayers, and community feasts. It\'s also a time for the renewal of vows and spiritual cleansing.',
+        '\nDehwa Hanina (Little Feast) \nWhen: Typically celebrated in early summer. \nSignificance: This festival commemorates the birth of John the Baptist (Yahya), who is a central figure in Mandaean religion. \nActivities: The celebration includes rituals similar to those of Parwanaya, with a focus on renewal and purification. Community gatherings and feasts are also a key part of the festivities.',
+        '\nDehwa d-Šitil (Festival of Sitil) \nWhen: Celebrated in late summer or early autumn. \nSignificance: This festival honors the figure of Šitil (Seth), considered a divine being and a savior figure in Mandaean belief. \nActivities: It involves rituals of purification and baptism, prayers, and communal meals. It is also a time for remembering the dead and making offerings in their honor.',
+        '\nPanja (Banja) \nWhen: Celebrated in the summer, usually in July. \nDuration: 5 days. \nSignificance: This festival is dedicated to the spirits and ancestors. It is considered a time when the boundaries between the living and the dead are more permeable. \nActivities: Rituals include baptisms, prayers, and offerings made at the riverbanks. The festival is a time for remembrance and honoring deceased relatives.',
+        '\nDehwa d-Edya (New Year Festival) \nWhen: Typically celebrated in early January. \nSignificance: This festival marks the Mandaean New Year and the arrival of light into the world. \nActivities: It involves rituals of purification, special prayers, and feasting. It is a time of joy and renewal, with the community coming together to celebrate the new beginning.',
+        '\nQina (Sunday of Remembrance) \nWhen: Celebrated on the first Sunday after Parwanaya. \nSignificance: This day is dedicated to the memory of the deceased and the veneration of ancestors. \nActivities: Rituals include prayers, offerings, and baptisms conducted in honor of the departed souls.'
       ],
       'image': 'assets/images/festival.jpeg',
     },
     {
       'title': 'Texts',
       'paragraphs': [
-        'Read our sacred texts and scriptures.',
-        'These texts contain the teachings and philosophies of our religion.',
-        'They are revered and studied extensively.',
+        'Ginza Rba (The Great Treasure) \nContent: The Ginza Rba is the most important and comprehensive of the Mandaean scriptures. It is divided into two main parts: the Right Ginza and the Left Ginza. The Right Ginza contains cosmological and theological texts, hymns, and prayers, while the Left Ginza deals with eschatological themes, such as the fate of the soul after death. \nThemes: Creation, cosmology, theology, ethics, and eschatology. \nSignificance: This text is considered the primary religious authority and is used in various rituals and ceremonies.',
+        'Qolasta \nContent: The Qolasta is a collection of hymns, prayers, and liturgical texts used in Mandaean rituals, particularly those involving baptism (masbuta) and other purification rites. \nThemes: Worship, purification, and spiritual invocation. \nSignificance: The Qolasta is crucial for daily religious practices and is recited during major ceremonies and festivals.',
+        'Sidra d-Yahia (The Book of John the Baptist) \nContent: This text contains teachings attributed to John the Baptist (Yahya), a central figure in Mandaean religion, as well as narratives about his life and mission. \nThemes: Ethical teachings, guidance for righteous living, and the role of John the Baptist. \nSignificance: It provides moral and ethical instructions and reinforces the importance of John the Baptist in Mandaean faith.',
+        'Diwan Abatur \nContent: The Diwan Abatur is focused on the figure of Abatur, a key angelic being in Mandaean cosmology who judges the souls of the deceased. It describes the journey of the soul after death and the various stages it passes through. \nThemes: Afterlife, judgment, and the soul\'s journey. \nSignificance: It is used in funerary rites and helps Mandaeans understand the afterlife and the importance of living a righteous life.',
+        'Haran Gawaita \nContent: This text provides a historical account of the Mandaeans, including their origins and migrations. It includes details about their persecution and the preservation of their religious identity. \nThemes: History, identity, and resilience. \nSignificance: It serves as a historical record and reinforces the community\'s sense of identity and continuity.',
+        'Alma Rišaia Rba \nContent: Also known as "The Great First World," this text deals with the creation of the world and the heavenly realms. It describes the structure of the universe and the roles of various divine beings. \nThemes: Creation, cosmology, and divine hierarchy. \nSignificance: It provides a detailed account of Mandaean cosmology and the origins of the universe.',
+        'Draša d-Iahia (The Teaching of John) \nContent: Similar to the Sidra d-Yahia, this text contains teachings and discourses attributed to John the Baptist, focusing on spiritual and ethical instructions. \nThemes: Spiritual guidance, ethical conduct, and the teachings of John the Baptist. \nSignificance: It offers practical advice for leading a righteous life and emphasizes the importance of spiritual purity.',
       ],
       'image': 'assets/images/texts.jpeg',
     },
@@ -79,17 +103,23 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       'description': 'Informational Instagram For Mandaeans',
     },
     {
-      'title': 'I-Am-Mandaean instagram',
+      'title': 'I-Am-Mandaean Instagram',
       'link': 'https://www.instagram.com/nasoraean/',
       'description': 'Further Information About Mandaeans',
     },
     {
       'title': 'The Mandaean Association',
       'link': 'https://www.facebook.com/SabianMandaeanAssociation',
-      'description': 'Official Mandaean Facebook ',
+      'description': 'Official Mandaean Facebook',
     }
+  ];
 
-    // Add more resources as needed
+  final List<IconData> resourceIcons = [
+    Icons.web,
+    Icons.podcasts,
+    Icons.camera_alt,
+    Icons.camera_alt,
+    Icons.group
   ];
 
   @override
@@ -124,6 +154,13 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     }
   }
 
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri)) {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -132,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
         appBar: AppBar(
           title: const Text('GinzApp'),
           backgroundColor: Colors.white,
-          iconTheme: IconThemeData(color: Colors.black),
+          iconTheme: const IconThemeData(color: Colors.black),
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh, color: Colors.black),
@@ -147,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Daily Verse',
+                'Daily Botha (verse)',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -210,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
               ),
               const SizedBox(height: 10),
               SizedBox(
-                height: 175,
+                height: 225,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: informationalItems.length,
@@ -249,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                         elevation: 6,
                         margin: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: SizedBox(
-                          width: 200,
+                          width: 250,
                           child: Stack(
                             children: [
                               ClipRRect(
@@ -308,28 +345,45 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
               const SizedBox(height: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: resourceItems.map((resource) {
-                  return ListTile(
-                    title: Text(
-                      resource['title']!,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                children: List.generate(resourceItems.length, (index) {
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: ListTile(
+                      tileColor: Colors.white,
+                      leading: Icon(resourceIcons[index], color: Colors.black),
+                      title: Text(
+                        resourceItems[index]['title']!,
+                        style: const TextStyle(
+                          fontSize: 18  ,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        resourceItems[index]['description']!,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      trailing: TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0, end: 1),
+                        duration: const Duration(seconds: 1),
+                        builder: (context, value, child) {
+                          return Transform.scale(
+                            scale: value,
+                            child: IconButton(
+                              icon: const Icon(Icons.link, color: Colors.amber),
+                              onPressed: () {
+                                _launchURL(resourceItems[index]['link']!);
+                              },
+                            ),
+                          );
+                        },
                       ),
                     ),
-                    subtitle: Text(
-                      resource['description']!,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.link),
-                      onPressed: () {
-                        // Handle tapping on the link
-                        // Example: launchURL(resource['link']!);
-                      },
-                    ),
                   );
-                }).toList(),
+                }),
               ),
             ],
           ),

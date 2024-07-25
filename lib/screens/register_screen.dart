@@ -1,17 +1,45 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:the_mandean_app/constants/constants.dart';
-import 'package:the_mandean_app/screens/text_field_decoration_widget.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:the_mandean_app/screens/register_controller.dart';
+import '../constants/constants.dart';
+import 'ImageCropScreen.dart';
 
+InputDecoration decorationWidget(BuildContext context, String labelText, IconData icon) {
+  return InputDecoration(
+    labelText: labelText,
+    prefixIcon: Icon(icon, color: Colors.grey),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(30),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(30),
+      borderSide: const BorderSide(
+        color: lightPrimaryColor,
+        width: 2.0,
+      ),
+    ),
+  );
+}
 
 class RegisterScreen extends StatelessWidget {
   RegisterScreen({super.key});
 
   final _registrationController = Get.put(RegisterController());
+
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final croppedImagePath = await Get.to(() => ImageCropScreen(imagePath: pickedFile.path));
+      if (croppedImagePath != null) {
+        // Update the RegisterController with the new image path
+        _registrationController.updateImagePath(croppedImagePath);
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -20,210 +48,162 @@ class RegisterScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Stack(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: height * 0.3,
-                    decoration: const BoxDecoration(
-                      color: lightPrimaryColor, // that pink color is because of this
-                      // here I have fixed for lightTheme, We will change it later
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(70),
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.person,
-                        size: 90,
-                        color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: height * 0.05),
+                Center(
+                  child: GestureDetector(
+                    onTap: _pickImage,
+                    child: Obx(
+                          () => CircleAvatar(
+                        radius: 60,
+                        backgroundImage: _registrationController.selectedImagePath.value.isEmpty
+                            ? null
+                            : Image.file(File(_registrationController.selectedImagePath.value)).image,
+                        child: _registrationController.selectedImagePath.value.isEmpty
+                            ? const Icon(
+                          Icons.camera_alt,
+                          size: 40,
+                          color: Colors.grey,
+                        )
+                            : null,
                       ),
                     ),
                   ),
-                  Positioned(
-                    bottom: 40,
-                    right: 30,
-                    child: Text(
-                      'Register',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),
-                    ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Welcome!\nCreate an account',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 38, left: 8, right: 8),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // I have added this --> Profile picture
-                    // rest of the code is same
-                    GestureDetector(
-                      onTap: () async {
-                        _registrationController.getImage(ImageSource.gallery);
-                      },
-                      child: Center(
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
+                ),
+                const SizedBox(height: 30),
+                Form(
+                  key: _registrationController.formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          controller: _registrationController.nameController,
+                          onSaved: (value) {
+                            _registrationController.name = value!;
+                          },
+                          validator: (value) {
+                            return _registrationController.validName(value!);
+                          },
+                          decoration: decorationWidget(context, "User Name", Icons.person),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          autocorrect: false,
+                          keyboardType: TextInputType.emailAddress,
+                          controller: _registrationController.emailController,
+                          onSaved: (value) {
+                            _registrationController.email = value!;
+                          },
+                          validator: (value) {
+                            return _registrationController.validEmail(value!);
+                          },
+                          decoration: decorationWidget(context, "Email", Icons.email),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          obscureText: true,
+                          controller: _registrationController.passwordController,
+                          onSaved: (value) {
+                            _registrationController.password = value!;
+                          },
+                          validator: (value) {
+                            return _registrationController.validPassword(value!);
+                          },
+                          decoration: decorationWidget(context, "Password", Icons.vpn_key),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            side: const BorderSide(color: Colors.amber, width: 2),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            textStyle: Theme.of(context).textTheme.headlineMedium,
                           ),
                           child: Obx(
-                                () => _registrationController.selectedImagePath.value == ''
-                                ? const CircleAvatar(
-                                child: Icon(
-                                  Icons.person,
-                                  size: 50,
-                                ))
-                                : CircleAvatar(
-                              radius: 80,
-                              backgroundImage: Image.file(
-                                File(_registrationController.selectedImagePath.value),
-                                fit: BoxFit.fill,
-                              ).image,
+                                () => _registrationController.isLoading.value
+                                ? const CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
+                            )
+                                : const Text(
+                              'Register',
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
                             ),
+                          ),
+                          onPressed: () {
+                            if (_registrationController.selectedImagePath.value.isEmpty) {
+                              Get.snackbar(
+                                'Image Required',
+                                'Please upload a profile picture to continue.',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                              );
+                            } else {
+                              _registrationController.userRegister();
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Already have an account? ',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Get.offAllNamed('/login_screen');
+                        },
+                        child: Text(
+                          'Login',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.amber,
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 8,),
-                    Form(
-                      key: _registrationController.formKey,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                              // The validator receives the text that the user has entered.
-                              controller:
-                              _registrationController.nameController,
-                              onSaved: (value) {
-                                _registrationController.name = value!;
-                              },
-                              validator: (value) {
-                                return _registrationController
-                                    .validName(value!);
-                              },
-                              decoration: decorationWidget(
-                                  context,
-                                  "User Name",
-                                  Icons.person),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                              autocorrect: false,
-                              keyboardType: TextInputType.emailAddress,
-                              // The validator receives the text that the user has entered.
-                              controller:
-                              _registrationController.emailController,
-                              onSaved: (value) {
-                                _registrationController.email = value!;
-                              },
-                              validator: (value) {
-                                return _registrationController
-                                    .validEmail(value!);
-                              },
-                              decoration: decorationWidget(
-                                  context, "Email", Icons.email),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                                obscureText: true,
-                                controller:
-                                _registrationController.passwordController,
-                                onSaved: (value) {
-                                  _registrationController.password = value!;
-                                },
-                                validator: (value) {
-                                  return _registrationController
-                                      .validPassword(value!);
-                                },
-                                decoration: decorationWidget(
-                                    context, "Password", Icons.vpn_key)),
-                          ),
-                          const SizedBox(height: 24,),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.white, elevation: 5,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30)),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 50, vertical: 10),
-                                  textStyle:
-                                  Theme.of(context).textTheme.headlineMedium),
-                              child: _registrationController.isLoading.value
-                                  ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 3,
-                                  valueColor:
-                                  AlwaysStoppedAnimation<Color>(
-                                      Colors.white),
-                                ),
-                              )
-                                  : FittedBox(
-                                child: Obx(
-                                      () => _registrationController
-                                      .isLoading.value
-                                      ? const Center(
-                                    child:
-                                    CircularProgressIndicator(
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                      : const Text(
-                                    'Register',
-                                  ),
-                                ),
-                              ),
-                              onPressed: () {
-                                _registrationController.userRegister();
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                // ignore: prefer_const_literals_to_create_immutables
-                children: [
-                  Text('Already have an account ? ',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 16),),
-                  TextButton(
-                    onPressed: () {
-                      Get.offAllNamed('/login_screen');
-                    },
-                    child: Text(
-                      'Login',
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-
 }

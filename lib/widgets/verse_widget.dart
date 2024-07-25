@@ -27,13 +27,16 @@ class VerseWidget extends StatelessWidget {
           },
           title: RichText(
             text: TextSpan(
-              style: DefaultTextStyle.of(context).style,
+              style: DefaultTextStyle.of(context).style.copyWith(
+                fontFamily: 'Merriweather',
+                fontSize: 16, // Overall text size
+              ),
               children: <TextSpan>[
                 // TextSpan for chapter or verse number
                 TextSpan(
                   text: verse.verse == 1 ? "${verse.chapter}" : "${verse.verse.toString()} ",
                   style: TextStyle(
-                    fontSize: verse.verse == 1 ? 20 : 14,
+                    fontSize: verse.verse == 1 ? 22 : 18, // Slightly smaller font sizes
                     fontWeight: verse.verse == 1 ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
@@ -41,6 +44,7 @@ class VerseWidget extends StatelessWidget {
                 TextSpan(
                   text: " ${verse.text.trim()}",
                   style: TextStyle(
+                    fontSize: 16, // Increased font size for verse text
                     decorationStyle: isSelected ? TextDecorationStyle.dotted : TextDecorationStyle.solid,
                     decoration: isSelected ? TextDecoration.underline : TextDecoration.none,
                   ),

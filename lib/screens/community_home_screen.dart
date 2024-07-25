@@ -6,6 +6,7 @@ import 'package:the_mandean_app/screens/community_post_item.dart';
 import 'package:the_mandean_app/screens/community_profile_controller.dart';
 import 'package:the_mandean_app/screens/community_stories_controller.dart';
 import 'package:the_mandean_app/screens/community_story_widget.dart';
+import 'package:cached_network_image/cached_network_image.dart'; // Add this import
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -68,6 +69,7 @@ class HomeScreen extends StatelessWidget {
             Obx(() {
               return Expanded(
                 child: ListView.builder(
+                  cacheExtent: 1000, // Increase cache extent to preload images
                   itemCount: _homeController.posts.length,
                   itemBuilder: (context, index) {
                     return PostItem(

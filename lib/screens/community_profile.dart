@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:the_mandean_app/screens/community_profile_controller.dart';
 
 class ProfileScreen extends StatelessWidget {
-  ProfileScreen({super.key});
+  ProfileScreen({Key? key}) : super(key: key);
 
   final _controller = Get.put(ProfileController());
 
@@ -16,7 +16,6 @@ class ProfileScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 28),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Obx(() {
                   return _controller.url.value.isNotEmpty
@@ -42,14 +41,14 @@ class ProfileScreen extends StatelessWidget {
                         children: [
                           Text(
                             _controller.name.value,
-                            style: Theme.of(context).textTheme.titleMedium,
+                            style: Theme.of(context).textTheme.titleSmall,
                           ),
                           const SizedBox(
                             height: 4,
                           ),
                           Text(
                             _controller.email.value,
-                            style: Theme.of(context).textTheme.titleMedium,
+                            style: Theme.of(context).textTheme.titleSmall,
                           ),
                         ],
                       ),
@@ -58,93 +57,12 @@ class ProfileScreen extends StatelessWidget {
                       : Container();
                 }),
                 const SizedBox(
-                  height: 20,
+                  height: 14,
                 ),
                 const Divider(
                   thickness: 1,
                   color: Colors.black26,
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  'Your Posts',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Obx(() {
-                  return Column(
-                    children: _controller.posts.map((post) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (post.postUrl.isNotEmpty)
-                              AspectRatio(
-                                aspectRatio: 16 / 9,
-                                child: CachedNetworkImage(
-                                  imageUrl: post.postUrl,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) =>
-                                      const CircularProgressIndicator(),
-                                  errorWidget: (context, url, error) =>
-                                      const Icon(Icons.error),
-                                ),
-                              ),
-                            Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    post.postTitle,
-                                    style:
-                                    Theme.of(context).textTheme.titleMedium,
-                                  ),
-                                  const SizedBox(
-                                    height: 8,
-                                  ),
-                                  Text(
-                                    'Comments:',
-                                    style:
-                                    Theme.of(context).textTheme.titleSmall,
-                                  ),
-                                  const SizedBox(
-                                    height: 4,
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: post.comments
-                                        .map((comment) => Text(
-                                      '- $comment',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ))
-                                        .toList(),
-                                  ),
-                                  const SizedBox(
-                                    height: 8,
-                                  ),
-                                  Text(
-                                    '${post.likes} likes',
-                                    style:
-                                    Theme.of(context).textTheme.titleSmall,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  );
-                }),
               ],
             ),
           ),

@@ -5,14 +5,16 @@ import 'package:the_mandean_app/screens/community_home_screen_controller.dart';
 import 'package:the_mandean_app/screens/community_like_widget.dart';
 import 'package:the_mandean_app/screens/community_post.dart';
 import 'package:unicons/unicons.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:cached_network_image/cached_network_image.dart'; // Add this import
 
 import 'community_comment_widget.dart';
 
 class PostItem extends StatelessWidget {
   const PostItem({
-    Key? key,
+    super.key,
     required this.post,
-  }) : super(key: key);
+  });
 
   final Post post;
 
@@ -37,7 +39,7 @@ class PostItem extends StatelessWidget {
               contentPadding: const EdgeInsets.all(0),
               leading: CircleAvatar(
                 radius: 30,
-                backgroundImage: NetworkImage(post.userUrl),
+                backgroundImage: CachedNetworkImageProvider(post.userUrl),
               ),
               title: Text(post.userName, style: Theme.of(context).textTheme.titleMedium),
               subtitle: Text(dateString),
@@ -60,22 +62,25 @@ class PostItem extends StatelessWidget {
             const SizedBox(height: 16),
             Text(post.postTitle, textAlign: TextAlign.left),
             const SizedBox(height: 16),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                post.postUrl,
-                width: double.infinity,
-                fit: BoxFit.cover,
+            if (post.postUrl.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: CachedNetworkImage(
+                  imageUrl: post.postUrl,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
+            if (post.postUrl.isNotEmpty) const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
                     LikeWidget(
-                      likePressed: (){
+                      likePressed: () {
                         homeController.setLike(post.postId);
                       },
                       likes: post.likes.length,
@@ -84,13 +89,13 @@ class PostItem extends StatelessWidget {
                     ),
                     CommentWidget(
                       comments: post.commentsCount,
-                      onPressed: (){
+                      onPressed: () {
                         Get.toNamed('/comments_screen', arguments: [
                           post.userName, //0
                           post.userUrl, //1
                           post.userUid, //2
                           post.postId //3
-                        ] );
+                        ]);
                       },
                       child: Row(
                         children: [
@@ -119,7 +124,7 @@ class PostItem extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () {
-                    // Example action for the telegram icon
+                    _sharePost(post); // Share post when the button is pressed
                   },
                   icon: const Icon(
                     UniconsLine.telegram_alt,
@@ -132,6 +137,11 @@ class PostItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _sharePost(Post post) {
+    final String text = '${post.postTitle}\n\n${post.postUrl.isNotEmpty ? post.postUrl : ''}';
+    Share.share(text);
   }
 
   void _showDeleteConfirmationDialog(BuildContext context) {

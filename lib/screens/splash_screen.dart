@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
         children: [
           const Center(
             child: Text(
-              'Mandean App',
+              'GinzApp',
               style: TextStyle(color: Colors.black, fontSize: 30),
             ),
           ),

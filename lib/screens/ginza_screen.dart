@@ -69,28 +69,58 @@ class _GinzaScreenState extends State<GinzaScreen> {
               elevation: 0,
               title: currentVerse == null || isSelected
                   ? null
-                  : GestureDetector(
-                onTap: () {
-                  // Navigate to BooksPage on tap
-                  Get.to(() => BooksPage(
-                    chapterIdx: currentVerse.chapter,
-                    bookIdx: currentVerse.book,
+                  : FittedBox(
+                fit: BoxFit.scaleDown,
+                child: GestureDetector(
+                  onTap: () {
+                    // Navigate to BooksPage on tap
+                    Get.to(() => BooksPage(
+                      chapterIdx: currentVerse.chapter,
+                      bookIdx: currentVerse.book.toString(),
+                    ), transition: Transition.leftToRight);
+                  },
+                  child: Text(
+                    currentVerse.book,
+                    style: const TextStyle(color: Colors.black), // Example color
                   ),
-                      transition: Transition.leftToRight);
-                },
-                child: Text(
-                  currentVerse.book,
-                  style: const TextStyle(color: Colors.black), // Example color
                 ),
               ),
               actions: [
+                // Icon to navigate to the BooksPage
+                IconButton(
+                  onPressed: () {
+                    Get.to(() => BooksPage(
+                      chapterIdx: currentVerse?.chapter ?? 0,
+                      bookIdx: currentVerse?.book.toString() ?? '',
+                    ), transition: Transition.leftToRight);
+                  },
+                  icon: const Icon(
+                    Icons.book_rounded,
+                    color: Colors.black, // Example color
+                  ),
+                ),
                 if (isSelected)
                   IconButton(
                     onPressed: () async {
                       // Copy selected verses to clipboard
                       String string = formattedSelectedVerses(verses: mainProvider.selectedVerses);
                       await FlutterClipboard.copy(string).then(
-                            (_) => mainProvider.clearSelectedVerses(),
+                            (_) {
+                          // Show snackbar after copying
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Verses copied to clipboard!'),
+                              backgroundColor: Colors.green, // Modern color for success
+                              duration: const Duration(seconds: 2), // Duration of the snackbar
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              margin: const EdgeInsets.all(16),
+                            ),
+                          );
+                          mainProvider.clearSelectedVerses();
+                        },
                       );
                     },
                     icon: const Icon(

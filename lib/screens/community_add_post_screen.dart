@@ -22,7 +22,7 @@ class AddPostScreen extends StatelessWidget {
               children: [
                 Obx(() {
                   return AnimatedSwitcher(
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     child: _profileController.url.value.isNotEmpty
                         ? Row(
                       children: [
@@ -56,16 +56,17 @@ class AddPostScreen extends StatelessWidget {
                 ),
                 TextField(
                   controller: _postController.postTxtController,
-                  maxLines: 1,
+                  minLines: 1,
+                  maxLines: null,
                   decoration: InputDecoration(
                     hintText: "Write here...",
-                    hintStyle: TextStyle(color: Colors.grey),
+                    hintStyle: const TextStyle(color: Colors.grey),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1),
+                      borderSide: const BorderSide(width: 1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1),
+                      borderSide: const BorderSide(width: 1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
