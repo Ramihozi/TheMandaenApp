@@ -104,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     },
     {
       'title': 'I-Am-Mandaean Instagram',
-      'link': 'https://www.instagram.com/nasoraean/',
+      'link': 'https://www.instagram.com/iam.mandean/',
       'description': 'Further Information About Mandaeans',
     },
     {

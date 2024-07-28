@@ -56,7 +56,6 @@ dependencies:
   share_plus: ^9.0.0
   photo_view: ^0.15.0
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

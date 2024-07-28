@@ -6,7 +6,8 @@ import 'package:the_mandean_app/screens/community_post_item.dart';
 import 'package:the_mandean_app/screens/community_profile_controller.dart';
 import 'package:the_mandean_app/screens/community_stories_controller.dart';
 import 'package:the_mandean_app/screens/community_story_widget.dart';
-import 'package:cached_network_image/cached_network_image.dart'; // Add this import
+
+import 'community_post.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -66,19 +67,34 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            Obx(() {
-              return Expanded(
-                child: ListView.builder(
-                  cacheExtent: 1000, // Increase cache extent to preload images
-                  itemCount: _homeController.posts.length,
-                  itemBuilder: (context, index) {
-                    return PostItem(
-                      post: _homeController.posts[index],
-                    );
-                  },
-                ),
-              );
-            }),
+            Expanded(
+              child: StreamBuilder<List<Post>>(
+                stream: _homeController.getPosts(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text('No posts available.'));
+                  }
+
+                  final posts = snapshot.data!;
+
+                  return ListView.builder(
+                    cacheExtent: 1000,
+                    itemCount: posts.length,
+                    itemBuilder: (context, index) {
+                      return PostItem(
+                        post: posts[index],
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),

@@ -20,6 +20,9 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ChatService _chatService = ChatService(); // Instantiate ChatService
 
+  // Cache user data to prevent frequent reads
+  final Map<String, String?> _userImages = {};
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,19 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (context, index) {
                     Message message = messages[index];
                     bool isMe = message.senderId == _auth.currentUser!.uid;
-                    return FutureBuilder<DocumentSnapshot>(
-                      future: FirebaseFirestore.instance.collection('user').doc(message.senderId).get(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const SizedBox(); // Return an empty widget while waiting
-                        }
-                        if (snapshot.hasError || !snapshot.hasData || !snapshot.data!.exists) {
-                          return _buildMessage(message, isMe, null);
-                        }
-                        String? imageUrl = snapshot.data!.get('url') as String?;
-                        return _buildMessage(message, isMe, imageUrl);
-                      },
-                    );
+                    return _buildMessage(message, isMe);
                   },
                 );
               },
@@ -73,7 +64,18 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildMessage(Message message, bool isMe, String? imageUrl) {
+  Widget _buildMessage(Message message, bool isMe) {
+    // Cache the image URL if not already cached
+    if (!_userImages.containsKey(message.senderId)) {
+      FirebaseFirestore.instance.collection('user').doc(message.senderId).get().then((snapshot) {
+        if (snapshot.exists) {
+          _userImages[message.senderId] = snapshot.get('url') as String?;
+          setState(() {}); // Trigger a rebuild to update the UI
+        }
+      });
+    }
+
+    String? imageUrl = _userImages[message.senderId];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       child: Row(

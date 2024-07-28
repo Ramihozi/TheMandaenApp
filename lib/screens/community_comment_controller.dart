@@ -40,47 +40,53 @@ class CommentController extends GetxController {
   }
 
   Future<void> addComment(String postId) async {
+    // Check if the comment is empty
+    if (commentTextController.text.trim().isEmpty) {
+      print("Comment is empty");
+      return;
+    }
+
     // Fetch current user's information
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
-      // Handle if user is not logged in (optional)
+      print("User not logged in");
       return;
     }
 
     // Fetch user's name and url from "user" collection
-    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection(
-        "user").doc(currentUser.uid).get();
+    DocumentSnapshot userSnapshot = await _userCollection.doc(currentUser.uid).get();
     String userName = userSnapshot.exists ? userSnapshot['name'] : '';
     String userUrl = userSnapshot.exists ? userSnapshot['url'] : '';
 
     // Generate a random comment ID
     const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
     Random rnd = Random();
-    String randomStr = String.fromCharCodes(Iterable.generate(
-        8, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+    String randomStr = String.fromCharCodes(
+        Iterable.generate(8, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
 
     // Add comment to Firestore
-    await FirebaseFirestore.instance.collection("post").doc(postId).collection(
-        "comment").doc(randomStr).set({
+    await _collectionReference
+        .doc(postId)
+        .collection("comment")
+        .doc(randomStr)
+        .set({
       "commentId": randomStr,
       "comment": commentTextController.text,
       "name": userName,
       "url": userUrl,
       "uid": currentUser.uid,
       "postId": postId,
-      "time": DateTime
-          .now()
-          .millisecondsSinceEpoch,
+      "time": DateTime.now().millisecondsSinceEpoch,
     });
 
     // Update comments count
-    FirebaseFirestore.instance.collection("post").doc(postId).get().then((
-        DocumentSnapshot snapshot) async {
-      int count = snapshot['commentsCount'];
-      FirebaseFirestore.instance.collection("post").doc(postId).update(
-          {"commentsCount": count + 1}).then((value) {
-        commentTextController.text = '';
-      });
+    DocumentSnapshot snapshot = await _collectionReference.doc(postId).get();
+    int count = snapshot.exists ? snapshot['commentsCount'] : 0;
+    await _collectionReference.doc(postId).update({
+      "commentsCount": count + 1,
     });
+
+    // Clear the comment text field
+    commentTextController.clear();
   }
 }

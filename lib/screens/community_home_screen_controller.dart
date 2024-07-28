@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-
 import 'community_post.dart'; // Import your Post class
 
 class HomeController extends GetxController {
@@ -11,22 +10,56 @@ class HomeController extends GetxController {
 
   final _postsCollection = FirebaseFirestore.instance.collection("post");
   final _commentsCollection = FirebaseFirestore.instance.collection("comment");
+  final _reportsCollection = FirebaseFirestore.instance.collection("report");
+  final _usersCollection = FirebaseFirestore.instance.collection("user");
   final user = FirebaseAuth.instance.currentUser;
 
   @override
   void onInit() {
     super.onInit();
-    // Bind the stream to _postList
     _postList.bindStream(getPosts());
   }
 
-  Stream<List<Post>> getPosts() {
-    return _postsCollection
+  Stream<List<Post>> getPosts() async* {
+    final reportedPostIds = await _getReportedPostIds();
+    final blockedUserIds = await _getBlockedUserIds(); // Fetch blocked users
+
+    yield* _postsCollection
         .orderBy("time", descending: true)
         .snapshots()
-        .map((QuerySnapshot querySnapshot) {
-      return querySnapshot.docs.map((doc) => Post.fromDocumentSnapshot(doc)).toList();
+        .map((snapshot) {
+      return snapshot.docs
+          .where((doc) => !reportedPostIds.contains(doc.id) && !blockedUserIds.contains(doc['userUid'])) // Filter reported and blocked users' posts
+          .map((doc) => Post.fromDocumentSnapshot(doc))
+          .toList();
     });
+  }
+
+  Future<List<String>> _getReportedPostIds() async {
+    try {
+      final reportsSnapshot = await _reportsCollection
+          .where('reportedBy', isEqualTo: user!.uid)
+          .get();
+
+      return reportsSnapshot.docs.map((doc) => doc['postId'] as String).toList();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching reported post IDs: $e');
+      }
+      return [];
+    }
+  }
+
+  Future<List<String>> _getBlockedUserIds() async {
+    try {
+      final userDoc = await _usersCollection.doc(user!.uid).get();
+      return List<String>.from(userDoc['blockedUsers'] ?? []);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching blocked user IDs: $e');
+      }
+      return [];
+    }
   }
 
   Future<void> setLike(String postId) async {
@@ -46,40 +79,50 @@ class HomeController extends GetxController {
       if (kDebugMode) {
         print("Error setting like: $e");
       }
-      rethrow; // Rethrow the exception for handling in UI if needed
+      rethrow;
     }
   }
 
   Future<void> deletePost(String postId) async {
     try {
-      // Use batch operations for deleting associated likes and comments
       WriteBatch batch = FirebaseFirestore.instance.batch();
 
-      // Delete likes associated with the post
       QuerySnapshot likesQuery = await _postsCollection.doc(postId).collection('likes').get();
       for (DocumentSnapshot likeDoc in likesQuery.docs) {
         batch.delete(likeDoc.reference);
       }
 
-      // Delete comments associated with the post from 'comments' collection
       QuerySnapshot commentsQuery = await _commentsCollection.where('postId', isEqualTo: postId).get();
       for (DocumentSnapshot commentDoc in commentsQuery.docs) {
         batch.delete(commentDoc.reference);
       }
 
-      // Delete the post itself
       batch.delete(_postsCollection.doc(postId));
-
-      // Commit the batch
       await batch.commit();
 
-      // Optionally, update local state if needed
       _postList.removeWhere((post) => post.postId == postId);
     } catch (e) {
       if (kDebugMode) {
         print('Error deleting post: $e');
       }
-      rethrow; // Rethrow the exception for handling in UI if needed
+      rethrow;
+    }
+  }
+
+  Future<void> reportPost(String postId) async {
+    try {
+      await _reportsCollection.add({
+        'postId': postId,
+        'reportedBy': user!.uid,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      _postList.refresh(); // Trigger an update by fetching the latest list of posts
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error reporting post: $e');
+      }
+      rethrow;
     }
   }
 }

@@ -20,7 +20,7 @@ class PostItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final HomeController homeController = HomeController(); // Replace with your HomeController setup
+    final HomeController homeController = Get.find(); // Use Get.find() to access the HomeController instance
 
     final date = DateTime.fromMillisecondsSinceEpoch(post.time);
     final format = DateFormat.yMd();
@@ -57,7 +57,12 @@ class PostItem extends StatelessWidget {
                   }
                 },
               )
-                  : const SizedBox.shrink(),
+                  : IconButton(
+                icon: const Icon(Icons.report),
+                onPressed: () {
+                  _showReportConfirmationDialog(context, post.postId);
+                },
+              ),
             ),
             const SizedBox(height: 16),
             Text(post.postTitle, textAlign: TextAlign.left),
@@ -160,11 +165,44 @@ class PostItem extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                HomeController().deletePost(post.postId);
+                Get.find<HomeController>().deletePost(post.postId);
                 Navigator.of(context).pop();
               },
               child: const Text(
                 'Delete',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showReportConfirmationDialog(BuildContext context, String postId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Report Post'),
+          content: const Text('Are You Sure? Post Will Be Removed From View Upon App Restart.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Get.find<HomeController>().reportPost(postId);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Post Has Been Reported, Please Allow 24 Hours For Review")),
+                );
+              },
+              child: const Text(
+                'Report',
                 style: TextStyle(color: Colors.red),
               ),
             ),

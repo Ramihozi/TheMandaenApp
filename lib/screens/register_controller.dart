@@ -15,6 +15,7 @@ class RegisterController extends GetxController {
 
   final selectedImagePath = RxString(''); // Observable for image path
   final isLoading = false.obs;
+  final isAgreed = false.obs; // Observable for agreement checkbox
 
   String? name;
   String? email;
@@ -95,11 +96,16 @@ class RegisterController extends GetxController {
     selectedImagePath.value = path;
   }
 
+  // Method to toggle the agreement checkbox
+  void toggleAgreement(bool? value) {
+    isAgreed.value = value ?? false;
+  }
+
   Future<String?> uploadFile() async {
     File file = File(selectedImagePath.value);
     FirebaseStorage storage = FirebaseStorage.instance;
 
-    const chars ='AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+    const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
     Random rnd = Random();
     String randomStr = String.fromCharCodes(Iterable.generate(
         8, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
@@ -128,6 +134,7 @@ class RegisterController extends GetxController {
         'name': nameController.text,
         'email': emailController.text,
         'url': url,
+        'blockedUsers': [] // Initialize blockedUsers as an empty list
       });
     }
   }

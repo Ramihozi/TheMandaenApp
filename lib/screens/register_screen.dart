@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:the_mandean_app/screens/register_controller.dart';
 import '../constants/constants.dart';
 import 'ImageCropScreen.dart';
+import 'package:flutter/gestures.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 InputDecoration decorationWidget(BuildContext context, String labelText, IconData icon) {
   return InputDecoration(
@@ -39,7 +41,6 @@ class RegisterScreen extends StatelessWidget {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -134,20 +135,46 @@ class RegisterScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 24),
+                      Obx(
+                            () => CheckboxListTile(
+                          title: RichText(
+                            text: TextSpan(
+                              children: [
+                                const TextSpan(
+                                  text: 'By Registering You Agree To This App\'s ',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                TextSpan(
+                                  text: 'Terms & Policies',
+                                  style: const TextStyle(color: Colors.blue),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      launch('https://ramihozi.github.io/GinzAppPage/privacy.html');
+                                    },
+                                ),
+                              ],
+                            ),
+                          ),
+                          value: _registrationController.isAgreed.value,
+                          onChanged: (bool? value) {
+                            _registrationController.toggleAgreement(value);
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            side: const BorderSide(color: Colors.amber, width: 2),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                        child: Obx(
+                              () => OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: Colors.amber, width: 2),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              backgroundColor: _registrationController.isAgreed.value ? Colors.transparent : Colors.grey[300],
                             ),
-                            textStyle: Theme.of(context).textTheme.headlineMedium,
-                          ),
-                          child: Obx(
-                                () => _registrationController.isLoading.value
+                            child: _registrationController.isLoading.value
                                 ? const CircularProgressIndicator(
                               valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
                             )
@@ -157,20 +184,22 @@ class RegisterScreen extends StatelessWidget {
                                 color: Colors.black,
                               ),
                             ),
-                          ),
-                          onPressed: () {
-                            if (_registrationController.selectedImagePath.value.isEmpty) {
-                              Get.snackbar(
-                                'Image Required',
-                                'Please upload a profile picture to continue.',
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Colors.red,
-                                colorText: Colors.white,
-                              );
-                            } else {
-                              _registrationController.userRegister();
+                            onPressed: _registrationController.isAgreed.value
+                                ? () {
+                              if (_registrationController.selectedImagePath.value.isEmpty) {
+                                Get.snackbar(
+                                  'Image Required',
+                                  'Please upload a profile picture to continue.',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.red,
+                                  colorText: Colors.white,
+                                );
+                              } else {
+                                _registrationController.userRegister();
+                              }
                             }
-                          },
+                                : null,
+                          ),
                         ),
                       ),
                     ],
