@@ -8,6 +8,7 @@ import 'package:the_mandean_app/screens/community_stories_controller.dart';
 import 'package:the_mandean_app/screens/community_story_widget.dart';
 
 import 'community_post.dart';
+import 'edit_story_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -36,15 +37,18 @@ class HomeScreen extends StatelessWidget {
               child: Row(
                 children: [
                   CreateStory(
-                    onTap: () {
-                      _storyController.getImage().then((value) {
-                        if (value) {
+                    onTap: () async {
+                      final imagePicked = await _storyController.getImage();
+                      if (imagePicked) {
+                        final editedImagePath = await Get.to(() => EditStoryScreen(selectedImagePath: _storyController.selectedImagePath.value));
+                        if (editedImagePath != null) {
+                          _storyController.selectedImagePath.value = editedImagePath;
                           _storyController.createStory(
                             userName: _profileController.name.value,
                             userUrl: _profileController.url.value,
                           );
                         }
-                      });
+                      }
                     },
                   ),
                   Obx(() {

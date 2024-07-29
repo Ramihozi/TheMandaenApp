@@ -1,4 +1,4 @@
-
+import 'dart:convert'; // For JSON encoding/decoding
 import 'dart:io';
 import 'dart:math';
 
@@ -7,11 +7,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:the_mandean_app/screens/community_story.dart';
 import 'dart:developer' as log;
 
+import 'community_story.dart';
 
-class StoriesController extends GetxController{
+class StoriesController extends GetxController {
   RxBool isImgAvailable = false.obs;
   final _picker = ImagePicker();
   RxString selectedImagePath = ''.obs;
@@ -20,26 +20,20 @@ class StoriesController extends GetxController{
   final _userDatBaseReference = FirebaseFirestore.instance.collection("story");
 
   final _storyList = RxList<Story>([]);
-  List<Story> get stories => _storyList;
 
+  List<Story> get stories => _storyList;
 
   @override
   void onInit() {
     super.onInit();
-    _storyList.bindStream(getStories());
+    _storyList.bindStream(getStories() as Stream<List<Story>>);
   }
 
-  Stream<List<Story>> getStories(){
-    return _userDatBaseReference
-        .snapshots()
-        .map((QuerySnapshot querySnapshot){
-
-      List<Story> list = [];
-      for (var element in querySnapshot.docs) {
-        list.add(Story.fromDocumentSnapshot(element));
-        log.log(element.toString());
-      }
-      return list;
+  Stream<List<Story>> getStories() {
+    return FirebaseFirestore.instance.collection('story').snapshots().map((
+        snapshot) {
+      return snapshot.docs.map((doc) => Story.fromDocumentSnapshot(doc))
+          .toList();
     });
   }
 
@@ -48,8 +42,9 @@ class StoriesController extends GetxController{
 
     if (pickedFile != null) {
       selectedImagePath.value = pickedFile.path;
-      selectedImageSize.value = "${((File(selectedImagePath.value)).
-      lengthSync() / 1024 / 1024).toStringAsFixed(2)} Mb";
+      selectedImageSize.value =
+      "${((File(selectedImagePath.value)).lengthSync() / 1024 / 1024)
+          .toStringAsFixed(2)} Mb";
 
       isImgAvailable.value = true;
       return true;
@@ -59,64 +54,63 @@ class StoriesController extends GetxController{
     }
   }
 
-  void createStory({required String userName, required String userUrl}){
+  void createStory({
+    required String userName,
+    required String userUrl,
+  }) {
     isLoading.value = true;
-    uploadImage().then((url){
-      if(url != null){
-        saveDataToDb(url: url, userName: userName, userUrl: userUrl).then((value){
+    uploadImage().then((url) {
+      if (url != null) {
+        saveDataToDb(
+          url: url,
+          userName: userName,
+          userUrl: userUrl,
+        ).then((value) {
           isLoading.value = false;
         });
-      }else{
+      } else {
         isLoading.value = false;
       }
     });
   }
 
-  Future<String?> uploadImage() async{
-
-    // most of the code is same
-
+  Future<String?> uploadImage() async {
     File file = File(selectedImagePath.value);
     FirebaseStorage storage = FirebaseStorage.instance;
 
-    const chars ='AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+    const chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
     Random rnd = Random();
     String randomStr = String.fromCharCodes(Iterable.generate(
-        8, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+      8,
+          (_) => chars.codeUnitAt(rnd.nextInt(chars.length)),
+    ));
 
-    // first we upload image
-    // then we will get download url that we will save in database
     try {
-      await storage
-          .ref('uploads/story/$randomStr')
-          .putFile(file);
+      // Save the image file without text overlays
+      await storage.ref('uploads/story/$randomStr').putFile(file);
     } on FirebaseException catch (e) {
-      // e.g, e.code == 'canceled'
       log.log(e.code.toString());
     }
 
-    String downloadURL = await storage
-        .ref('uploads/story/$randomStr')
+    String downloadURL = await storage.ref('uploads/story/$randomStr')
         .getDownloadURL();
 
     return downloadURL;
   }
 
-  Future<void> saveDataToDb ({
+  Future<void> saveDataToDb({
     required String url,
     required String userName,
-    required String userUrl }) async {
-
+    required String userUrl,
+  }) async {
     User? user = FirebaseAuth.instance.currentUser;
 
-    _userDatBaseReference.doc(user!.uid).get().then((value) async{
+    if (user == null) return;
 
-      // if user story already exist then only update the array
-      // otherwise create an array with the new story url
-      if (value.exists){
+    _userDatBaseReference.doc(user.uid).get().then((value) async {
+      if (value.exists) {
         await _userDatBaseReference.doc(user.uid).update({
-          'storyUrl': FieldValue.arrayUnion([url]), // one user can have multiple stories
-          // so i create an array for storing the stories
+          'storyUrl': FieldValue.arrayUnion([url]),
         });
       } else {
         await _userDatBaseReference.doc(user.uid).set({
@@ -124,9 +118,64 @@ class StoriesController extends GetxController{
           'userName': userName,
           'userUrl': userUrl,
           'storyUrl': FieldValue.arrayUnion([url]),
+          'viewers': {}, // Initialize viewers as an empty map
         });
       }
-
     });
+  }
+
+  Future<void> deleteStory(String storyUrl) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userDoc = _userDatBaseReference.doc(user.uid);
+    final userSnapshot = await userDoc.get();
+    final userData = userSnapshot.data() as Map<String, dynamic>;
+
+    List<String> storyUrls = List<String>.from(userData['storyUrl'] ?? []);
+    storyUrls.remove(storyUrl); // Remove the specific story URL
+
+    if (storyUrls.isEmpty) {
+      await userDoc.delete(); // Delete the user document if no stories are left
+    } else {
+      await userDoc.update({'storyUrl': storyUrls});
+    }
+  }
+
+  Future<void> markStoryAsViewed(String userUid, String storyUrl,
+      String currentUserUid) async {
+    try {
+      final storyRef = FirebaseFirestore.instance.collection('story').doc(
+          userUid);
+
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        final storyDoc = await transaction.get(storyRef);
+
+        if (storyDoc.exists) {
+          // Get the viewers map and handle type conversion
+          final viewers = storyDoc.get('viewers') as Map<String, dynamic>? ??
+              {};
+
+          // Get the viewers map for the specific story URL
+          final storyViewers = viewers[storyUrl] as Map<String, dynamic>? ?? {};
+
+          // Ensure the viewers map is correctly cast
+          final storyViewersMap = Map<String, bool>.from(
+              storyViewers.map((key, value) =>
+                  MapEntry(key, value is bool ? value : false))
+          );
+
+          // Check if the current user has already viewed the story
+          if (!storyViewersMap.containsKey(currentUserUid)) {
+            storyViewersMap[currentUserUid] =
+            true; // Mark the current user's UID as viewed
+            viewers[storyUrl] = storyViewersMap;
+            transaction.update(storyRef, {'viewers': viewers});
+          }
+        }
+      });
+    } catch (e) {
+      print('Failed to mark story as viewed: $e');
+    }
   }
 }

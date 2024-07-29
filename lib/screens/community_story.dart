@@ -1,39 +1,47 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
-///I'm adding only image you can add video as well
-///for [image] and [video] both
-///you need to only add a [mediaType] variable,
-///then pass the particular [type] and at the time of retrieval
-///just compare the type and display according to it.
-///It's your task
-///
-/// Hint:
-///
-/// enum MediaType{
-/// image,
-/// video
-/// }
-///
-/// [MediaType.image] for image
-/// [MediaType.video] for video
-///
-///
 class Story {
-  List<String>? url; // storyUrls ,, change it
-  String? userName;
-  String? userUrl;
-  /// Here MediaType mediaType;
+  final List<String> storyUrl;
+  final String userName;
+  final String userUrl;
+  final String userUid;
+  final Map<String, Map<String, bool>> viewers; // Updated to handle nested map
 
-  Story(
-      this.url,
-      this.userName,
-      this.userUrl
+  Story({
+    required this.storyUrl,
+    required this.userName,
+    required this.userUrl,
+    required this.userUid,
+    required this.viewers,
+  });
+
+  factory Story.fromDocumentSnapshot(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>?; // Check if data is null
+    if (data == null) {
+      throw Exception("Document data is null");
+    }
+
+    return Story(
+      storyUrl: List<String>.from(data['storyUrl'] ?? []),
+      userName: data['userName'] ?? '',
+      userUrl: data['userUrl'] ?? '',
+      userUid: data['userUid'] ?? '',
+      viewers: _parseViewers(data['viewers']),
+    );
+  }
+
+  // Helper method to handle the parsing of viewers
+  static Map<String, Map<String, bool>> _parseViewers(dynamic viewersData) {
+    final Map<String, dynamic> viewersMap = viewersData as Map<String, dynamic>? ?? {};
+    final Map<String, Map<String, bool>> parsedViewers = {};
+
+    viewersMap.forEach((storyUrl, viewers) {
+      final storyViewersMap = viewers as Map<String, dynamic>? ?? {};
+      parsedViewers[storyUrl] = storyViewersMap.map(
+              (userId, hasViewed) => MapEntry(userId, hasViewed is bool ? hasViewed : false)
       );
+    });
 
-  Story.fromDocumentSnapshot(DocumentSnapshot documentSnapshot) {
-    url = documentSnapshot['storyUrl'].cast<String>();
-    userName = documentSnapshot['userName'];
-    userUrl = documentSnapshot['userUrl'];
+    return parsedViewers;
   }
 }

@@ -21,7 +21,7 @@ class CommunityMainScreen extends StatelessWidget {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight - 30), // Adjust this value as needed
           child: AppBar(
-            title: const Text('GinzApp Network'),
+            title: const Text('GinzApp'),
             backgroundColor: Colors.white,
             elevation: 0,
             leading: Builder(

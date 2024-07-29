@@ -127,7 +127,7 @@ class _FriendsTabState extends State<FriendsTab> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    const Text(
                       'Block user',
                       style: TextStyle(
                         color: Colors.black,
