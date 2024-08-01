@@ -12,8 +12,7 @@ class RegisterController extends GetxController {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
-  final selectedImagePath = RxString(''); // Observable for image path
+  var selectedImagePath = ''.obs;
   final isLoading = false.obs;
   final isAgreed = false.obs; // Observable for agreement checkbox
 
@@ -22,11 +21,27 @@ class RegisterController extends GetxController {
   String? password;
 
   @override
+  void onInit() {
+    super.onInit();
+    // Initialize or reset any necessary values here
+  }
+
+  @override
   void onClose() {
     nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
+    // Clear the image path when the controller is closed
+    selectedImagePath.value = '';
     super.onClose();
+  }
+
+  void updateImagePath(String path) {
+    selectedImagePath.value = path;
+  }
+
+  void resetImagePath() {
+    selectedImagePath.value = '';
   }
 
   String? validName(String value) {
@@ -83,20 +98,37 @@ class RegisterController extends GetxController {
         Get.offAllNamed('/login_screen');
       }
     } on FirebaseAuthException catch (e) {
-      print(e);
+      if (e.code == 'email-already-in-use') {
+        Get.snackbar(
+          'Email In Use',
+          'The email address is already in use by another account.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          e.message ?? 'An unknown error occurred.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
       isLoading.value = false;
     } catch (e) {
       print(e);
+      Get.snackbar(
+        'Error',
+        'An unknown error occurred.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       isLoading.value = false;
     }
   }
 
-  // Method to update the selected image path
-  void updateImagePath(String path) {
-    selectedImagePath.value = path;
-  }
-
-  // Method to toggle the agreement checkbox
   void toggleAgreement(bool? value) {
     isAgreed.value = value ?? false;
   }

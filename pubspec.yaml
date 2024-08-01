@@ -58,6 +58,9 @@ dependencies:
   photo_gallery: ^2.2.1
   wechat_assets_picker: ^9.1.0
   image: ^4.2.0
+  image_cropper: ^7.1.0
+  crop_your_image: ^1.1.0
+
 
 
 dev_dependencies:

@@ -47,7 +47,19 @@ class ViewerListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Viewers'),
+        title: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _fetchViewersDetails(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Text('Viewers', style: TextStyle(color: Colors.yellow));
+            }
+            final viewersCount = snapshot.data!.length;
+            return Text(
+              'Viewers ($viewersCount)',
+              style: TextStyle(color: Colors.yellow),
+            );
+          },
+        ),
         backgroundColor: Colors.black,
         elevation: 0,
       ),

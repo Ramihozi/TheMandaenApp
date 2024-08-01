@@ -55,7 +55,8 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
         final storiesController = Get.find<StoriesController>();
         if (_currentIndex >= 0 && _currentIndex < story.storyUrl.length) {
           final currentStoryUrl = story.storyUrl[_currentIndex];
-          await storiesController.markStoryAsViewed(story.userUid, currentStoryUrl, currentUser.uid);
+          await storiesController.markStoryAsViewed(
+              story.userUid, currentStoryUrl, currentUser.uid);
         }
       } catch (e) {
         print('Failed to mark story as viewed: $e');
@@ -70,7 +71,8 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Delete Story'),
-          content: Text('Are you sure you want to delete this story? This action cannot be undone.'),
+          content: Text(
+              'Are you sure you want to delete this story? This action cannot be undone.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -151,10 +153,14 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
     });
   }
 
-  void _viewViewerList() {
+  void _viewViewerList() async {
     if (story.storyUrl.isNotEmpty) {
       final currentStoryUrl = story.storyUrl[_currentIndex];
-      Get.to(() => ViewerListScreen(storyUrl: currentStoryUrl));
+      // Pause the story before navigating to the viewer list screen
+      controller.pause();
+      await Get.to(() => ViewerListScreen(storyUrl: currentStoryUrl));
+      // Resume the story after returning from the viewer list screen
+      controller.play();
     }
   }
 
@@ -170,7 +176,9 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
         onTap: () {
           if (_isPaused) {
             controller.play();
-            _isPaused = false;
+            setState(() {
+              _isPaused = false;
+            });
           }
         },
         child: Stack(
@@ -228,24 +236,32 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
                             ),
                           ),
                         Spacer(),
-                        if (currentUser != null && currentUser.uid == story.userUid)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.visibility, color: Colors.white),
-                                onPressed: _viewViewerList,
-                                tooltip: 'Viewers',
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.delete, color: Colors.white),
-                                onPressed: () {
-                                  if (!_isDeleting) {
-                                    _showDeleteConfirmationDialog();
-                                  }
-                                },
-                              ),
-                            ],
+                        if (currentUser != null &&
+                            currentUser.uid == story.userUid)
+                          Transform.translate(
+                            offset: Offset(-10, 0),
+                            // Move icons 20 pixels to the left
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                      Icons.visibility, color: Colors.white),
+                                  onPressed: _viewViewerList,
+                                  tooltip: 'Viewers',
+                                ),
+                                SizedBox(width: 10),
+                                // Add spacing between icons
+                                IconButton(
+                                  icon: Icon(Icons.delete, color: Colors.white),
+                                  onPressed: () {
+                                    if (!_isDeleting) {
+                                      _showDeleteConfirmationDialog();
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                       ],
                     ),
@@ -254,8 +270,8 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
               ),
             if (_isXButtonVisible)
               Positioned(
-                top: 74, // Adjust this value to position the 'X' button below the timer bar
-                right: 10,
+                top: 73, // Adjusted to ensure it's below the AppBar
+                right: 5,
                 child: IconButton(
                   icon: Icon(Icons.close, color: Colors.white, size: 30),
                   onPressed: _exitStoryView,

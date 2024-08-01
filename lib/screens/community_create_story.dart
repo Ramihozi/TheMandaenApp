@@ -28,8 +28,8 @@ class CreateStory extends StatelessWidget {
                   Stack(
                     children: <Widget>[
                       Container(
-                        width: 55,
-                        height: 55,
+                        width: 70,
+                        height: 70,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           image: DecorationImage(

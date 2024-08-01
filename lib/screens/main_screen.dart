@@ -4,6 +4,7 @@ import 'package:the_mandean_app/screens/community_main_screen.dart';
 import 'package:the_mandean_app/screens/ginza_screen.dart';
 import 'package:the_mandean_app/screens/home_screen.dart';
 import 'package:the_mandean_app/screens/calendar_screen.dart';
+import 'community_profile.dart'; // Import for ProfileScreen
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -20,6 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     const GinzaScreen(),
     CommunityMainScreen(),
     const PrayerScreen(),
+    ProfileScreen(), // Add ProfileScreen here
   ];
 
   void _onItemTapped(int index) {
@@ -52,6 +54,10 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
             label: 'Calendar',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile', // Add Profile tab here
           ),
         ],
         currentIndex: _selectedIndex,

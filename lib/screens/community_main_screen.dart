@@ -1,96 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:the_mandean_app/screens/community_main_screen_controller.dart';
+import 'community_add_post_screen.dart';
+import 'community_chat_screen.dart'; // Import the chat screen
 
 class CommunityMainScreen extends StatelessWidget {
-  final Color drawerBackgroundColor;
-  final Color drawerHeaderColor;
-
-  CommunityMainScreen({
-    super.key,
-    this.drawerBackgroundColor = Colors.white, // Default background color for Drawer
-    this.drawerHeaderColor = Colors.white, // Default background color for DrawerHeader
-  });
-
   final MainScreenController _controller = Get.put(MainScreenController(), permanent: true);
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight - 30), // Adjust this value as needed
-          child: AppBar(
-            title: const Text('GinzApp'),
-            backgroundColor: Colors.white,
-            elevation: 0,
-            leading: Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.menu),
+        appBar: AppBar(
+          title: const Text('GinzApp'),
+          backgroundColor: Colors.white,
+          elevation: 0, // Disable the shadow effect
+          scrolledUnderElevation: 0.0, // Prevent color change on scroll
+          titleSpacing: 10, // Adjust this to control the space between the title and the start of the AppBar
+          toolbarHeight: 40, // Adjust this value to change the overall height of the AppBar
+          actions: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 20.0), // Adjust the right padding as needed
+              child: IconButton(
+                icon: Icon(
+                  Icons.add,
+                  size: 30, // Adjust the size as needed
+                ),
                 onPressed: () {
-                  Scaffold.of(context).openDrawer();
+                  // Navigate to the AddPostScreen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddPostScreen()),
+                  );
                 },
               ),
             ),
-          ),
-        ),
-        drawer: Drawer(
-          child: Container(
-            color: drawerBackgroundColor,
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: <Widget>[
-                DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: drawerHeaderColor,
-                  ),
-                  child: const Text(
-                    'Menu Bar',
-                    style: TextStyle(
-                      color: Colors.amber,
-                      fontSize: 24,
-                    ),
-                  ),
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0), // Adjust the right padding as needed
+              child: IconButton(
+                icon: Icon(
+                  Icons.message_outlined, // Use a modern chat icon
+                  size: 30, // Adjust the size as needed
                 ),
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
-                  leading: const Icon(Icons.home),
-                  title: const Text('Home'),
-                  onTap: () {
-                    _controller.onItemTapped(0); // Navigate to HomeScreen
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
-                  leading: const Icon(Icons.add),
-                  title: const Text('Post'),
-                  onTap: () {
-                    _controller.onItemTapped(1); // Navigate to AddPostScreen
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
-                  leading: const Icon(Icons.chat),
-                  title: const Text('Chat'),
-                  onTap: () {
-                    _controller.onItemTapped(2); // Navigate to ChatScreen
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding here
-                  leading: const Icon(Icons.person),
-                  title: const Text('Profile'),
-                  onTap: () {
-                    _controller.onItemTapped(3); // Navigate to ProfileScreen
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+                onPressed: () {
+                  // Navigate to the chat screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CommunityChatScreen()),
+                  );
+                },
+              ),
             ),
-          ),
+          ],
         ),
         body: _controller.widgetOptions[_controller.selectedIndex.value],
       );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class StoryWidget extends StatelessWidget {
-  const StoryWidget({super.key, required this.image, required this.name, required this.onTap});
+  const StoryWidget({super.key, required this.image, required this.name, required this.onTap, required double size});
   final String name;
   final String image;
   final VoidCallback onTap;
@@ -17,8 +17,8 @@ class StoryWidget extends StatelessWidget {
           children: <Widget>[
             Container(
               padding: const EdgeInsets.all(0.1),
-              width: 56,
-              height: 56,
+              width: 70,
+              height: 70,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: const Color(0xFFc05ba6), width: 3),

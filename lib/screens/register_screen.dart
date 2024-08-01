@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:the_mandean_app/screens/register_controller.dart';
 import '../constants/constants.dart';
@@ -29,15 +30,23 @@ class RegisterScreen extends StatelessWidget {
   RegisterScreen({super.key});
 
   final _registrationController = Get.put(RegisterController());
+  final _imageCropScreen = ImageCropScreen(); // Create an instance of Imagecropscreen
 
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+  Future<void> _pickAndCropImage(BuildContext context) async {
+    // Pick the image
+    final pickedFile = await _imageCropScreen.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 95,
+    );
 
     if (pickedFile != null) {
-      final croppedImagePath = await Get.to(() => ImageCropScreen(imagePath: pickedFile.path));
-      if (croppedImagePath != null) {
-        // Update the RegisterController with the new image path
-        _registrationController.updateImagePath(croppedImagePath);
+      // Crop the image with a circular crop style
+      final croppedFile = await _imageCropScreen.crop(
+        file: pickedFile,
+        cropStyle: CropStyle.circle,
+      );
+      if (croppedFile != null) {
+        _registrationController.selectedImagePath.value = croppedFile.path;
       }
     }
   }
@@ -57,7 +66,7 @@ class RegisterScreen extends StatelessWidget {
                 SizedBox(height: height * 0.05),
                 Center(
                   child: GestureDetector(
-                    onTap: _pickImage,
+                    onTap: () => _pickAndCropImage(context),
                     child: Obx(
                           () => CircleAvatar(
                         radius: 60,
@@ -174,16 +183,6 @@ class RegisterScreen extends StatelessWidget {
                               ),
                               backgroundColor: _registrationController.isAgreed.value ? Colors.transparent : Colors.grey[300],
                             ),
-                            child: _registrationController.isLoading.value
-                                ? const CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
-                            )
-                                : const Text(
-                              'Register',
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
                             onPressed: _registrationController.isAgreed.value
                                 ? () {
                               if (_registrationController.selectedImagePath.value.isEmpty) {
@@ -199,6 +198,16 @@ class RegisterScreen extends StatelessWidget {
                               }
                             }
                                 : null,
+                            child: _registrationController.isLoading.value
+                                ? const CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
+                            )
+                                : const Text(
+                              'Register',
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -216,6 +225,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
+                          _registrationController.resetImagePath();
                           Get.offAllNamed('/login_screen');
                         },
                         child: Text(

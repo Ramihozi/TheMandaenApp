@@ -21,58 +21,52 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        title: const Text(
-          '',
-          style: TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            SizedBox(
-              height: size.height * 0.12,
-              child: Row(
-                children: [
-                  CreateStory(
-                    onTap: () async {
-                      final imagePicked = await _storyController.getImage();
-                      if (imagePicked) {
-                        final editedImagePath = await Get.to(() => EditStoryScreen(selectedImagePath: _storyController.selectedImagePath.value));
-                        if (editedImagePath != null) {
-                          _storyController.selectedImagePath.value = editedImagePath;
-                          _storyController.createStory(
-                            userName: _profileController.name.value,
-                            userUrl: _profileController.url.value,
-                          );
-                        }
-                      }
-                    },
-                  ),
-                  Obx(() {
-                    return Expanded(
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _storyController.stories.length,
-                        itemBuilder: (context, index) {
-                          return StoryWidget(
-                            name: _storyController.stories[index].userName!,
-                            image: _storyController.stories[index].userUrl!,
-                            onTap: () {
-                              Get.toNamed('/story_view_screen', arguments: [_storyController.stories[index]]);
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 0),
+                child: SizedBox(
+                  height: size.height * 0.15, // Increased height to accommodate larger profile pictures and names
+                  child: Obx(() {
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _storyController.stories.length + 1,
+                      padding: const EdgeInsets.only(left: 12.0), // Add padding to the left
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          return CreateStory(
+                            onTap: () async {
+                              final imagePicked = await _storyController.getImage();
+                              if (imagePicked) {
+                                final editedImagePath = await Get.to(() => EditStoryScreen(selectedImagePath: _storyController.selectedImagePath.value));
+                                if (editedImagePath != null) {
+                                  _storyController.selectedImagePath.value = editedImagePath;
+                                  _storyController.createStory(
+                                    userName: _profileController.name.value,
+                                    userUrl: _profileController.url.value,
+                                  );
+                                }
+                              }
                             },
                           );
-                        },
-                      ),
+                        } else {
+                          return StoryWidget(
+                            name: _storyController.stories[index - 1].userName!,
+                            image: _storyController.stories[index - 1].userUrl!,
+                            onTap: () {
+                              Get.toNamed('/story_view_screen', arguments: [_storyController.stories[index - 1]]);
+                            },
+                            size: size.height * 0.10, // Pass size to StoryWidget to adjust the profile picture size
+                          );
+                        }
+                      },
                     );
                   }),
-                ],
+                ),
               ),
-            ),
-            Expanded(
-              child: StreamBuilder<List<Post>>(
+              StreamBuilder<List<Post>>(
                 stream: _homeController.getPosts(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -88,6 +82,8 @@ class HomeScreen extends StatelessWidget {
                   final posts = snapshot.data!;
 
                   return ListView.builder(
+                    physics: NeverScrollableScrollPhysics(), // Disable the scroll physics to allow the SingleChildScrollView to handle scrolling
+                    shrinkWrap: true,
                     cacheExtent: 1000,
                     itemCount: posts.length,
                     itemBuilder: (context, index) {
@@ -98,8 +94,8 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

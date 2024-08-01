@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:the_mandean_app/screens/community_comment_controller.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CommentsScreen extends StatelessWidget {
   CommentsScreen({super.key});
@@ -62,6 +63,40 @@ class CommentsScreen extends StatelessWidget {
                                 color: Colors.grey[600],
                               ),
                             ),
+                            trailing: comment.userUid == FirebaseAuth.instance.currentUser?.uid
+                                ? IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+                                bool? confirm = await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('Delete Comment'),
+                                      content: Text('Are you sure you want to delete this comment?'),
+                                      actions: [
+                                        TextButton(
+                                          child: Text('Cancel'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: Text('Delete'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(true);
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+
+                                if (confirm == true) {
+                                  _commentController.deleteComment(comment.commentId!, _arguments[3]);
+                                }
+                              },
+                            )
+                                : null,
                           ),
                           SizedBox(height: 8),
                           Text(

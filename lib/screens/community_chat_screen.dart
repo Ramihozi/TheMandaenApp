@@ -22,16 +22,39 @@ class _CommunityChatScreenState extends State<CommunityChatScreen>
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  String _currentUserName = '';
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _fetchCurrentUserName();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchCurrentUserName() async {
+    try {
+      DocumentSnapshot userSnapshot = await _firestore
+          .collection('user')
+          .doc(_auth.currentUser!.uid)
+          .get();
+
+      if (userSnapshot.exists) {
+        setState(() {
+          var userData = userSnapshot.data() as Map<String, dynamic>;
+          _currentUserName = userData['name'] ?? 'User';
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching user name: $e');
+      }
+    }
   }
 
   void switchToTab(int index) {
@@ -42,9 +65,26 @@ class _CommunityChatScreenState extends State<CommunityChatScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(50.0),
+        preferredSize: const Size.fromHeight(100.0), // Increased height for more padding
         child: AppBar(
-          title: const Text(''),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Padding(
+            padding: const EdgeInsets.only(left: 0, bottom: 0), // Added bottom padding
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                _currentUserName,
+                style: const TextStyle(
+                  fontSize: 20.0, // Adjust font size as needed
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis, // Ensure text doesn't overflow
+              ),
+            ),
+          ),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(20.0),
             child: TabBar(

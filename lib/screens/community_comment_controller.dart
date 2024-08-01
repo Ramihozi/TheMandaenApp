@@ -89,4 +89,27 @@ class CommentController extends GetxController {
     // Clear the comment text field
     commentTextController.clear();
   }
+
+  Future<void> deleteComment(String commentId, String postId) async {
+    // Fetch current user's information
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      print("User not logged in");
+      return;
+    }
+
+    // Delete comment from Firestore
+    await _collectionReference
+        .doc(postId)
+        .collection("comment")
+        .doc(commentId)
+        .delete();
+
+    // Update comments count
+    DocumentSnapshot snapshot = await _collectionReference.doc(postId).get();
+    int count = snapshot.exists ? snapshot['commentsCount'] : 1;
+    await _collectionReference.doc(postId).update({
+      "commentsCount": count - 1,
+    });
+  }
 }
