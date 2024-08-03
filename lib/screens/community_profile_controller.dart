@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart'; // Add this import
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:io'; // Add this import
 
 class ProfileController extends GetxController {
   RxString name = ''.obs;
@@ -10,7 +12,6 @@ class ProfileController extends GetxController {
   RxList<Map<String, String>> blockedUsers = <Map<String, String>>[].obs;
   User? user = FirebaseAuth.instance.currentUser;
 
-  // Controllers for password inputs
   TextEditingController currentPasswordController = TextEditingController();
   TextEditingController newPasswordController = TextEditingController();
 
@@ -30,6 +31,39 @@ class ProfileController extends GetxController {
       name.value = documentSnapshot['name'];
       email.value = documentSnapshot['email'];
       url.value = documentSnapshot['url'];
+    }
+  }
+
+  Future<void> updateProfilePicture(String filePath) async {
+    try {
+      // Upload the image to Firebase Storage
+      File file = File(filePath);
+      String storagePath = 'uploads/pic/${user!.uid}.jpg'; // Specify the path
+      UploadTask uploadTask = FirebaseStorage.instance
+          .ref()
+          .child(storagePath)
+          .putFile(file);
+
+      // Wait for the upload to complete and get the download URL
+      TaskSnapshot snapshot = await uploadTask;
+      String downloadURL = await snapshot.ref.getDownloadURL();
+
+      // Update Firestore with the new profile picture URL
+      await FirebaseFirestore.instance
+          .collection("user")
+          .doc(user!.uid)
+          .update({
+        'url': downloadURL,
+      });
+
+      // Update the local state
+      url.value = downloadURL;
+
+      // Optionally show a success message
+      Get.snackbar('Success', 'Profile picture updated successfully');
+    } catch (e) {
+      print('Error updating profile picture: $e');
+      Get.snackbar('Error', 'Failed to update profile picture');
     }
   }
 
@@ -68,7 +102,6 @@ class ProfileController extends GetxController {
   Future<void> unblockUser(String userId) async {
     try {
       if (user != null) {
-        // Remove userId from blockedUsers array in Firestore
         await FirebaseFirestore.instance
             .collection('user')
             .doc(user!.uid)
@@ -89,7 +122,6 @@ class ProfileController extends GetxController {
             code: 'user-not-signed-in', message: 'No user is signed in.');
       }
 
-      // Re-authenticate the user
       AuthCredential credential = EmailAuthProvider.credential(
         email: user!.email!,
         password: password,
@@ -97,24 +129,18 @@ class ProfileController extends GetxController {
 
       await user!.reauthenticateWithCredential(credential);
 
-      // Delete user data from Firestore
       await FirebaseFirestore.instance
           .collection("user")
           .doc(user!.uid)
           .delete();
 
-      // Delete user from Firebase Auth
       await user!.delete();
 
-      // Sign out the user after deletion
       await FirebaseAuth.instance.signOut();
 
-      // Navigate to a different screen or show a success message
-      Get.offAllNamed('/login'); // Example navigation to the login screen
+      Get.offAllNamed('/login');
     } catch (e) {
-      // Handle errors
       print('Error deleting user: $e');
-      // Optionally show an error message to the user
     }
   }
 
@@ -125,7 +151,6 @@ class ProfileController extends GetxController {
             code: 'user-not-signed-in', message: 'No user is signed in.');
       }
 
-      // Re-authenticate the user
       AuthCredential credential = EmailAuthProvider.credential(
         email: user!.email!,
         password: currentPassword,
@@ -133,15 +158,11 @@ class ProfileController extends GetxController {
 
       await user!.reauthenticateWithCredential(credential);
 
-      // Update password
       await user!.updatePassword(newPassword);
 
-      // Optionally show a success message or update the UI
       Get.snackbar('Success', 'Password changed successfully');
     } catch (e) {
-      // Handle errors
       print('Error changing password: $e');
-      // Optionally show an error message to the user
     }
   }
 }

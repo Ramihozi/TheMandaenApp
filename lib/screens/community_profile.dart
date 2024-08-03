@@ -1,13 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:the_mandean_app/screens/community_profile_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'ImageCropScreen.dart';
+
 class ProfileScreen extends StatelessWidget {
-  ProfileScreen({Key? key}) : super(key: key);
+  ProfileScreen({Key? key, required userId}) : super(key: key);
 
   final ProfileController _controller = Get.put(ProfileController());
+  final ImageCropScreen _imageCropScreen = ImageCropScreen();
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +27,52 @@ class ProfileScreen extends StatelessWidget {
                   return _controller.url.value.isNotEmpty
                       ? Row(
                     children: [
-                      ClipOval(
-                        child: CachedNetworkImage(
-                          height: 80,
-                          width: 80,
-                          fit: BoxFit.cover,
-                          imageUrl: _controller.url.value,
-                          placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              Image.asset('assets/images/account.png'),
-                        ),
+                      Stack(
+                        children: [
+                          ClipOval(
+                            child: CachedNetworkImage(
+                              height: 80,
+                              width: 80,
+                              fit: BoxFit.cover,
+                              imageUrl: _controller.url.value,
+                              placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  Image.asset('assets/images/account.png'),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: () async {
+                                XFile? pickedFile = await _imageCropScreen.pickImage();
+
+                                if (pickedFile != null) {
+                                  CroppedFile? croppedFile = await _imageCropScreen.crop(file: pickedFile);
+
+                                  if (croppedFile != null) {
+                                    // Call the method to upload the cropped image and update the user's profile picture URL
+                                    await _controller.updateProfilePicture(croppedFile.path);
+                                  }
+                                }
+                              },
+                              child: Container(
+                                height: 30,
+                                width: 30,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.5),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(width: 12),
                       Column(
@@ -78,14 +118,11 @@ class ProfileScreen extends StatelessWidget {
                     );
 
                     if (confirmDelete == true) {
-                      // Ask user for their password before deleting the account
                       String? password = await _showPasswordDialog(context);
 
                       if (password != null && password.isNotEmpty) {
-                        // Pass the password to the deleteUserAccount method
                         await _controller.deleteUserAccount(context, password);
                       } else {
-                        // Optionally handle the case where the password is not provided
                         print('Password not provided.');
                       }
                     }
@@ -98,7 +135,6 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
-                    // Prompt user for current and new passwords
                     bool? confirmChangePassword = await showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
@@ -144,7 +180,6 @@ class ProfileScreen extends StatelessWidget {
                         await _controller.changePassword(
                             context, currentPassword, newPassword);
                       } else {
-                        // Optionally handle empty password fields
                         print('Password fields cannot be empty.');
                       }
                     }
@@ -172,7 +207,6 @@ class ProfileScreen extends StatelessWidget {
                             icon: Icon(Icons.remove_circle,
                                 color: Colors.red),
                             onPressed: () async {
-                              // Confirm unblock
                               bool? confirmUnblock = await showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(

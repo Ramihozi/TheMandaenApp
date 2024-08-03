@@ -16,11 +16,18 @@ class FriendsTab extends StatefulWidget {
 class _FriendsTabState extends State<FriendsTab> {
   final FirebaseService firebaseService = FirebaseService();
   late String currentUserId = '';
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _fetchCurrentUserId();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+      });
+    });
   }
 
   Future<void> _fetchCurrentUserId() async {
@@ -72,94 +79,146 @@ class _FriendsTabState extends State<FriendsTab> {
       return Center(child: CircularProgressIndicator());
     }
 
-    return StreamBuilder<List<User>>(
-      stream: firebaseService.getUsersStream(currentUserId),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No friends found'));
-        }
-
-        List<User> users = snapshot.data!;
-        return ListView.builder(
-          padding: EdgeInsets.all(8.0),
-          itemCount: users.length,
-          itemBuilder: (context, index) {
-            User user = users[index];
-            return Card(
-              elevation: 4.0,
-              color: Colors.white,
-              margin: EdgeInsets.symmetric(vertical: 8.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: NetworkImage(user.imageUrl),
-                ),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user.name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.teal,
-                      ),
-                    ),
-                    SizedBox(height: 4.0), // Space between name and text
-                    Text(
-                      'Tap to chat',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  ],
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Block user',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 10.0,
-                      ),
-                    ),
-                    SizedBox(width: 4.0), // Space between text and icon
-                    IconButton(
-                      icon: Icon(Icons.block, color: Colors.amber),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  style: TextStyle(color: Colors.black), // Text color
+                  decoration: InputDecoration(
+                    hintText: 'Search by name',
+                    hintStyle: TextStyle(color: Colors.grey[600]), // Hint text color
+                    prefixIcon: Icon(Icons.search, color: Colors.black), // Icon color
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                      icon: Icon(Icons.clear, color: Colors.black),
                       onPressed: () {
-                        _confirmBlockUser(user);
+                        _searchController.clear();
                       },
+                    )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide: BorderSide(color: Colors.black), // Default outline color
                     ),
-                  ],
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide: BorderSide(color: Colors.black, width: 2.0), // Outline color when focused
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide: BorderSide(color: Colors.black), // Outline color when enabled
+                    ),
+                  ),
                 ),
-                onTap: () {
-                  // Navigate to the chat screen with the selected friend
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatScreen(
-                        friendId: user.id,
-                        friendName: user.name,
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: StreamBuilder<List<User>>(
+            stream: firebaseService.getUsersStream(currentUserId),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(child: Text('No friends found'));
+              }
+
+              List<User> users = snapshot.data!
+                  .where((user) => user.name.toLowerCase().contains(_searchQuery))
+                  .toList();
+
+              if (users.isEmpty && _searchQuery.isNotEmpty) {
+                return Center(child: Text('No users found for "$_searchQuery"'));
+              }
+
+              return ListView.builder(
+                padding: EdgeInsets.all(8.0),
+                itemCount: users.length,
+                itemBuilder: (context, index) {
+                  User user = users[index];
+                  return Card(
+                    elevation: 4.0,
+                    color: Colors.white,
+                    margin: EdgeInsets.symmetric(vertical: 8.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        radius: 30, // Increased size by 10 px from default 20
+                        backgroundImage: NetworkImage(user.imageUrl),
                       ),
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(height: 4.0), // Space between name and text
+                          Text(
+                            'Tap to chat',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Block user',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 10.0,
+                            ),
+                          ),
+                          SizedBox(width: 4.0), // Space between text and icon
+                          IconButton(
+                            icon: Icon(Icons.block, color: Colors.amber),
+                            onPressed: () {
+                              _confirmBlockUser(user);
+                            },
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        // Navigate to the chat screen with the selected friend
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatScreen(
+                              friendId: user.id,
+                              friendName: user.name,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },
-              ),
-            );
-          },
-        );
-      },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

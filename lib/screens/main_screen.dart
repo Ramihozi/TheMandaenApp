@@ -21,7 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     const GinzaScreen(),
     CommunityMainScreen(),
     const PrayerScreen(),
-    ProfileScreen(), // Add ProfileScreen here
+    ProfileScreen(userId: null,), // Add ProfileScreen here
   ];
 
   void _onItemTapped(int index) {

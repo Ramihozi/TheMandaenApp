@@ -14,9 +14,13 @@ class PostItem extends StatelessWidget {
   const PostItem({
     super.key,
     required this.post,
+    required this.onProfilePictureClick,
+    required this.onNameClick,
   });
 
   final Post post;
+  final VoidCallback onProfilePictureClick;
+  final VoidCallback onNameClick;
 
   @override
   Widget build(BuildContext context) {
@@ -27,59 +31,90 @@ class PostItem extends StatelessWidget {
     final dateString = format.format(date);
 
     return Card(
-      elevation: 1,
-      color: Colors.white,
-      margin: const EdgeInsets.all(16),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ListTile(
-              contentPadding: const EdgeInsets.all(0),
-              leading: CircleAvatar(
-                radius: 30,
-                backgroundImage: CachedNetworkImageProvider(post.userUrl),
-              ),
-              title: Text(post.userName, style: Theme.of(context).textTheme.titleMedium),
-              subtitle: Text(dateString),
-              trailing: post.userUid == homeController.user?.uid
-                  ? PopupMenuButton(
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 'delete',
-                    child: Text('Delete'),
-                  ),
-                ],
-                onSelected: (value) {
-                  if (value == 'delete') {
-                    _showDeleteConfirmationDialog(context);
-                  }
-                },
-              )
-                  : IconButton(
-                icon: const Icon(Icons.report),
-                onPressed: () {
-                  _showReportConfirmationDialog(context, post.postId);
-                },
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(post.postTitle, textAlign: TextAlign.left),
-            const SizedBox(height: 16),
-            if (post.postUrl.isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: CachedNetworkImage(
-                  imageUrl: post.postUrl,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
+      color: Colors.white, // Set the background color to white
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // User Info Section
+          ListTile(
+            contentPadding: const EdgeInsets.all(0),
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 10.0), // Add padding to move profile picture to the right
+              child: GestureDetector(
+                onTap: onProfilePictureClick,
+                child: CircleAvatar(
+                  radius: 24,
+                  backgroundImage: CachedNetworkImageProvider(post.userUrl),
+                  backgroundColor: Colors.grey.shade200,
                 ),
               ),
-            if (post.postUrl.isNotEmpty) const SizedBox(height: 8),
-            Row(
+            ),
+            title: Padding(
+              padding: const EdgeInsets.only(left: 10.0), // Add padding to move name to the right
+              child: GestureDetector(
+                onTap: onNameClick,
+                child: Text(
+                  post.userName,
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(left: 10.0), // Add padding to move date to the right
+              child: Text(dateString),
+            ),
+            trailing: post.userUid == homeController.user?.uid
+                ? PopupMenuButton(
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Text('Delete'),
+                ),
+              ],
+              onSelected: (value) {
+                if (value == 'delete') {
+                  _showDeleteConfirmationDialog(context);
+                }
+              },
+            )
+                : IconButton(
+              icon: const Icon(Icons.report),
+              onPressed: () {
+                _showReportConfirmationDialog(context, post.postId);
+              },
+            ),
+          ),
+          // Post Content Section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              post.postTitle,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (post.postUrl.isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CachedNetworkImage(
+                imageUrl: post.postUrl,
+                width: double.infinity,
+                height: 250,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
+          const SizedBox(height: 8),
+          // Actions Section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
@@ -92,6 +127,7 @@ class PostItem extends StatelessWidget {
                       isLiked: post.likes.contains(homeController.user?.uid),
                       postId: post.postId,
                     ),
+                    SizedBox(width: 16),
                     CommentWidget(
                       comments: post.commentsCount,
                       onPressed: () {
@@ -138,8 +174,8 @@ class PostItem extends StatelessWidget {
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

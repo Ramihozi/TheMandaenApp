@@ -24,10 +24,44 @@ class _ChatScreenState extends State<ChatScreen> {
   final Map<String, String?> _userImages = {};
 
   @override
+  void initState() {
+    super.initState();
+    // Fetch the friend's profile picture at the start
+    _fetchFriendProfileImage();
+  }
+
+  void _fetchFriendProfileImage() {
+    FirebaseFirestore.instance.collection('user').doc(widget.friendId).get().then((snapshot) {
+      if (snapshot.exists) {
+        setState(() {
+          _userImages[widget.friendId] = snapshot.get('url') as String?;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.friendName),
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: _userImages[widget.friendId] != null
+                  ? NetworkImage(_userImages[widget.friendId]!)
+                  : null, // No fallback image
+              radius: 20,
+            ),
+            const SizedBox(width: 8.0),
+            Text(
+              widget.friendName,
+              style: const TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: <Widget>[
@@ -86,7 +120,7 @@ class _ChatScreenState extends State<ChatScreen> {
               radius: 16,
               backgroundImage: imageUrl != null
                   ? NetworkImage(imageUrl) as ImageProvider<Object>?
-                  : const AssetImage('assets/images/account.png') as ImageProvider<Object>?,
+                  : null, // No fallback image
             ),
           const SizedBox(width: 8.0),
           Container(

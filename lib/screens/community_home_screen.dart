@@ -8,6 +8,8 @@ import 'package:the_mandean_app/screens/community_stories_controller.dart';
 import 'package:the_mandean_app/screens/community_story_widget.dart';
 
 import 'community_post.dart';
+import 'community_profile.dart';
+import 'community_view_profile.dart';
 import 'edit_story_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -17,55 +19,101 @@ class HomeScreen extends StatelessWidget {
   final _profileController = Get.put(ProfileController());
   final _storyController = Get.put(StoriesController());
 
+  void _showUploadSuccessSnackbar() {
+    if (_storyController.uploadStatus.value.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Get.snackbar(
+          '',
+          '',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.black54,
+          margin: const EdgeInsets.all(16.0),
+          borderRadius: 8.0,
+          duration: const Duration(seconds: 3), // Show Snackbar for 3 seconds
+          messageText: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.green),
+              const SizedBox(width: 16.0),
+              Text(
+                _storyController.uploadStatus.value,
+                style: TextStyle(
+                  color: _storyController.uploadStatus.value.contains('Failed')
+                      ? Colors.red
+                      : Colors.green,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+        // Clear the upload status after showing the snackbar
+        _storyController.uploadStatus.value = '';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
+              // Story section
               Padding(
                 padding: const EdgeInsets.only(top: 0),
                 child: SizedBox(
-                  height: size.height * 0.15, // Increased height to accommodate larger profile pictures and names
+                  height: size.height * 0.15, // Adjust height as needed
                   child: Obx(() {
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _storyController.stories.length + 1,
-                      padding: const EdgeInsets.only(left: 12.0), // Add padding to the left
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          return CreateStory(
-                            onTap: () async {
-                              final imagePicked = await _storyController.getImage();
-                              if (imagePicked) {
-                                final editedImagePath = await Get.to(() => EditStoryScreen(selectedImagePath: _storyController.selectedImagePath.value));
-                                if (editedImagePath != null) {
-                                  _storyController.selectedImagePath.value = editedImagePath;
-                                  _storyController.createStory(
-                                    userName: _profileController.name.value,
-                                    userUrl: _profileController.url.value,
-                                  );
-                                }
+                    // Check for upload status and show success snackbar
+                    _showUploadSuccessSnackbar();
+
+                    return Column(
+                      children: [
+                        SizedBox(
+                          height: size.height * 0.15, // Adjust size to fit the story widget
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _storyController.stories.length + 1,
+                            padding: const EdgeInsets.only(left: 12.0), // Add padding to the left
+                            itemBuilder: (context, index) {
+                              if (index == 0) {
+                                return CreateStory(
+                                  onTap: () async {
+                                    final imagePicked = await _storyController.getImage();
+                                    if (imagePicked) {
+                                      final editedImagePath = await Get.to(() => EditStoryScreen(selectedImagePath: _storyController.selectedImagePath.value));
+                                      if (editedImagePath != null) {
+                                        _storyController.selectedImagePath.value = editedImagePath;
+                                        _storyController.createStory(
+                                          userName: _profileController.name.value,
+                                          userUrl: _profileController.url.value,
+                                        );
+                                      }
+                                    }
+                                  },
+                                );
+                              } else {
+                                return StoryWidget(
+                                  name: _storyController.stories[index - 1].userName!,
+                                  image: _storyController.stories[index - 1].userUrl!,
+                                  onTap: () {
+                                    Get.toNamed('/story_view_screen', arguments: [_storyController.stories[index - 1]]);
+                                  },
+                                  size: size.height * 0.10, // Pass size to StoryWidget to adjust the profile picture size
+                                );
                               }
                             },
-                          );
-                        } else {
-                          return StoryWidget(
-                            name: _storyController.stories[index - 1].userName!,
-                            image: _storyController.stories[index - 1].userUrl!,
-                            onTap: () {
-                              Get.toNamed('/story_view_screen', arguments: [_storyController.stories[index - 1]]);
-                            },
-                            size: size.height * 0.10, // Pass size to StoryWidget to adjust the profile picture size
-                          );
-                        }
-                      },
+                          ),
+                        ),
+                      ],
                     );
                   }),
                 ),
               ),
+              // Posts section
               StreamBuilder<List<Post>>(
                 stream: _homeController.getPosts(),
                 builder: (context, snapshot) {
@@ -89,6 +137,12 @@ class HomeScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       return PostItem(
                         post: posts[index],
+                        onProfilePictureClick: () {
+                          Get.to(() => ViewProfileScreen(userId: posts[index].userUid));
+                        },
+                        onNameClick: () {
+                          Get.to(() => ViewProfileScreen(userId: posts[index].userUid));
+                        },
                       );
                     },
                   );

@@ -156,4 +156,27 @@ class ChatService {
     await batch.commit();
     print('Deleted all messages from blocked user');
   }
+
+  Future<int> getTotalUnreadMessagesCount() async {
+    String currentUserId = _auth.currentUser!.uid;
+
+    // Get all chat documents where the current user is a participant
+    QuerySnapshot chatRoomsSnapshot = await _firestore
+        .collection('messages')
+        .where('participants', arrayContains: currentUserId)
+        .get();
+
+    int unreadCount = 0;
+
+    for (var chatRoom in chatRoomsSnapshot.docs) {
+      Map<String, dynamic> chatData = chatRoom.data() as Map<String, dynamic>;
+      bool isRead = chatData['isRead']?[currentUserId] ?? true;
+
+      if (!isRead) {
+        unreadCount++;
+      }
+    }
+
+    return unreadCount;
+  }
 }

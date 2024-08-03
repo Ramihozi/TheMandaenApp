@@ -230,7 +230,7 @@ class ChatTab extends StatelessWidget {
                           friendName,
                           style: TextStyle(
                             fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-                            color: Colors.teal,
+                            color: Colors.black,
                           ),
                         ),
                         subtitle: Row(

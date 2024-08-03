@@ -1,3 +1,4 @@
+import 'dart:async'; // Import for Timer
 import 'dart:convert'; // For JSON encoding/decoding
 import 'dart:io';
 import 'dart:math';
@@ -17,6 +18,7 @@ class StoriesController extends GetxController {
   RxString selectedImagePath = ''.obs;
   RxString selectedImageSize = ''.obs;
   RxBool isLoading = false.obs;
+  RxString uploadStatus = ''.obs;
   final _userDatBaseReference = FirebaseFirestore.instance.collection("story");
 
   final _storyList = RxList<Story>([]);
@@ -67,9 +69,13 @@ class StoriesController extends GetxController {
           userUrl: userUrl,
         ).then((value) {
           isLoading.value = false;
+          uploadStatus.value = 'Story uploaded successfully!';
+          _startStatusClearTimer();
         });
       } else {
         isLoading.value = false;
+        uploadStatus.value = 'Failed to upload story.';
+        _startStatusClearTimer();
       }
     });
   }
@@ -86,7 +92,6 @@ class StoriesController extends GetxController {
     ));
 
     try {
-      // Save the image file without text overlays
       await storage.ref('uploads/story/$randomStr').putFile(file);
     } on FirebaseException catch (e) {
       log.log(e.code.toString());
@@ -152,20 +157,16 @@ class StoriesController extends GetxController {
         final storyDoc = await transaction.get(storyRef);
 
         if (storyDoc.exists) {
-          // Get the viewers map and handle type conversion
           final viewers = storyDoc.get('viewers') as Map<String, dynamic>? ??
               {};
 
-          // Get the viewers map for the specific story URL
           final storyViewers = viewers[storyUrl] as Map<String, dynamic>? ?? {};
 
-          // Ensure the viewers map is correctly cast
           final storyViewersMap = Map<String, bool>.from(
               storyViewers.map((key, value) =>
                   MapEntry(key, value is bool ? value : false))
           );
 
-          // Check if the current user has already viewed the story
           if (!storyViewersMap.containsKey(currentUserUid)) {
             storyViewersMap[currentUserUid] =
             true; // Mark the current user's UID as viewed
@@ -177,5 +178,11 @@ class StoriesController extends GetxController {
     } catch (e) {
       print('Failed to mark story as viewed: $e');
     }
+  }
+
+  void _startStatusClearTimer() {
+    Timer(Duration(seconds: 3), () {
+      uploadStatus.value = ''; // Clear the status message after 3 seconds
+    });
   }
 }

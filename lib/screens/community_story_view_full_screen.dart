@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:story_view/controller/story_controller.dart';
 import 'package:story_view/widgets/story_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'community_chat_service.dart';
 import 'community_stories_controller.dart';
 import 'community_story.dart';
 import 'viewer_list_screen.dart';
@@ -20,9 +21,12 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
   final List<StoryItem> storyItems = [];
   bool _isAppBarVisible = true;
   bool _isPaused = false;
-  bool _isXButtonVisible = true; // Track visibility of 'X' button
+  bool _isXButtonVisible = true;
   int _currentIndex = 0;
   bool _isDeleting = false;
+  final TextEditingController _messageController = TextEditingController();
+  final ChatService _chatService = ChatService();
+  bool _isTextFieldFocused = false;
 
   @override
   void initState() {
@@ -41,7 +45,7 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
           StoryItem.pageImage(
             url: element,
             controller: controller,
-            caption: null, // Set to null as we'll handle text overlays separately
+            caption: null,
           ),
         );
       }
@@ -64,104 +68,95 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
     }
   }
 
-  Future<void> _showDeleteConfirmationDialog() async {
-    final bool? confirmDelete = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Delete Story'),
-          content: Text(
-              'Are you sure you want to delete this story? This action cannot be undone.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
+  Future<void> _sendMessage() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null && _messageController.text.trim().isNotEmpty) {
+      try {
+        await _chatService.sendMessage(story.userUid, _messageController.text.trim());
+        _messageController.clear();
 
-    if (confirmDelete == true) {
-      setState(() {
-        _isDeleting = true;
-      });
-      await _deleteStory();
-    }
-  }
-
-  Future<void> _deleteStory() async {
-    try {
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) return;
-
-      if (_currentIndex >= 0 && _currentIndex < story.storyUrl.length) {
-        final currentStoryUrl = story.storyUrl[_currentIndex];
-        final storiesController = Get.find<StoriesController>();
-        await storiesController.deleteStory(currentStoryUrl);
-      }
-
-      Get.back();
-      Get.snackbar('Success', 'Story deleted successfully');
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to delete story: $e');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isDeleting = false;
+        // Use a slight delay before showing the snackbar
+        Future.delayed(Duration(milliseconds: 300), () {
+          Get.snackbar('Success', 'Message sent successfully');
         });
-      }
-    }
-  }
 
-  void _toggleAppBarVisibility(bool visible) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {
-          _isAppBarVisible = visible;
-        });
-      }
-    });
-  }
+        // Resume the story if it was paused
+        if (_isPaused) {
+          controller.play();
+          setState(() {
+            _isPaused = false;
+            _isTextFieldFocused = false;
+          });
+        }
 
-  void _exitStoryView() {
-    if (!_isDeleting) {
-      Get.back();
+        // Ensure clean navigation or exit
+        Get.back();  // This should exit the page cleanly
+      } catch (e) {
+        Get.snackbar('Error', 'Failed to send message: $e');
+      }
     }
   }
 
   void _onLongPressStart(LongPressStartDetails details) {
     controller.pause();
-    _toggleAppBarVisibility(false);
     setState(() {
       _isPaused = true;
-      _isXButtonVisible = false; // Hide 'X' button on long press
     });
   }
 
   void _onLongPressEnd(LongPressEndDetails details) {
     controller.play();
-    _toggleAppBarVisibility(true);
     setState(() {
       _isPaused = false;
-      _isXButtonVisible = true; // Show 'X' button after long press
     });
   }
 
   void _viewViewerList() async {
     if (story.storyUrl.isNotEmpty) {
       final currentStoryUrl = story.storyUrl[_currentIndex];
-      // Pause the story before navigating to the viewer list screen
       controller.pause();
       await Get.to(() => ViewerListScreen(storyUrl: currentStoryUrl));
-      // Resume the story after returning from the viewer list screen
       controller.play();
     }
+  }
+
+  void _showDeleteConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Delete Story"),
+          content: Text("Are you sure you want to delete this story?"),
+          actions: [
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("Delete"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Logic to delete the story
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _exitStoryView() {
+    Get.back();
+  }
+
+  void _handleTextFieldSubmit(String value) {
+    _sendMessage();
+    FocusScope.of(context).unfocus(); // Hide the keyboard
+    setState(() {
+      _isTextFieldFocused = false;
+    });
   }
 
   @override
@@ -171,13 +166,12 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
-        onLongPressStart: _onLongPressStart,
-        onLongPressEnd: _onLongPressEnd,
         onTap: () {
           if (_isPaused) {
             controller.play();
             setState(() {
               _isPaused = false;
+              _isTextFieldFocused = false;
             });
           }
         },
@@ -240,7 +234,6 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
                             currentUser.uid == story.userUid)
                           Transform.translate(
                             offset: Offset(-10, 0),
-                            // Move icons 20 pixels to the left
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -251,7 +244,6 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
                                   tooltip: 'Viewers',
                                 ),
                                 SizedBox(width: 10),
-                                // Add spacing between icons
                                 IconButton(
                                   icon: Icon(Icons.delete, color: Colors.white),
                                   onPressed: () {
@@ -270,7 +262,7 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
               ),
             if (_isXButtonVisible)
               Positioned(
-                top: 73, // Adjusted to ensure it's below the AppBar
+                top: 73,
                 right: 5,
                 child: IconButton(
                   icon: Icon(Icons.close, color: Colors.white, size: 30),
@@ -278,6 +270,70 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
                   tooltip: 'Close',
                 ),
               ),
+            Positioned(
+              bottom: 20,
+              left: 16,
+              right: 16,
+              child: GestureDetector(
+                onTap: () {
+                  if (_isTextFieldFocused) {
+                    controller.pause();
+                    setState(() {
+                      _isPaused = true;
+                    });
+                  }
+                },
+                child: Focus(
+                  onFocusChange: (hasFocus) {
+                    if (hasFocus) {
+                      controller.pause();
+                      setState(() {
+                        _isPaused = true;
+                        _isTextFieldFocused = true;
+                      });
+                    } else {
+                      controller.play();
+                      setState(() {
+                        _isPaused = false;
+                        _isTextFieldFocused = false;
+                      });
+                    }
+                  },
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      hintText: 'Type a message...',
+                      hintStyle: TextStyle(color: Colors.white),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide(
+                          color: _isTextFieldFocused ? Colors.blue : Colors.white,
+                          width: 1,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide(color: Colors.blue, width: 1),
+                      ),
+                    ),
+                    style: TextStyle(color: Colors.white),
+                    onSubmitted: _handleTextFieldSubmit,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 20,
+              right: 16,
+              child: IconButton(
+                icon: Icon(Icons.send, color: Colors.white),
+                onPressed: () {
+                  if (_messageController.text.trim().isNotEmpty) {
+                    _handleTextFieldSubmit(_messageController.text.trim());
+                  }
+                },
+              ),
+            ),
           ],
         ),
       ),
