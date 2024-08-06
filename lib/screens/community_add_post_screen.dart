@@ -14,6 +14,28 @@ class AddPostScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white, // White background for the AppBar
+        elevation: 0, // Remove shadow
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black), // Black back arrow
+          onPressed: () {
+            Get.back();
+          },
+        ),
+        title: Text(
+          'Add Post',
+          style: TextStyle(
+            color: Colors.black, // Black text color for the title
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true, // Center the title
+        iconTheme: const IconThemeData(
+          color: Colors.black, // Black color for other icons
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -100,7 +122,7 @@ class AddPostScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           child: Image.file(
                             File(_postController.selectedImagePath.value),
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain, // Use BoxFit.contain to preserve aspect ratio
                             width: double.infinity,
                             height: double.infinity,
                           ),

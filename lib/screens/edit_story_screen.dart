@@ -111,7 +111,7 @@ class _EditStoryScreenState extends State<EditStoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Story'),
+        title: Text('Confirm Story'),
         actions: [
           IconButton(
             icon: Icon(Icons.save),

@@ -5,99 +5,87 @@ class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<void> sendMessage(String friendId, String message) async {
+  Future<void> sendMessage(String friendId, Map<String, dynamic> message) async {
     String currentUserId = _auth.currentUser!.uid;
 
-    // Create a chat document ID based on the two user IDs to ensure uniqueness
     List<String> userIds = [currentUserId, friendId];
-    userIds.sort(); // Sort to ensure uniqueness irrespective of the order of user IDs
+    userIds.sort();
     String chatId = userIds.join('_');
 
-    // Get reference to the chat document
     DocumentReference chatDoc = _firestore.collection('messages').doc(chatId);
 
-    // Check if the friendId is blocked by the currentUserId
     List<String> blockedUsers = await _getBlockedUsers(friendId);
     if (blockedUsers.contains(currentUserId)) {
-      // Add a message indicating the current user is blocked by the friend
-      await _addBlockedMessage(chatDoc, currentUserId, friendId);
+      await _addBlockedMessage(chatDoc, currentUserId, friendId, storyUrl: message['storyUrl']);
       print('You are blocked by this user. Message not sent.');
       return;
     }
 
-    // Check if the chat document already exists
     DocumentSnapshot chatSnapshot = await chatDoc.get();
-
-    // Batch to perform multiple writes atomically
     WriteBatch batch = _firestore.batch();
 
     if (!chatSnapshot.exists) {
-      // If the chat document does not exist, create it with initial data
       batch.set(chatDoc, {
         'participants': [currentUserId, friendId],
-        'latestMessage': message,
-        'updatedAt': FieldValue.serverTimestamp(), // Optional: To track the last update time
+        'latestMessage': message['message'],
+        'updatedAt': FieldValue.serverTimestamp(),
         'isRead': {
-          currentUserId: true,
-          friendId: false,
+          currentUserId: true, // Current user’s messages are marked as read by default
+          friendId: false,    // Recipient's messages are not read initially
         }
       });
     } else {
-      // If the chat document exists, update the latestMessage field
       batch.update(chatDoc, {
-        'latestMessage': message,
-        'updatedAt': FieldValue.serverTimestamp(), // Optional: To track the last update time
-        'isRead.$friendId': false,
+        'latestMessage': message['message'],
+        'updatedAt': FieldValue.serverTimestamp(),
+        'isRead.$friendId': false, // Set the recipient's read status to false
       });
     }
 
-    // Add the message to a subcollection (e.g., 'chats') inside the chat document
     DocumentReference messageDoc = chatDoc.collection('chats').doc();
     batch.set(messageDoc, {
       'senderId': currentUserId,
-      'message': message,
+      'senderName': (await _firestore.collection('user').doc(currentUserId).get()).get('name') ?? 'Unknown',
+      'message': message['message'],
+      'storyUrl': message['storyUrl'], // Can be null if not a story reply
       'timestamp': FieldValue.serverTimestamp(),
       'isRead': {
-        currentUserId: true,
-        friendId: false,
+        currentUserId: true, // Mark the sender's own message as read
+        friendId: false,    // Recipient's message is not read initially
       }
     });
 
-    // Commit the batch
     await batch.commit();
   }
 
-  Future<void> _addBlockedMessage(DocumentReference chatDoc, String currentUserId, String friendId) async {
+  Future<void> _addBlockedMessage(DocumentReference chatDoc, String currentUserId, String friendId, {String? storyUrl}) async {
     WriteBatch batch = _firestore.batch();
 
-    // Check if the chat document already exists
     DocumentSnapshot chatSnapshot = await chatDoc.get();
 
     if (!chatSnapshot.exists) {
-      // If the chat document does not exist, create it with initial data
       batch.set(chatDoc, {
         'participants': [currentUserId, friendId],
         'latestMessage': 'You are blocked by this user.',
-        'updatedAt': FieldValue.serverTimestamp(), // Optional: To track the last update time
+        'updatedAt': FieldValue.serverTimestamp(),
         'isRead': {
           currentUserId: true,
           friendId: false,
         }
       });
     } else {
-      // If the chat document exists, update the latestMessage field
       batch.update(chatDoc, {
         'latestMessage': 'You are blocked by this user.',
-        'updatedAt': FieldValue.serverTimestamp(), // Optional: To track the last update time
+        'updatedAt': FieldValue.serverTimestamp(),
         'isRead.$friendId': false,
       });
     }
 
-    // Add the blocked message to a subcollection (e.g., 'chats') inside the chat document
     DocumentReference messageDoc = chatDoc.collection('chats').doc();
     batch.set(messageDoc, {
       'senderId': currentUserId,
       'message': 'You are blocked by this user.',
+      'storyUrl': storyUrl,
       'timestamp': FieldValue.serverTimestamp(),
       'isRead': {
         currentUserId: true,
@@ -105,7 +93,32 @@ class ChatService {
       }
     });
 
-    // Commit the batch
+    await batch.commit();
+  }
+
+  Future<void> markMessagesAsSeen(String friendId) async {
+    String currentUserId = _auth.currentUser!.uid;
+
+    List<String> userIds = [currentUserId, friendId];
+    userIds.sort();
+    String chatId = userIds.join('_');
+
+    DocumentReference chatDoc = _firestore.collection('messages').doc(chatId);
+
+    // Update the isRead status for messages from the friend (recipient)
+    QuerySnapshot querySnapshot = await chatDoc.collection('chats')
+        .where('senderId', isEqualTo: friendId)
+        .where('isRead.$currentUserId', isEqualTo: false)
+        .get();
+
+    WriteBatch batch = _firestore.batch();
+
+    for (QueryDocumentSnapshot messageDoc in querySnapshot.docs) {
+      batch.update(messageDoc.reference, {
+        'isRead.$currentUserId': true,
+      });
+    }
+
     await batch.commit();
   }
 
@@ -131,52 +144,23 @@ class ChatService {
   Future<void> deleteBlockedMessages(String friendId) async {
     String currentUserId = _auth.currentUser!.uid;
 
-    // Create a chat document ID based on the two user IDs to ensure uniqueness
     List<String> userIds = [currentUserId, friendId];
-    userIds.sort(); // Sort to ensure uniqueness irrespective of the order of user IDs
+    userIds.sort();
     String chatId = userIds.join('_');
 
-    // Get reference to the chat document
     DocumentReference chatDoc = _firestore.collection('messages').doc(chatId);
 
-    // Get the messages subcollection
     CollectionReference messagesCollection = chatDoc.collection('chats');
 
-    // Get all messages
     QuerySnapshot messagesSnapshot = await messagesCollection.get();
 
-    // Batch to perform multiple deletes atomically
     WriteBatch batch = _firestore.batch();
 
     for (QueryDocumentSnapshot messageDoc in messagesSnapshot.docs) {
       batch.delete(messageDoc.reference);
     }
 
-    // Commit the batch
     await batch.commit();
     print('Deleted all messages from blocked user');
-  }
-
-  Future<int> getTotalUnreadMessagesCount() async {
-    String currentUserId = _auth.currentUser!.uid;
-
-    // Get all chat documents where the current user is a participant
-    QuerySnapshot chatRoomsSnapshot = await _firestore
-        .collection('messages')
-        .where('participants', arrayContains: currentUserId)
-        .get();
-
-    int unreadCount = 0;
-
-    for (var chatRoom in chatRoomsSnapshot.docs) {
-      Map<String, dynamic> chatData = chatRoom.data() as Map<String, dynamic>;
-      bool isRead = chatData['isRead']?[currentUserId] ?? true;
-
-      if (!isRead) {
-        unreadCount++;
-      }
-    }
-
-    return unreadCount;
   }
 }

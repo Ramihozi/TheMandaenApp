@@ -84,33 +84,21 @@ class AddPostController extends GetxController {
         imageUrl = await uploadImage();
       }
 
-      if (imageUrl != null || !isImgAvailable.value) {
-        // Save post data to Firestore
-        await saveDataToDb(
-          url: imageUrl,
-          userName: userName,
-          userUrl: userUrl,
-        );
+      // Save post data to Firestore
+      await saveDataToDb(
+        url: imageUrl,
+        userName: userName,
+        userUrl: userUrl,
+      );
 
-        isLoading.value = false;
+      isLoading.value = false;
 
-        // Clear text field and selected image path after posting
-        postTxtController.text = '';
-        selectedImagePath.value = '';
+      // Clear text field and selected image path after posting
+      postTxtController.text = '';
+      selectedImagePath.value = '';
 
-        // Show success dialog
-        showSuccessDialog();
-      } else {
-        isLoading.value = false;
-        Get.snackbar(
-          "Error",
-          "Failed to upload image",
-          snackPosition: SnackPosition.BOTTOM,
-          margin: const EdgeInsets.all(20),
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
+      // Show success dialog
+      showSuccessDialog();
     } else {
       Get.snackbar(
         "Warning",

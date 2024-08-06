@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:story_view/controller/story_controller.dart';
@@ -6,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'community_chat_service.dart';
 import 'community_stories_controller.dart';
 import 'community_story.dart';
+import 'community_view_profile.dart';
 import 'viewer_list_screen.dart';
 
 class StoryViewFullScreen extends StatefulWidget {
@@ -27,6 +31,8 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ChatService _chatService = ChatService();
   bool _isTextFieldFocused = false;
+  bool _showMessageSent = false;
+  Timer? _sendMessageTimer;
 
   @override
   void initState() {
@@ -70,30 +76,74 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
 
   Future<void> _sendMessage() async {
     final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null && _messageController.text.trim().isNotEmpty) {
+    if (currentUser != null && _messageController.text
+        .trim()
+        .isNotEmpty) {
       try {
-        await _chatService.sendMessage(story.userUid, _messageController.text.trim());
-        _messageController.clear();
-
-        // Use a slight delay before showing the snackbar
-        Future.delayed(Duration(milliseconds: 300), () {
-          Get.snackbar('Success', 'Message sent successfully');
+        controller.pause();
+        setState(() {
+          _isPaused = true;
         });
 
-        // Resume the story if it was paused
-        if (_isPaused) {
-          controller.play();
-          setState(() {
-            _isPaused = false;
-            _isTextFieldFocused = false;
-          });
+        // Check if it's a story reply
+        String? storyUrl;
+        if (story.storyUrl.isNotEmpty && _currentIndex >= 0 &&
+            _currentIndex < story.storyUrl.length) {
+          storyUrl = story.storyUrl[_currentIndex];
         }
 
-        // Ensure clean navigation or exit
-        Get.back();  // This should exit the page cleanly
+        // Create a message
+        final message = {
+          'message': _messageController.text.trim(),
+          'storyUrl': storyUrl, // Add storyUrl if it exists, otherwise null
+        };
+
+        await _chatService.sendMessage(story.userUid, message);
+        _messageController.clear();
+        _showMessageSentNotification();
+
+        _sendMessageTimer?.cancel();
+        _sendMessageTimer = Timer(Duration(seconds: 2), () {
+          if (mounted) {
+            setState(() {
+              _isPaused = false;
+            });
+            controller.play();
+          }
+        });
       } catch (e) {
         Get.snackbar('Error', 'Failed to send message: $e');
       }
+    }
+  }
+
+  void _showMessageSentNotification() {
+    if (mounted) {
+      setState(() {
+        _showMessageSent = true;
+      });
+    }
+    Future.delayed(Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() {
+          _showMessageSent = false;
+        });
+      }
+    });
+  }
+
+  String _timeAgo(DateTime createdAt) {
+    final now = DateTime.now();
+    final difference = now.difference(createdAt);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m';
+    } else {
+      return 'Just now';
     }
   }
 
@@ -104,7 +154,16 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
     });
   }
 
+  void _onLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
+    // Keep the story paused during a long press and move
+    controller.pause();
+    setState(() {
+      _isPaused = true;
+    });
+  }
+
   void _onLongPressEnd(LongPressEndDetails details) {
+    // Resume the story when the user releases the long press
     controller.play();
     setState(() {
       _isPaused = false;
@@ -136,15 +195,81 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
             ),
             TextButton(
               child: Text("Delete"),
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
-                // Logic to delete the story
+                await _deleteStory();
               },
             ),
           ],
         );
       },
     );
+  }
+
+  Future<void> _deleteStory() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      try {
+        setState(() {
+          _isDeleting = true;
+        });
+
+        final currentStoryUrl = story.storyUrl[_currentIndex];
+
+        // Delete the specific story URL from Firestore
+        await FirebaseFirestore.instance
+            .collection('story')
+            .doc(currentUser.uid)
+            .update({
+          'storyUrl': FieldValue.arrayRemove([currentStoryUrl]),
+        });
+
+        // Optionally, if you want to delete the entire story document if no URLs are left:
+        DocumentSnapshot storyDoc = await FirebaseFirestore.instance
+            .collection('story')
+            .doc(currentUser.uid)
+            .get();
+
+        if ((storyDoc.data() as Map)['storyUrl'].isEmpty) {
+          await FirebaseFirestore.instance
+              .collection('story')
+              .doc(currentUser.uid)
+              .delete();
+        }
+
+        Get.back(); // Exit the story view after deletion
+      } catch (e) {
+        Get.snackbar('Error', 'Failed to delete story: $e');
+      } finally {
+        setState(() {
+          _isDeleting = false;
+        });
+      }
+    }
+  }
+
+  void _navigateToProfile(String userId) async {
+    // Pause the story when navigating away
+    controller.pause();
+    setState(() {
+      _isPaused = true;
+    });
+
+    // Navigate to ViewProfileScreen
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ViewProfileScreen(userId: userId),
+      ),
+    );
+
+    // Resume the story when coming back
+    if (mounted) {
+      setState(() {
+        _isPaused = false;
+      });
+      controller.play();
+    }
   }
 
   void _exitStoryView() {
@@ -160,8 +285,21 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
   }
 
   @override
+  void dispose() {
+    _sendMessageTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final currentUser = FirebaseAuth.instance.currentUser;
+
+    // Ensure that story has a createdAt field
+    DateTime? storyCreatedAt;
+    final createdAt = story.createdAt;
+    if (createdAt != null) {
+      storyCreatedAt = createdAt.toDate();
+    }
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -175,6 +313,9 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
             });
           }
         },
+        onLongPressStart: _onLongPressStart,
+        onLongPressEnd: _onLongPressEnd,
+        onLongPressMoveUpdate: _onLongPressMoveUpdate,
         child: Stack(
           children: [
             StoryView(
@@ -200,8 +341,8 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
             ),
             if (_isAppBarVisible)
               Positioned(
-                top: 0,
-                left: 0,
+                top: 5,
+                left: 5,
                 right: 0,
                 child: AppBar(
                   backgroundColor: Colors.black.withOpacity(0),
@@ -210,47 +351,79 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
                   title: Padding(
                     padding: const EdgeInsets.only(top: 20.0),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         if (story.userUrl.isNotEmpty)
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(story.userUrl),
-                            radius: 16,
+                          GestureDetector(
+                            onTap: () => _navigateToProfile(story.userUid),
+                            child: CircleAvatar(
+                              backgroundImage: NetworkImage(story.userUrl),
+                              radius: 16,
+                            ),
                           ),
-                        if (story.userUrl.isNotEmpty)
-                          SizedBox(width: 8),
+                        if (story.userUrl.isNotEmpty) SizedBox(width: 8),
                         if (story.userName.isNotEmpty)
                           Flexible(
-                            child: Text(
-                              story.userName,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                GestureDetector(
+                                  onTap: () =>
+                                      _navigateToProfile(story.userUid),
+                                  child: Text(
+                                    story.userName,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (storyCreatedAt != null)
+                                  Text(
+                                    _timeAgo(storyCreatedAt!),
+                                    style: TextStyle(
+                                      color: Colors.white54,
+                                      fontSize: 12,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                              ],
                             ),
                           ),
                         Spacer(),
                         if (currentUser != null &&
                             currentUser.uid == story.userUid)
-                          Transform.translate(
-                            offset: Offset(-10, 0),
+                          Flexible(
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                IconButton(
-                                  icon: Icon(
-                                      Icons.visibility, color: Colors.white),
-                                  onPressed: _viewViewerList,
-                                  tooltip: 'Viewers',
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(),
+                                    child: IconButton(
+                                      icon: Icon(Icons.visibility,
+                                          color: Colors.white),
+                                      onPressed: _viewViewerList,
+                                      tooltip: 'Viewers',
+                                    ),
+                                  ),
                                 ),
-                                SizedBox(width: 10),
-                                IconButton(
-                                  icon: Icon(Icons.delete, color: Colors.white),
-                                  onPressed: () {
-                                    if (!_isDeleting) {
-                                      _showDeleteConfirmationDialog();
-                                    }
-                                  },
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 9.0),
+                                    child: IconButton(
+                                      icon: Icon(
+                                          Icons.delete, color: Colors.white),
+                                      onPressed: () {
+                                        if (!_isDeleting) {
+                                          _showDeleteConfirmationDialog();
+                                        }
+                                      },
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -262,16 +435,24 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
               ),
             if (_isXButtonVisible)
               Positioned(
-                top: 73,
-                right: 5,
-                child: IconButton(
-                  icon: Icon(Icons.close, color: Colors.white, size: 30),
-                  onPressed: _exitStoryView,
-                  tooltip: 'Close',
+                top: 67,
+                right: 16,
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                    onPressed: _exitStoryView,
+                    tooltip: 'Close',
+                  ),
                 ),
               ),
             Positioned(
-              bottom: 20,
+              bottom: 15,
               left: 16,
               right: 16,
               child: GestureDetector(
@@ -302,18 +483,22 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
                   child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
+                      fillColor: _isTextFieldFocused ? Colors.grey[850] : Colors
+                          .transparent,
+                      filled: true,
                       hintText: 'Type a message...',
                       hintStyle: TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30),
                         borderSide: BorderSide(
-                          color: _isTextFieldFocused ? Colors.blue : Colors.white,
+                          color: _isTextFieldFocused ? Colors.amber : Colors
+                              .white,
                           width: 1,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide(color: Colors.blue, width: 1),
+                        borderSide: BorderSide(color: Colors.amber, width: 1),
                       ),
                     ),
                     style: TextStyle(color: Colors.white),
@@ -328,12 +513,32 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
               child: IconButton(
                 icon: Icon(Icons.send, color: Colors.white),
                 onPressed: () {
-                  if (_messageController.text.trim().isNotEmpty) {
-                    _handleTextFieldSubmit(_messageController.text.trim());
+                  if (_messageController.text
+                      .trim()
+                      .isNotEmpty) {
+                    _sendMessage();
                   }
                 },
               ),
             ),
+            if (_showMessageSent)
+              Center(
+                child: AnimatedOpacity(
+                  opacity: _showMessageSent ? 1.0 : 0.0,
+                  duration: Duration(seconds: 1),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[700],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'Message sent!',
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

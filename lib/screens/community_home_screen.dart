@@ -8,7 +8,6 @@ import 'package:the_mandean_app/screens/community_stories_controller.dart';
 import 'package:the_mandean_app/screens/community_story_widget.dart';
 
 import 'community_post.dart';
-import 'community_profile.dart';
 import 'community_view_profile.dart';
 import 'edit_story_screen.dart';
 
@@ -69,6 +68,9 @@ class HomeScreen extends StatelessWidget {
                   child: Obx(() {
                     // Check for upload status and show success snackbar
                     _showUploadSuccessSnackbar();
+
+                    // Filter and remove stories older than 2 days
+                    _storyController.removeOldStories();
 
                     return Column(
                       children: [
@@ -135,14 +137,30 @@ class HomeScreen extends StatelessWidget {
                     cacheExtent: 1000,
                     itemCount: posts.length,
                     itemBuilder: (context, index) {
+                      final userStories = _storyController.stories.where((story) => story.userUid == posts[index].userUid).toList();
+
                       return PostItem(
                         post: posts[index],
                         onProfilePictureClick: () {
-                          Get.to(() => ViewProfileScreen(userId: posts[index].userUid));
+                          if (userStories.isNotEmpty) {
+                            Get.toNamed('/story_view_screen', arguments: userStories);
+                          } else {
+                            Get.to(() => ViewProfileScreen(userId: posts[index].userUid));
+                          }
                         },
                         onNameClick: () {
                           Get.to(() => ViewProfileScreen(userId: posts[index].userUid));
                         },
+                        // Adding colorful outline if user has a story
+                        profilePictureDecoration: userStories.isNotEmpty
+                            ? BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.amber, // Instagram-like color
+                            width: 3.0, // Thickness of the border
+                          ),
+                        )
+                            : null,
                       );
                     },
                   );

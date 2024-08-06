@@ -59,14 +59,87 @@ class ProfileController extends GetxController {
       // Update the local state
       url.value = downloadURL;
 
-      // Optionally show a success message
-      Get.snackbar('Success', 'Profile picture updated successfully');
+      // Show a success message in a centered dialog
+      Get.dialog(
+        Dialog(
+          child: Container(
+            padding: EdgeInsets.all(16.0),
+            color: Colors.white, // Set background color to white
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Success',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                const Text(
+                  'Please Restart App To Apply Changes Fully!',
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 24.0),
+                TextButton(
+                  onPressed: () {
+                    Get.back(); // Close the dialog
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Colors.amber, // Set OK text color to golden
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        barrierDismissible: true, // Allows tapping outside to dismiss the dialog
+      );
     } catch (e) {
       print('Error updating profile picture: $e');
-      Get.snackbar('Error', 'Failed to update profile picture');
+      Get.dialog(
+        Dialog(
+          child: Container(
+            padding: EdgeInsets.all(16.0),
+            color: Colors.white, // Set background color to white
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Error',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                const Text(
+                  'Failed to update profile picture',
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 24.0),
+                TextButton(
+                  onPressed: () {
+                    Get.back(); // Close the dialog
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Colors.amber, // Set OK text color to golden
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        barrierDismissible: true, // Allows tapping outside to dismiss the dialog
+      );
     }
   }
-
   void listenToBlockedUsers() {
     if (user != null) {
       FirebaseFirestore.instance

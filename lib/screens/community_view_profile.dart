@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ViewProfileScreen extends StatelessWidget {
   final String userId;
 
+  // Constructor with a required userId parameter
   ViewProfileScreen({super.key, required this.userId});
 
   @override

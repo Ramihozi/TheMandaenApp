@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Mandean App',
+        title: 'GinzApp',
         theme: ThemeData(
           primarySwatch: Constants.kSwatchColor,
           primaryColor: Constants.kPrimary,

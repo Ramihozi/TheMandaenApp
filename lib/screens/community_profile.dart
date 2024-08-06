@@ -101,17 +101,17 @@ class ProfileScreen extends StatelessWidget {
                     bool? confirmDelete = await showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: Text('Confirm Deletion'),
-                        content: Text(
+                        title: const Text('Confirm Deletion'),
+                        content: const Text(
                             'Are you sure you want to delete your account? This action cannot be undone.'),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(false),
-                            child: Text('Cancel'),
+                            child: const Text('Cancel'),
                           ),
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(true),
-                            child: Text('Delete'),
+                            child: const Text('Delete'),
                           ),
                         ],
                       ),
@@ -146,24 +146,24 @@ class ProfileScreen extends StatelessWidget {
                               controller: _controller.currentPasswordController,
                               obscureText: true,
                               decoration:
-                              InputDecoration(labelText: 'Current Password'),
+                              const InputDecoration(labelText: 'Current Password'),
                             ),
                             TextField(
                               controller: _controller.newPasswordController,
                               obscureText: true,
                               decoration:
-                              InputDecoration(labelText: 'New Password'),
+                              const InputDecoration(labelText: 'New Password'),
                             ),
                           ],
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(false),
-                            child: Text('Cancel'),
+                            child: const Text('Cancel'),
                           ),
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(true),
-                            child: Text('Change'),
+                            child: const Text('Change'),
                           ),
                         ],
                       ),
@@ -204,14 +204,14 @@ class ProfileScreen extends StatelessWidget {
                         return ListTile(
                           title: Text(user['name'] ?? 'Unknown'),
                           trailing: IconButton(
-                            icon: Icon(Icons.remove_circle,
+                            icon: const Icon(Icons.remove_circle,
                                 color: Colors.red),
                             onPressed: () async {
                               bool? confirmUnblock = await showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  title: Text('Confirm Unblock'),
-                                  content: Text(
+                                  title: const Text('Confirm Unblock'),
+                                  content: const Text(
                                       'Are you sure you want to unblock this user?'),
                                   actions: [
                                     TextButton(

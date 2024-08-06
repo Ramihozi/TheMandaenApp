@@ -5,7 +5,9 @@ class Story {
   final String userName;
   final String userUrl;
   final String userUid;
-  final Map<String, Map<String, bool>> viewers; // Updated to handle nested map
+  final Map<String, Map<String, bool>> viewers;
+  final String storyId;
+  final Timestamp? createdAt; // Make createdAt nullable
 
   Story({
     required this.storyUrl,
@@ -13,10 +15,12 @@ class Story {
     required this.userUrl,
     required this.userUid,
     required this.viewers,
+    required this.storyId,
+    this.createdAt, // Initialize createdAt as optional
   });
 
   factory Story.fromDocumentSnapshot(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>?; // Check if data is null
+    final data = doc.data() as Map<String, dynamic>?;
     if (data == null) {
       throw Exception("Document data is null");
     }
@@ -27,10 +31,11 @@ class Story {
       userUrl: data['userUrl'] ?? '',
       userUid: data['userUid'] ?? '',
       viewers: _parseViewers(data['viewers']),
+      storyId: doc.id,
+      createdAt: data['createdAt'] != null ? data['createdAt'] as Timestamp : null, // Safely cast createdAt
     );
   }
 
-  // Helper method to handle the parsing of viewers
   static Map<String, Map<String, bool>> _parseViewers(dynamic viewersData) {
     final Map<String, dynamic> viewersMap = viewersData as Map<String, dynamic>? ?? {};
     final Map<String, Map<String, bool>> parsedViewers = {};

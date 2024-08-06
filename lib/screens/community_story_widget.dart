@@ -17,11 +17,11 @@ class StoryWidget extends StatelessWidget {
           children: <Widget>[
             Container(
               padding: const EdgeInsets.all(0.1),
-              width: 70,
-              height: 70,
+              width: 80,
+              height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFc05ba6), width: 3),
+                border: Border.all(color: Colors.amber, width: 3),
               ),
               child: ClipOval(
                 child: Image.network( // update it

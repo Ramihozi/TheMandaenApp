@@ -65,23 +65,23 @@ class _CommunityChatScreenState extends State<CommunityChatScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(100.0), // Increased height for more padding
+        preferredSize: const Size.fromHeight(100.0),
         child: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Padding(
-            padding: const EdgeInsets.only(left: 0, bottom: 0), // Added bottom padding
+            padding: const EdgeInsets.only(left: 0, bottom: 0),
             child: Align(
               alignment: Alignment.bottomLeft,
               child: Text(
                 _currentUserName,
                 style: const TextStyle(
-                  fontSize: 20.0, // Adjust font size as needed
+                  fontSize: 20.0,
                   fontWeight: FontWeight.bold,
                 ),
-                overflow: TextOverflow.ellipsis, // Ensure text doesn't overflow
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
@@ -101,13 +101,14 @@ class _CommunityChatScreenState extends State<CommunityChatScreen>
             ),
           ),
           backgroundColor: Colors.white,
+          elevation: 0, // Set elevation to 0 for a flat, solid color AppBar
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
           ChatTab(chatService: _chatService),
-          FriendsTab(onUserBlocked: () => switchToTab(0)), // Passing the callback
+          FriendsTab(onUserBlocked: () => switchToTab(0)),
         ],
       ),
     );
@@ -132,34 +133,30 @@ class ChatTab extends StatelessWidget {
         }
 
         var userData = userSnapshot.data!.data() as Map<String, dynamic>;
-        List<dynamic> dynamicBlockedUsers = userData['blockedUsers'] ?? [];
-        List<String> blockedUsers = List<String>.from(dynamicBlockedUsers);
+        List<String> blockedUsers = List<String>.from(userData['blockedUsers'] ?? []);
 
         return StreamBuilder<QuerySnapshot>(
           stream: _firestore
               .collection('messages')
               .where('participants', arrayContains: _auth.currentUser!.uid)
               .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+          builder: (context, chatSnapshot) {
+            if (chatSnapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (snapshot.hasError) {
+            if (chatSnapshot.hasError) {
               if (kDebugMode) {
-                print('Error fetching chats: ${snapshot.error}');
+                print('Error fetching chats: ${chatSnapshot.error}');
               }
               return const Center(child: Text('Error fetching chats.'));
             }
 
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              if (kDebugMode) {
-                print('No chats available. Snapshot data: ${snapshot.data}');
-              }
-              return const Center(child: Text('No chats available'));
+            if (!chatSnapshot.hasData || chatSnapshot.data!.docs.isEmpty) {
+              return const Center(child: Text('No chats available.'));
             }
 
-            List<DocumentSnapshot> chatRooms = snapshot.data!.docs;
+            List<DocumentSnapshot> chatRooms = chatSnapshot.data!.docs;
             return ListView.builder(
               padding: EdgeInsets.all(8.0),
               itemCount: chatRooms.length,
@@ -194,7 +191,7 @@ class ChatTab extends StatelessWidget {
                     DateTime dateTime = timestamp.toDate();
                     String formattedDate = timeago.format(dateTime);
 
-                    bool isRead = chatRoom['isRead']?[_auth.currentUser!.uid] ?? true;
+                    bool isRead = chatRoom['isRead']?[_auth.currentUser!.uid] ?? false;
 
                     return Card(
                       elevation: 4.0,
@@ -255,10 +252,13 @@ class ChatTab extends StatelessWidget {
                           ],
                         ),
                         onTap: () {
+                          // Mark messages as read when navigating to the chat screen
                           _firestore
                               .collection('messages')
                               .doc(chatRoom.id)
-                              .update({'isRead.${_auth.currentUser!.uid}': true});
+                              .update({
+                            'isRead.${_auth.currentUser!.uid}': true,
+                          });
 
                           Navigator.push(
                             context,

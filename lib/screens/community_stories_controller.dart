@@ -1,5 +1,5 @@
-import 'dart:async'; // Import for Timer
-import 'dart:convert'; // For JSON encoding/decoding
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -22,6 +22,7 @@ class StoriesController extends GetxController {
   final _userDatBaseReference = FirebaseFirestore.instance.collection("story");
 
   final _storyList = RxList<Story>([]);
+  int currentStoryIndex = -1; // Track the current story index
 
   List<Story> get stories => _storyList;
 
@@ -32,11 +33,42 @@ class StoriesController extends GetxController {
   }
 
   Stream<List<Story>> getStories() {
-    return FirebaseFirestore.instance.collection('story').snapshots().map((
-        snapshot) {
-      return snapshot.docs.map((doc) => Story.fromDocumentSnapshot(doc))
-          .toList();
+    return FirebaseFirestore.instance
+        .collection('story')
+        .snapshots()
+        .map((snapshot) {
+      List<Story> stories = snapshot.docs.map((doc) => Story.fromDocumentSnapshot(doc)).toList();
+
+      stories.sort((a, b) {
+        DateTime? dateA = a.createdAt?.toDate();
+        DateTime? dateB = b.createdAt?.toDate();
+
+        if (dateA == null && dateB == null) return 0;
+        if (dateA == null) return 1;
+        if (dateB == null) return -1;
+
+        return dateB.compareTo(dateA);
+      });
+
+      return stories;
     });
+  }
+
+  Future<void> deleteOldStoriesFromFirestore() async {
+    final now = DateTime.now();
+    final querySnapshot = await FirebaseFirestore.instance.collection('story').get();
+
+    for (final doc in querySnapshot.docs) {
+      final data = doc.data() as Map<String, dynamic>;
+      final createdAt = data.containsKey('createdAt') ? data['createdAt'] as Timestamp? : null;
+
+      if (createdAt != null) {
+        final createdAtDate = createdAt.toDate();
+        if (now.difference(createdAtDate).inDays > 2) {
+          await doc.reference.delete();
+        }
+      }
+    }
   }
 
   Future<bool> getImage() async {
@@ -44,10 +76,7 @@ class StoriesController extends GetxController {
 
     if (pickedFile != null) {
       selectedImagePath.value = pickedFile.path;
-      selectedImageSize.value =
-      "${((File(selectedImagePath.value)).lengthSync() / 1024 / 1024)
-          .toStringAsFixed(2)} Mb";
-
+      selectedImageSize.value = "${((File(selectedImagePath.value)).lengthSync() / 1024 / 1024).toStringAsFixed(2)} Mb";
       isImgAvailable.value = true;
       return true;
     } else {
@@ -97,8 +126,7 @@ class StoriesController extends GetxController {
       log.log(e.code.toString());
     }
 
-    String downloadURL = await storage.ref('uploads/story/$randomStr')
-        .getDownloadURL();
+    String downloadURL = await storage.ref('uploads/story/$randomStr').getDownloadURL();
 
     return downloadURL;
   }
@@ -112,6 +140,8 @@ class StoriesController extends GetxController {
 
     if (user == null) return;
 
+    final createdAt = FieldValue.serverTimestamp();
+
     _userDatBaseReference.doc(user.uid).get().then((value) async {
       if (value.exists) {
         await _userDatBaseReference.doc(user.uid).update({
@@ -123,7 +153,8 @@ class StoriesController extends GetxController {
           'userName': userName,
           'userUrl': userUrl,
           'storyUrl': FieldValue.arrayUnion([url]),
-          'viewers': {}, // Initialize viewers as an empty map
+          'viewers': {},
+          'createdAt': createdAt,
         });
       }
     });
@@ -138,38 +169,33 @@ class StoriesController extends GetxController {
     final userData = userSnapshot.data() as Map<String, dynamic>;
 
     List<String> storyUrls = List<String>.from(userData['storyUrl'] ?? []);
-    storyUrls.remove(storyUrl); // Remove the specific story URL
+    storyUrls.remove(storyUrl);
 
     if (storyUrls.isEmpty) {
-      await userDoc.delete(); // Delete the user document if no stories are left
+      await userDoc.delete();
     } else {
       await userDoc.update({'storyUrl': storyUrls});
     }
   }
 
-  Future<void> markStoryAsViewed(String userUid, String storyUrl,
-      String currentUserUid) async {
+  Future<void> markStoryAsViewed(String userUid, String storyUrl, String currentUserUid) async {
     try {
-      final storyRef = FirebaseFirestore.instance.collection('story').doc(
-          userUid);
+      final storyRef = FirebaseFirestore.instance.collection('story').doc(userUid);
 
       await FirebaseFirestore.instance.runTransaction((transaction) async {
         final storyDoc = await transaction.get(storyRef);
 
         if (storyDoc.exists) {
-          final viewers = storyDoc.get('viewers') as Map<String, dynamic>? ??
-              {};
+          final viewers = storyDoc.get('viewers') as Map<String, dynamic>? ?? {};
 
           final storyViewers = viewers[storyUrl] as Map<String, dynamic>? ?? {};
 
           final storyViewersMap = Map<String, bool>.from(
-              storyViewers.map((key, value) =>
-                  MapEntry(key, value is bool ? value : false))
+              storyViewers.map((key, value) => MapEntry(key, value is bool ? value : false))
           );
 
           if (!storyViewersMap.containsKey(currentUserUid)) {
-            storyViewersMap[currentUserUid] =
-            true; // Mark the current user's UID as viewed
+            storyViewersMap[currentUserUid] = true;
             viewers[storyUrl] = storyViewersMap;
             transaction.update(storyRef, {'viewers': viewers});
           }
@@ -180,9 +206,34 @@ class StoriesController extends GetxController {
     }
   }
 
+  Future<Story?> getNextStory() async {
+    if (_storyList.isEmpty) {
+      return null;
+    }
+
+    currentStoryIndex++;
+
+    if (currentStoryIndex >= _storyList.length) {
+      currentStoryIndex = 0;
+    }
+
+    return _storyList[currentStoryIndex];
+  }
+
   void _startStatusClearTimer() {
     Timer(Duration(seconds: 3), () {
-      uploadStatus.value = ''; // Clear the status message after 3 seconds
+      uploadStatus.value = '';
+    });
+  }
+
+  void removeOldStories() {
+    final now = DateTime.now();
+    stories.removeWhere((story) {
+      final storyCreationTime = (story.createdAt as Timestamp?)?.toDate();
+      if (storyCreationTime == null) {
+        return false;
+      }
+      return now.difference(storyCreationTime).inDays > 2;
     });
   }
 }

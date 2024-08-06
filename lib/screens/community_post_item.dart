@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -6,8 +8,7 @@ import 'package:the_mandean_app/screens/community_like_widget.dart';
 import 'package:the_mandean_app/screens/community_post.dart';
 import 'package:unicons/unicons.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:cached_network_image/cached_network_image.dart'; // Add this import
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'community_comment_widget.dart';
 
 class PostItem extends StatelessWidget {
@@ -16,11 +17,13 @@ class PostItem extends StatelessWidget {
     required this.post,
     required this.onProfilePictureClick,
     required this.onNameClick,
+    this.profilePictureDecoration, // Add profilePictureDecoration parameter
   });
 
   final Post post;
   final VoidCallback onProfilePictureClick;
   final VoidCallback onNameClick;
+  final BoxDecoration? profilePictureDecoration; // Optional decoration parameter
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +48,14 @@ class PostItem extends StatelessWidget {
               padding: const EdgeInsets.only(left: 10.0), // Add padding to move profile picture to the right
               child: GestureDetector(
                 onTap: onProfilePictureClick,
-                child: CircleAvatar(
-                  radius: 24,
-                  backgroundImage: CachedNetworkImageProvider(post.userUrl),
-                  backgroundColor: Colors.grey.shade200,
+                child: Container(
+                  decoration: profilePictureDecoration, // Apply the decoration if provided
+                  padding: EdgeInsets.all(2.0), // Add padding to create space between the border and image
+                  child: CircleAvatar(
+                    radius: 24,
+                    backgroundImage: CachedNetworkImageProvider(post.userUrl),
+                    backgroundColor: Colors.grey.shade200,
+                  ),
                 ),
               ),
             ),
@@ -99,16 +106,29 @@ class PostItem extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           if (post.postUrl.isNotEmpty)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: CachedNetworkImage(
-                imageUrl: post.postUrl,
-                width: double.infinity,
-                height: 250,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-              ),
+            FutureBuilder<Size>(
+              future: _calculateImageDimension(post.postUrl),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                  final size = snapshot.data!;
+                  final aspectRatio = size.width / size.height;
+
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: AspectRatio(
+                      aspectRatio: aspectRatio,
+                      child: CachedNetworkImage(
+                        imageUrl: post.postUrl,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                      ),
+                    ),
+                  );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
             ),
           const SizedBox(height: 8),
           // Actions Section
@@ -127,7 +147,7 @@ class PostItem extends StatelessWidget {
                       isLiked: post.likes.contains(homeController.user?.uid),
                       postId: post.postId,
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     CommentWidget(
                       comments: post.commentsCount,
                       onPressed: () {
@@ -178,6 +198,19 @@ class PostItem extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<Size> _calculateImageDimension(String url) {
+    Completer<Size> completer = Completer();
+    Image image = Image.network(url);
+    image.image.resolve(ImageConfiguration()).addListener(
+      ImageStreamListener(
+            (ImageInfo info, bool _) {
+          completer.complete(Size(info.image.width.toDouble(), info.image.height.toDouble()));
+        },
+      ),
+    );
+    return completer.future;
   }
 
   void _sharePost(Post post) {
