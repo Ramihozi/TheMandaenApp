@@ -51,7 +51,8 @@ exports.sendNewMessageNotification = functions.firestore
           continue; // Skip to next recipient
         }
 
-        if (!recipientData.url) {
+        const fcmToken = recipientData.fcmToken; // Get FCM token from the 'fcmToken' field
+        if (!fcmToken) {
           console.log(`No FCM token for recipient ${recipientId}`);
           continue; // Skip to next recipient
         }
@@ -65,11 +66,11 @@ exports.sendNewMessageNotification = functions.firestore
         // Create the notification payload
         const payload = {
           notification: {
-            title: 'New Message',
-            body: `${senderName}: ${latestMessage}`,
+            title: 'GinzApp',
+            body: `${senderName}: 'Sent You A New Message'`,
             // Note: Remove the `sound` field if not supported
           },
-          token: recipientData.url, // Ensure this is the correct field for FCM token
+          token: fcmToken, // Use the correct field for FCM token
         };
 
         // Send the notification

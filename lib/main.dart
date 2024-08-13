@@ -8,6 +8,7 @@ import 'package:the_mandean_app/services/fetch_books.dart';
 import 'package:the_mandean_app/services/fetch_verses.dart';
 import 'package:provider/provider.dart';
 import 'package:the_mandean_app/models/verse.dart';
+import 'package:the_mandean_app/services/saveFcmToken.dart';
 import 'package:the_mandean_app/services/save_current_index.dart';
 import 'package:the_mandean_app/providers/main_provider.dart';
 import 'package:get/get.dart';
@@ -18,6 +19,8 @@ Future<void> main() async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FcmTokenManager.initialize();
+
 
   runApp(const MyApp());
 
