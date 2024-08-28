@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart'; // Import for CupertinoTabBar
+import 'package:the_mandean_app/screens/bookSelection.dart';
 import 'package:the_mandean_app/screens/community_main_screen.dart';
 import 'package:the_mandean_app/screens/ginza_screen.dart';
 import 'package:the_mandean_app/screens/home_screen.dart';
@@ -18,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _widgetOptions = <Widget>[
     const HomeScreen(),
-    const GinzaScreen(),
+    const BooksSelectionScreen(),
     CommunityMainScreen(),
     const PrayerScreen(),
     ProfileScreen(userId: null,), // Add ProfileScreen here

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -115,164 +116,246 @@ class _CommunityChatScreenState extends State<CommunityChatScreen>
   }
 }
 
-class ChatTab extends StatelessWidget {
+class ChatTab extends StatefulWidget {
   final ChatService chatService;
 
   ChatTab({super.key, required this.chatService});
 
+  @override
+  _ChatTabState createState() => _ChatTabState();
+}
+
+class _ChatTabState extends State<ChatTab> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  final ScrollController _scrollController = ScrollController();
+  List<DocumentSnapshot> _chatRooms = [];
+  bool _hasMore = true;
+  bool _isLoading = false;
+  final int _limit = 20;
+  DocumentSnapshot? _lastDocument;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchChats();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        if (!_isLoading && _hasMore) {
+          _fetchChats();
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchChats() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      Query query = _firestore
+          .collection('messages')
+          .where('participants', arrayContains: _auth.currentUser!.uid)
+          .orderBy('updatedAt', descending: true)
+          .limit(_limit);
+
+      if (_lastDocument != null) {
+        query = query.startAfterDocument(_lastDocument!);
+      }
+
+      QuerySnapshot querySnapshot = await query.get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        _lastDocument = querySnapshot.docs.last;
+        setState(() {
+          _chatRooms.addAll(querySnapshot.docs);
+          if (querySnapshot.docs.length < _limit) {
+            _hasMore = false;
+          }
+        });
+      } else {
+        setState(() {
+          _hasMore = false;
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching chats: $e');
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: _firestore.collection('user').doc(_auth.currentUser!.uid).snapshots(),
-      builder: (context, userSnapshot) {
-        if (!userSnapshot.hasData) {
+    return StreamBuilder<List<DocumentSnapshot>>(
+      stream: _firestore
+          .collection('messages')
+          .where('participants', arrayContains: _auth.currentUser!.uid)
+          .orderBy('updatedAt', descending: true)
+          .snapshots()
+          .map((snapshot) => snapshot.docs),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        var userData = userSnapshot.data!.data() as Map<String, dynamic>;
-        List<String> blockedUsers = List<String>.from(userData['blockedUsers'] ?? []);
+        if (snapshot.hasError) {
+          if (kDebugMode) {
+            print('Error fetching chats: ${snapshot.error}');
+          }
+          return const Center(child: Text('Error fetching chats.'));
+        }
 
-        return StreamBuilder<QuerySnapshot>(
-          stream: _firestore
-              .collection('messages')
-              .where('participants', arrayContains: _auth.currentUser!.uid)
-              .snapshots(),
-          builder: (context, chatSnapshot) {
-            if (chatSnapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No chats available.'));
+        }
+
+        _chatRooms = snapshot.data!;
+
+        return ListView.builder(
+          controller: _scrollController,
+          padding: EdgeInsets.all(8.0),
+          itemCount: _chatRooms.length + (_hasMore ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index >= _chatRooms.length) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CircularProgressIndicator(),
+                ),
+              );
             }
 
-            if (chatSnapshot.hasError) {
-              if (kDebugMode) {
-                print('Error fetching chats: ${chatSnapshot.error}');
-              }
-              return const Center(child: Text('Error fetching chats.'));
+            DocumentSnapshot chatRoom = _chatRooms[index];
+            String friendId = _getFriendId(chatRoom);
+
+            List<String> blockedUsers = []; // Replace with actual blockedUsers retrieval
+
+            if (blockedUsers.contains(friendId)) {
+              _deleteChat(chatRoom.id);
+              return SizedBox.shrink();
             }
 
-            if (!chatSnapshot.hasData || chatSnapshot.data!.docs.isEmpty) {
-              return const Center(child: Text('No chats available.'));
-            }
-
-            List<DocumentSnapshot> chatRooms = chatSnapshot.data!.docs;
-            return ListView.builder(
-              padding: EdgeInsets.all(8.0),
-              itemCount: chatRooms.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot chatRoom = chatRooms[index];
-                String friendId = _getFriendId(chatRoom);
-
-                if (blockedUsers.contains(friendId)) {
-                  _deleteChat(chatRoom.id);
-                  return SizedBox.shrink();
+            return FutureBuilder<DocumentSnapshot>(
+              future: _firestore.collection('user').doc(friendId).get(),
+              builder: (context, userSnapshot) {
+                if (!userSnapshot.hasData) {
+                  return const ListTile(title: Text('Loading...'));
                 }
 
-                return FutureBuilder<DocumentSnapshot>(
-                  future: _firestore.collection('user').doc(friendId).get(),
-                  builder: (context, userSnapshot) {
-                    if (!userSnapshot.hasData) {
-                      return const ListTile(title: Text('Loading...'));
-                    }
+                if (userSnapshot.hasError) {
+                  if (kDebugMode) {
+                    print('Error fetching user data: ${userSnapshot.error}');
+                  }
+                  return const ListTile(title: Text('Error loading user data.'));
+                }
 
-                    if (userSnapshot.hasError) {
-                      if (kDebugMode) {
-                        print('Error fetching user data: ${userSnapshot.error}');
-                      }
-                      return const ListTile(title: Text('Error loading user data.'));
-                    }
+                var friendData = userSnapshot.data?.data() as Map<String, dynamic>? ?? {};
+                String friendName = friendData['name'] ?? 'Unknown';
+                String friendPhotoUrl = friendData['url'];
+                String latestMessage = chatRoom['latestMessage'] ?? '';
+                Timestamp timestamp = chatRoom['updatedAt'] ?? Timestamp.now();
+                DateTime dateTime = timestamp.toDate();
+                String formattedDate = timeago.format(dateTime);
 
-                    var friendData = userSnapshot.data!.data() as Map<String, dynamic>;
-                    String friendName = friendData['name'] ?? 'Unknown';
-                    String friendPhotoUrl = friendData['url'] ?? 'assets/images/account.png';
-                    String latestMessage = chatRoom['latestMessage'] ?? '';
-                    Timestamp timestamp = chatRoom['updatedAt'] ?? Timestamp.now();
-                    DateTime dateTime = timestamp.toDate();
-                    String formattedDate = timeago.format(dateTime);
+                bool isRead = chatRoom['isRead']?[_auth.currentUser!.uid] ?? false;
 
-                    bool isRead = chatRoom['isRead']?[_auth.currentUser!.uid] ?? false;
-
-                    return Card(
-                      elevation: 4.0,
-                      color: Colors.white,
-                      margin: EdgeInsets.symmetric(vertical: 8.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: ListTile(
-                        leading: Stack(
-                          children: [
-                            CircleAvatar(
-                              backgroundImage: friendPhotoUrl.startsWith('http')
-                                  ? NetworkImage(friendPhotoUrl)
-                                  : AssetImage(friendPhotoUrl) as ImageProvider,
-                            ),
-                            if (!isRead)
-                              Positioned(
-                                top: 0,
-                                right: 0,
-                                child: Container(
-                                  width: 10,
-                                  height: 10,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                              ),
-                          ],
+                return Card(
+                  elevation: 4.0,
+                  color: Colors.white,
+                  margin: EdgeInsets.symmetric(vertical: 12.0), // Increased vertical margin for bigger card
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0), // Increased border radius for a larger appearance
+                  ),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0), // Increased padding for bigger content area
+                    leading: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 30.0, // Increased size for profile picture
+                          backgroundImage: friendPhotoUrl.startsWith('http')
+                              ? NetworkImage(friendPhotoUrl)
+                              : AssetImage(friendPhotoUrl) as ImageProvider,
                         ),
-                        title: Text(
-                          friendName,
-                          style: TextStyle(
-                            fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-                            color: Colors.black,
+                        if (!isRead)
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: Container(
+                              width: 12,
+                              height: 12, // Increased size for the unread message badge
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    title: Text(
+                      friendName,
+                      style: TextStyle(
+                        fontSize: 18.0, // Increased font size for the name
+                        fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    subtitle: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            latestMessage,
+                            style: TextStyle(
+                              fontSize: 16.0, // Increased font size for the message text
+                              fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        subtitle: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                latestMessage,
-                                style: TextStyle(
-                                  fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            Text(
-                              formattedDate,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: isRead ? Colors.grey : Colors.black,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          formattedDate,
+                          style: TextStyle(
+                            fontSize: 14.0, // Slightly increased font size for the date
+                            color: isRead ? Colors.grey : Colors.black,
+                          ),
                         ),
-                        onTap: () {
-                          // Mark messages as read when navigating to the chat screen
-                          _firestore
-                              .collection('messages')
-                              .doc(chatRoom.id)
-                              .update({
-                            'isRead.${_auth.currentUser!.uid}': true,
-                          });
+                      ],
+                    ),
+                    onTap: () {
+                      _firestore
+                          .collection('messages')
+                          .doc(chatRoom.id)
+                          .update({
+                        'isRead.${_auth.currentUser!.uid}': true,
+                      });
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatScreen(
-                                friendId: friendId,
-                                friendName: friendName,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatScreen(
+                            friendId: friendId,
+                            friendName: friendName,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             );

@@ -62,6 +62,8 @@ dependencies:
   crop_your_image: ^1.1.0
   badges: ^3.1.2
   firebase_messaging: ^15.0.4
+  dotted_border: ^2.1.0
+
 
 
 
@@ -86,4 +88,7 @@ flutter:
     - assets/images/texts.jpeg
     - assets/images/backgroundPhoto.jpeg
     - assets/images/darfesh1.jpeg
+    - assets/ginzas/MandaeanBookOfJohn.json
+    - assets/ginzas/ginzaArabic.json
+
 

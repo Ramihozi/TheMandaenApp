@@ -202,6 +202,27 @@ class ProfileController extends GetxController {
 
       await user!.reauthenticateWithCredential(credential);
 
+      // Delete user's posts from the 'post' collection
+      QuerySnapshot postSnapshot = await FirebaseFirestore.instance
+          .collection('post')
+          .where('userUid', isEqualTo: user!.uid)
+          .get();
+
+      for (QueryDocumentSnapshot doc in postSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // Delete user's stories from the 'story' collection
+      QuerySnapshot storySnapshot = await FirebaseFirestore.instance
+          .collection('story')
+          .where('userUid', isEqualTo: user!.uid)
+          .get();
+
+      for (QueryDocumentSnapshot doc in storySnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // Delete the user's document from the 'user' collection
       await FirebaseFirestore.instance
           .collection("user")
           .doc(user!.uid)
@@ -214,9 +235,9 @@ class ProfileController extends GetxController {
       Get.offAllNamed('/login');
     } catch (e) {
       print('Error deleting user: $e');
+      Get.snackbar('Error', 'Failed to delete account');
     }
   }
-
   Future<void> changePassword(BuildContext context, String currentPassword, String newPassword) async {
     try {
       if (user == null) {

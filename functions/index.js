@@ -3,14 +3,8 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 
 // Function to get localized message
-function getLocalizedMessage(userLang, senderName) {
-  const messages = {
-    en: `${senderName} sent you a message`,
-    es: `${senderName} te envió un mensaje`, // Spanish
-    fr: `${senderName} vous a envoyé un message`, // French
-    // Add more languages here
-  };
-  return messages[userLang] || messages['en']; // Default to English if language not found
+function getLocalizedMessage(senderName) {
+  return `${senderName} Sent You A New Message`;
 }
 
 // Firebase Function to send notifications on new message creation
@@ -24,9 +18,9 @@ exports.sendNewMessageNotification = functions.firestore
       return null;
     }
 
-    const { senderId, message: latestMessage, isRead } = newMessage;
+    const { senderId, isRead } = newMessage;
 
-    // Check if isRead is a map
+    // Check if isRead is an object
     if (typeof isRead !== 'object' || isRead === null) {
       console.error('isRead field is missing or not an object:', isRead);
       return null;
@@ -57,17 +51,16 @@ exports.sendNewMessageNotification = functions.firestore
           continue; // Skip to next recipient
         }
 
-        // Get the recipient's language preference or default to English
-        const userLanguage = recipientData.language || 'en';
+        // Get the sender's name
         const senderDoc = await admin.firestore().collection('user').doc(senderId).get();
         const senderName = senderDoc.data().name || 'Unknown Sender';
-        const localizedMessage = getLocalizedMessage(userLanguage, senderName);
+        const localizedMessage = getLocalizedMessage(senderName);
 
         // Create the notification payload
         const payload = {
           notification: {
             title: 'GinzApp',
-            body: `${senderName}: 'Sent You A New Message'`,
+            body: localizedMessage, // Shows "SenderName Sent You a New Message"
             // Note: Remove the `sound` field if not supported
           },
           token: fcmToken, // Use the correct field for FCM token
