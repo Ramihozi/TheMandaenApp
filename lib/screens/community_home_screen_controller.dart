@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -13,11 +15,43 @@ class HomeController extends GetxController {
   final _reportsCollection = FirebaseFirestore.instance.collection("report");
   final _usersCollection = FirebaseFirestore.instance.collection("user");
   final user = FirebaseAuth.instance.currentUser;
+  final RxList<SuggestedFriend> suggestedFriends = <SuggestedFriend>[].obs;
 
   @override
   void onInit() {
     super.onInit();
     _postList.bindStream(getPosts());
+    fetchSuggestedFriends();
+  }
+
+  Future<List<SuggestedFriend>> getAllUsers() async {
+    try {
+      final snapshot = await _usersCollection.get();
+      final users = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return SuggestedFriend(
+          id: doc.id, // Assuming doc.id contains the user's ID
+          name: data['name'] ?? '',
+          url: data['url'] ?? '',
+        );
+      }).toList();
+      return users;
+    } catch (e) {
+      print('Error fetching all users: $e');
+      return [];
+    }
+  }
+
+  void fetchSuggestedFriends() async {
+    try {
+      final allUsers = await getAllUsers(); // Fetch all users
+      final random = Random();
+      final suggestedFriendsList = List<SuggestedFriend>.from(allUsers)..shuffle();
+      final maxSuggestedFriends = 100;
+      suggestedFriends.value = suggestedFriendsList.take(maxSuggestedFriends).toList();
+    } catch (e) {
+      print('Error fetching suggested friends: $e');
+    }
   }
 
   Stream<List<Post>> getPosts() async* {
@@ -125,4 +159,16 @@ class HomeController extends GetxController {
       rethrow;
     }
   }
+}
+
+class SuggestedFriend {
+  final String id;
+  final String name;
+  final String url;
+
+  SuggestedFriend({
+    required this.id,
+    required this.name,
+    required this.url,
+  });
 }

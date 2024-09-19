@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:the_mandean_app/screens/user.dart';
+import 'community_profile_controller.dart';
 import 'firebase_service.dart';
 import 'community_dm_screen.dart'; // Import the ChatScreen or your desired DM screen
+import 'package:get/get.dart'; // Import GetX package
 
 class FriendsTab extends StatefulWidget {
   final VoidCallback onUserBlocked;
@@ -18,6 +20,9 @@ class _FriendsTabState extends State<FriendsTab> {
   late String currentUserId = '';
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+
+  // Initialize ProfileController
+  final ProfileController _profileController = Get.find<ProfileController>();
 
   @override
   void initState() {
@@ -47,17 +52,39 @@ class _FriendsTabState extends State<FriendsTab> {
       barrierDismissible: false, // User must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Block'),
-          content: Text('Are you sure you want to block ${user.name}?\nThis Will Remove All Posts And Messages Associated With User! '),
+          title: Text(
+            _profileController.isEnglish.value ? 'Confirm Block' : 'تأكيد الحظر',
+            style: TextStyle(
+              fontSize: _profileController.isEnglish.value ? 18.0 : 22.0, // Adjust font size
+            ),
+          ),
+          content: Text(
+            _profileController.isEnglish.value
+                ? 'Are you sure you want to block ${user.name}?\nThis will remove all posts and messages associated with the user!'
+                : 'هل أنت متأكد أنك تريد حظر ${user.name}؟\nسيؤدي ذلك إلى إزالة جميع المنشورات والرسائل المرتبطة بالمستخدم!',
+            style: TextStyle(
+              fontSize: _profileController.isEnglish.value ? 14.0 : 18.0, // Adjust font size
+            ),
+          ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text(
+                _profileController.isEnglish.value ? 'Cancel' : 'إلغاء',
+                style: TextStyle(
+                  fontSize: _profileController.isEnglish.value ? 14.0 : 18.0, // Adjust font size
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
             ),
             TextButton(
-              child: Text('Block'),
+              child: Text(
+                _profileController.isEnglish.value ? 'Block' : 'حظر',
+                style: TextStyle(
+                  fontSize: _profileController.isEnglish.value ? 14.0 : 18.0, // Adjust font size
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
@@ -90,8 +117,13 @@ class _FriendsTabState extends State<FriendsTab> {
                   controller: _searchController,
                   style: TextStyle(color: Colors.black), // Text color
                   decoration: InputDecoration(
-                    hintText: 'Search by name',
-                    hintStyle: TextStyle(color: Colors.grey[600]), // Hint text color
+                    hintText: _profileController.isEnglish.value
+                        ? 'Search by name'
+                        : 'ابحث بالاسم',
+                    hintStyle: TextStyle(
+                      color: Colors.grey[600], // Hint text color
+                      fontSize: _profileController.isEnglish.value ? 14.0 : 16.0, // Adjust font size
+                    ),
                     prefixIcon: Icon(Icons.search, color: Colors.black), // Icon color
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
@@ -132,7 +164,16 @@ class _FriendsTabState extends State<FriendsTab> {
               }
 
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('No friends found'));
+                return Center(
+                  child: Text(
+                    _profileController.isEnglish.value
+                        ? 'No friends found'
+                        : 'لم يتم العثور على أصدقاء',
+                    style: TextStyle(
+                      fontSize: _profileController.isEnglish.value ? 14.0 : 18.0, // Adjust font size
+                    ),
+                  ),
+                );
               }
 
               List<User> users = snapshot.data!
@@ -140,7 +181,16 @@ class _FriendsTabState extends State<FriendsTab> {
                   .toList();
 
               if (users.isEmpty && _searchQuery.isNotEmpty) {
-                return Center(child: Text('No users found for "$_searchQuery"'));
+                return Center(
+                  child: Text(
+                    _profileController.isEnglish.value
+                        ? 'No users found for "$_searchQuery"'
+                        : 'لم يتم العثور على مستخدمين لـ "$_searchQuery"',
+                    style: TextStyle(
+                      fontSize: _profileController.isEnglish.value ? 14.0 : 18.0, // Adjust font size
+                    ),
+                  ),
+                );
               }
 
               return ListView.builder(
@@ -168,14 +218,17 @@ class _FriendsTabState extends State<FriendsTab> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
+                              fontSize: 14.0, // Uniform font size for names
                             ),
                           ),
                           SizedBox(height: 4.0), // Space between name and text
                           Text(
-                            'Tap to chat',
+                            _profileController.isEnglish.value
+                                ? 'Tap to chat'
+                                : 'اضغط للدردشة',
                             style: TextStyle(
                               color: Colors.grey[600],
-                              fontSize: 12.0,
+                              fontSize: _profileController.isEnglish.value ? 14.0 : 16.0, // Adjust font size
                             ),
                           ),
                         ],
@@ -183,11 +236,13 @@ class _FriendsTabState extends State<FriendsTab> {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text(
-                            'Block user',
+                          Text(
+                            _profileController.isEnglish.value
+                                ? 'Block user'
+                                : 'حظر المستخدم',
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 10.0,
+                              fontSize: _profileController.isEnglish.value ? 12.0 : 15.0, // Adjust font size
                             ),
                           ),
                           SizedBox(width: 4.0), // Space between text and icon

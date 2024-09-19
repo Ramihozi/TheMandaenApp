@@ -15,7 +15,7 @@ class _GinzaArabicBookScreenState extends State<GinzaArabicBookScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Book and Chapter'),
+        title: Text('حدد الكتاب والفصل'),
         backgroundColor: Colors.white, // Set the app bar background to white
       ),
       body: ListView.builder(

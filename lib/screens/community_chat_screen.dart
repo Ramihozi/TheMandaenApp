@@ -3,10 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'Community_dm_screen.dart';
 import 'community_friends_tab.dart';
 import 'community_chat_service.dart';
+import 'community_profile_controller.dart';
 
 class CommunityChatScreen extends StatefulWidget {
   const CommunityChatScreen({super.key});
@@ -17,13 +19,15 @@ class CommunityChatScreen extends StatefulWidget {
 
 class _CommunityChatScreenState extends State<CommunityChatScreen>
     with SingleTickerProviderStateMixin {
-
   late TabController _tabController;
   final ChatService _chatService = ChatService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String _currentUserName = '';
+
+  // Initialize ProfileController
+  final ProfileController _profileController = Get.find<ProfileController>();
 
   @override
   void initState() {
@@ -77,7 +81,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen>
             child: Align(
               alignment: Alignment.bottomLeft,
               child: Text(
-                _currentUserName,
+                _currentUserName, // Keep the name in the current language
                 style: const TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
@@ -95,9 +99,25 @@ class _CommunityChatScreenState extends State<CommunityChatScreen>
               labelColor: Colors.amber,
               unselectedLabelColor: Colors.black,
               indicatorColor: Colors.amber,
-              tabs: const [
-                Tab(text: 'Chat'),
-                Tab(text: 'All Users'),
+              tabs: [
+                Tab(
+                  child: Text(
+                    _profileController.isEnglish.value ? 'Chat' : 'الدردشة',
+                    style: TextStyle(
+                      fontSize: _profileController.isEnglish.value ? 16.0 : 19.0, // Adjust font size
+                      color: Colors.black, // Matching label color
+                    ),
+                  ),
+                ),
+                Tab(
+                  child: Text(
+                    _profileController.isEnglish.value ? 'All Users' : 'جميع المستخدمين',
+                    style: TextStyle(
+                      fontSize: _profileController.isEnglish.value ? 16.0 : 19.0, // Adjust font size
+                      color: Colors.black, // Matching label color
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -155,7 +175,6 @@ class _ChatTabState extends State<ChatTab> {
     _scrollController.dispose();
     super.dispose();
   }
-
   Future<void> _fetchChats() async {
     if (_isLoading) return;
 
@@ -164,6 +183,11 @@ class _ChatTabState extends State<ChatTab> {
     });
 
     try {
+      // Save the current scroll position
+      final currentScrollPosition = _scrollController.hasClients
+          ? _scrollController.position.pixels
+          : 0.0;
+
       Query query = _firestore
           .collection('messages')
           .where('participants', arrayContains: _auth.currentUser!.uid)
@@ -177,9 +201,9 @@ class _ChatTabState extends State<ChatTab> {
       QuerySnapshot querySnapshot = await query.get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        _lastDocument = querySnapshot.docs.last;
         setState(() {
           _chatRooms.addAll(querySnapshot.docs);
+          _lastDocument = querySnapshot.docs.last;
           if (querySnapshot.docs.length < _limit) {
             _hasMore = false;
           }
@@ -189,6 +213,13 @@ class _ChatTabState extends State<ChatTab> {
           _hasMore = false;
         });
       }
+
+      // Restore the scroll position after loading more chats
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(currentScrollPosition);
+        }
+      });
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching chats: $e');
@@ -258,11 +289,10 @@ class _ChatTabState extends State<ChatTab> {
                   return const ListTile(title: Text('Loading...'));
                 }
 
-                if (userSnapshot.hasError) {
-                  if (kDebugMode) {
-                    print('Error fetching user data: ${userSnapshot.error}');
-                  }
-                  return const ListTile(title: Text('Error loading user data.'));
+                if (userSnapshot.hasError || !userSnapshot.data!.exists) {
+                  // If there's an error or the user no longer exists, delete the chat
+                  _deleteChat(chatRoom.id);
+                  return const SizedBox.shrink();
                 }
 
                 var friendData = userSnapshot.data?.data() as Map<String, dynamic>? ?? {};
@@ -278,16 +308,16 @@ class _ChatTabState extends State<ChatTab> {
                 return Card(
                   elevation: 4.0,
                   color: Colors.white,
-                  margin: EdgeInsets.symmetric(vertical: 12.0), // Increased vertical margin for bigger card
+                  margin: EdgeInsets.symmetric(vertical: 12.0),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0), // Increased border radius for a larger appearance
+                    borderRadius: BorderRadius.circular(20.0),
                   ),
                   child: ListTile(
-                    contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0), // Increased padding for bigger content area
+                    contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
                     leading: Stack(
                       children: [
                         CircleAvatar(
-                          radius: 30.0, // Increased size for profile picture
+                          radius: 30.0,
                           backgroundImage: friendPhotoUrl.startsWith('http')
                               ? NetworkImage(friendPhotoUrl)
                               : AssetImage(friendPhotoUrl) as ImageProvider,
@@ -298,7 +328,7 @@ class _ChatTabState extends State<ChatTab> {
                             right: 0,
                             child: Container(
                               width: 12,
-                              height: 12, // Increased size for the unread message badge
+                              height: 12,
                               decoration: const BoxDecoration(
                                 color: Colors.red,
                                 shape: BoxShape.circle,
@@ -310,7 +340,7 @@ class _ChatTabState extends State<ChatTab> {
                     title: Text(
                       friendName,
                       style: TextStyle(
-                        fontSize: 18.0, // Increased font size for the name
+                        fontSize: 18.0,
                         fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
                         color: Colors.black,
                       ),
@@ -322,7 +352,7 @@ class _ChatTabState extends State<ChatTab> {
                           child: Text(
                             latestMessage,
                             style: TextStyle(
-                              fontSize: 16.0, // Increased font size for the message text
+                              fontSize: 16.0,
                               fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -331,7 +361,7 @@ class _ChatTabState extends State<ChatTab> {
                         Text(
                           formattedDate,
                           style: TextStyle(
-                            fontSize: 14.0, // Slightly increased font size for the date
+                            fontSize: 14.0,
                             color: isRead ? Colors.grey : Colors.black,
                           ),
                         ),

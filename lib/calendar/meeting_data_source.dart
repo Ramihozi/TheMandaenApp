@@ -1,29 +1,31 @@
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:the_mandean_app/calendar/meeting.dart';
 
-class MeetingDataSource extends CalendarDataSource{
-  MeetingDataSource(List<Meeting> source) {
+class MeetingDataSource extends CalendarDataSource {
+  final bool isEnglish;
+
+  MeetingDataSource(List<Meeting> source, this.isEnglish) {
     appointments = source;
   }
 
   @override
   DateTime getStartTime(int index) {
-    return appointments![index].from;
+    return appointments![index].startTime;
   }
 
   @override
   DateTime getEndTime(int index) {
-    return appointments![index].to;
+    return appointments![index].endTime;
   }
 
   @override
   String getSubject(int index) {
-    return appointments![index].eventName;
+    final meeting = appointments![index] as Meeting;
+    return meeting.getTitle(isEnglish);
   }
 
   @override
-  bool isAllDay(int index){
+  bool isAllDay(int index) {
     return appointments![index].isAllDay;
   }
-
 }

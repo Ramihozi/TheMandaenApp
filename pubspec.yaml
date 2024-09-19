@@ -18,8 +18,7 @@ fonts:
       - asset: fonts/Merriweather-Bold.ttf
       - weight: 700
 
-version: 1.0.0+1
-
+version: 1.0.0+2
 environment:
   sdk: '>=3.3.1 <4.0.0'
 
@@ -63,7 +62,7 @@ dependencies:
   badges: ^3.1.2
   firebase_messaging: ^15.0.4
   dotted_border: ^2.1.0
-
+  cloud_functions: ^5.1.0
 
 
 
@@ -90,5 +89,8 @@ flutter:
     - assets/images/darfesh1.jpeg
     - assets/ginzas/MandaeanBookOfJohn.json
     - assets/ginzas/ginzaArabic.json
-
+    - assets/images/arabic.png
+    - assets/images/english.png
+    - assets/images/ginzaBook.jpg
+    - assets/images/bookVector.png
 

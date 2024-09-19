@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:introduction_screen/introduction_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_mandean_app/constants/constants.dart';
 
 class OnBoardingScreen extends StatefulWidget {
@@ -56,19 +57,17 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     );
   }
 
-  void _handleDone() {
+  void _handleDone() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboarding_complete', true); // Mark onboarding as complete
+
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      Timer(const Duration(milliseconds: 0), () {
-        Get.offNamed('/main_screen');
-      });
+      Get.offNamed('/main_screen');
     } else {
-      Timer(const Duration(milliseconds: 0), () {
-        Get.offNamed('/login_screen');
-      });
+      Get.offNamed('/login_screen');
     }
   }
-
   PageViewModel _buildPageViewModel({
     required String title,
     required String body,

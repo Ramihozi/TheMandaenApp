@@ -1,4 +1,4 @@
-package com.example.the_mandean_app
+package com.RamiHozi.the_mandean_app
 
 import io.flutter.embedding.android.FlutterActivity
 

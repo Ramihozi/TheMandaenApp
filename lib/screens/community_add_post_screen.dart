@@ -24,7 +24,7 @@ class AddPostScreen extends StatelessWidget {
           },
         ),
         title: Text(
-          'Add Post',
+          _profileController.isEnglish.value ? 'Add Post' : 'إضافة منشور', // Check for language preference
           style: TextStyle(
             color: Colors.black, // Black text color for the title
             fontSize: 18,
@@ -81,7 +81,7 @@ class AddPostScreen extends StatelessWidget {
                   minLines: 1,
                   maxLines: null,
                   decoration: InputDecoration(
-                    hintText: "Write here...",
+                    hintText: _profileController.isEnglish.value ? "Write here..." : "اكتب هنا...", // Check for language preference
                     hintStyle: const TextStyle(color: Colors.grey),
                     enabledBorder: OutlineInputBorder(
                       borderSide: const BorderSide(width: 1),
@@ -155,9 +155,9 @@ class AddPostScreen extends StatelessWidget {
                           ? const CircularProgressIndicator(
                         color: Colors.white,
                       )
-                          : const Text(
-                        'Post',
-                        style: TextStyle(
+                          : Text(
+                        _profileController.isEnglish.value ? 'Post' : 'نشر', // Check for language preference
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                         ),

@@ -25,9 +25,9 @@ class BooksSelectionScreen extends StatelessWidget {
           _buildBookCard(
             context: context,
             title: 'Ginza Rabba (English)',
-            imagePath: 'assets/images/hayyi.jpeg',
-            description: 'The Main Holy Book Of Mandaeans',
-            pageCount: 320,
+            imagePath: 'assets/images/bookVector.png',
+            description: 'Official Holy Book For Mandaeans',
+            pageCount: 345,
             onTap: () {
               Get.to(() => const GinzaScreen(), transition: Transition.rightToLeft);
             },
@@ -36,9 +36,9 @@ class BooksSelectionScreen extends StatelessWidget {
           _buildBookCard(
             context: context,
             title: 'Ginza Rabba (Arabic)',
-            imagePath: 'assets/images/hayyi.jpeg',
-            description: 'The Main Holy Book Of Mandaeans',
-            pageCount: 180,
+            imagePath: 'assets/images/bookVector.png',
+            description: 'الكتاب المقدس الرئيسي للمندائيين',
+            pageCount: 345,
             onTap: () {
               // Navigate to the GinzaArabicScreen
               Navigator.push(
@@ -54,7 +54,7 @@ class BooksSelectionScreen extends StatelessWidget {
           _buildBookCard(
             context: context,
             title: 'Mandaean Book Of John',
-            imagePath: 'assets/images/hayyi.jpeg',
+            imagePath: 'assets/images/bookVector.png',
             description: 'Book Of John',
             pageCount: 250,
             onTap: () {
@@ -129,12 +129,12 @@ class BooksSelectionScreen extends StatelessWidget {
           ),
           Positioned(
             left: 16,
-            top: -20,
+            top: -15,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.asset(
                 imagePath,
-                height: 150,
+                height: 130,
                 width: 120,
                 fit: BoxFit.cover,
               ),

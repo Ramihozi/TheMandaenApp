@@ -11,6 +11,7 @@ class ProfileController extends GetxController {
   RxString url = ''.obs;
   RxList<Map<String, String>> blockedUsers = <Map<String, String>>[].obs;
   User? user = FirebaseAuth.instance.currentUser;
+  final RxBool isEnglish = true.obs;
 
   TextEditingController currentPasswordController = TextEditingController();
   TextEditingController newPasswordController = TextEditingController();
@@ -68,16 +69,18 @@ class ProfileController extends GetxController {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Success',
+                Text(
+                  isEnglish.value ? 'Success' : 'نجاح',
                   style: TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 16.0),
-                const Text(
-                  'Please Restart App To Apply Changes Fully!',
+                Text(
+                  isEnglish.value
+                      ? 'Please Restart App To Apply Changes Fully!'
+                      : 'يرجى إعادة تشغيل التطبيق لتطبيق التغييرات بالكامل!',
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 24.0),
@@ -85,8 +88,8 @@ class ProfileController extends GetxController {
                   onPressed: () {
                     Get.back(); // Close the dialog
                   },
-                  child: const Text(
-                    'OK',
+                  child: Text(
+                    isEnglish.value ? 'OK' : 'موافق',
                     style: TextStyle(
                       color: Colors.amber, // Set OK text color to golden
                     ),
@@ -108,16 +111,18 @@ class ProfileController extends GetxController {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Error',
+                Text(
+                  isEnglish.value ? 'Error' : 'خطأ',
                   style: TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 16.0),
-                const Text(
-                  'Failed to update profile picture',
+                Text(
+                  isEnglish.value
+                      ? 'Failed to update profile picture'
+                      : 'فشل في تحديث صورة الملف الشخصي',
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 24.0),
@@ -125,8 +130,8 @@ class ProfileController extends GetxController {
                   onPressed: () {
                     Get.back(); // Close the dialog
                   },
-                  child: const Text(
-                    'OK',
+                  child: Text(
+                    isEnglish.value ? 'OK' : 'موافق',
                     style: TextStyle(
                       color: Colors.amber, // Set OK text color to golden
                     ),
@@ -140,6 +145,7 @@ class ProfileController extends GetxController {
       );
     }
   }
+
   void listenToBlockedUsers() {
     if (user != null) {
       FirebaseFirestore.instance
@@ -165,7 +171,7 @@ class ProfileController extends GetxController {
       if (userDoc.exists) {
         users.add({
           'id': userId,
-          'name': userDoc['name'] ?? 'Unknown',
+          'name': userDoc['name'] ?? (isEnglish.value ? 'Unknown' : 'مجهول'),
         });
       }
     }
@@ -184,7 +190,10 @@ class ProfileController extends GetxController {
       }
     } catch (e) {
       print('Error unblocking user: $e');
-      Get.snackbar('Error', 'Failed to unblock user');
+      Get.snackbar(
+        isEnglish.value ? 'Error' : 'خطأ',
+        isEnglish.value ? 'Failed to unblock user' : 'فشل في إلغاء حظر المستخدم',
+      );
     }
   }
 
@@ -192,7 +201,7 @@ class ProfileController extends GetxController {
     try {
       if (user == null) {
         throw FirebaseAuthException(
-            code: 'user-not-signed-in', message: 'No user is signed in.');
+            code: 'user-not-signed-in', message: isEnglish.value ? 'No user is signed in.' : 'لا يوجد مستخدم مسجل الدخول.');
       }
 
       AuthCredential credential = EmailAuthProvider.credential(
@@ -235,14 +244,18 @@ class ProfileController extends GetxController {
       Get.offAllNamed('/login');
     } catch (e) {
       print('Error deleting user: $e');
-      Get.snackbar('Error', 'Failed to delete account');
+      Get.snackbar(
+        isEnglish.value ? 'Error' : 'خطأ',
+        isEnglish.value ? 'Failed to delete account' : 'فشل في حذف الحساب',
+      );
     }
   }
+
   Future<void> changePassword(BuildContext context, String currentPassword, String newPassword) async {
     try {
       if (user == null) {
         throw FirebaseAuthException(
-            code: 'user-not-signed-in', message: 'No user is signed in.');
+            code: 'user-not-signed-in', message: isEnglish.value ? 'No user is signed in.' : 'لا يوجد مستخدم مسجل الدخول.');
       }
 
       AuthCredential credential = EmailAuthProvider.credential(
@@ -254,7 +267,10 @@ class ProfileController extends GetxController {
 
       await user!.updatePassword(newPassword);
 
-      Get.snackbar('Success', 'Password changed successfully');
+      Get.snackbar(
+        isEnglish.value ? 'Success' : 'نجاح',
+        isEnglish.value ? 'Password changed successfully' : 'تم تغيير كلمة المرور بنجاح',
+      );
     } catch (e) {
       print('Error changing password: $e');
     }

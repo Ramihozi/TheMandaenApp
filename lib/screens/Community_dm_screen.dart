@@ -6,6 +6,9 @@ import 'Community_dm_message.dart'; // Adjust import based on your actual messag
 import 'community_chat_service.dart'; // Import ChatService
 import 'community_view_profile.dart';
 import 'firebase_messagin_service.dart';
+import 'package:flutter/services.dart'; // For clipboard functionality
+
+
 
 class ChatScreen extends StatefulWidget {
   final String friendId;
@@ -21,15 +24,12 @@ class _ChatScreenState extends State<ChatScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _controller = TextEditingController();
   final ChatService _chatService = ChatService(); // Instantiate ChatService
-  final FirebaseMessagingService _firebaseMessagingService = FirebaseMessagingService(); // Initialize the service
-
   final Map<String, String?> _userImages = {};
 
   @override
   void initState() {
     super.initState();
     _markMessagesAsSeen();
-    _firebaseMessagingService.init(); // Initialize Firebase Messaging
   }
 
   Future<void> _markMessagesAsSeen() async {
@@ -133,7 +133,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (context, index) {
                     final message = messages[index];
                     final isMe = message.senderId == _auth.currentUser!.uid;
-                    return _buildMessage(message, isMe);
+                    final isLatest = index == 0; // The latest message is the first item in reversed ListView
+                    return _buildMessage(message, isMe, isLatest);
                   },
                 );
               },
@@ -155,7 +156,8 @@ class _ChatScreenState extends State<ChatScreen> {
     return _userImages[userId];
   }
 
-  Widget _buildMessage(Message message, bool isMe) {
+  Widget _buildMessage(Message message, bool isMe, bool isLatest) {
+    // Load the user image if not already loaded
     if (!_userImages.containsKey(message.senderId)) {
       FirebaseFirestore.instance.collection('user').doc(message.senderId)
           .get()
@@ -169,35 +171,35 @@ class _ChatScreenState extends State<ChatScreen> {
 
     String? imageUrl = _userImages[message.senderId];
 
+    // Determine message status
     String status = '';
-    if (isMe) {
+    if (isMe && isLatest) {
       status = message.isRead[widget.friendId] ?? false ? 'Seen' : 'Delivered';
-    } else {
-      status = '';
     }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       child: Row(
         mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isMe)
             GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ViewProfileScreen(userId: message.senderId),
-                    ),
-                  );
-                },
-                child: CircleAvatar(
-                  radius: 16,
-                  backgroundImage: imageUrl != null
-                      ? NetworkImage(imageUrl) as ImageProvider<Object>?
-                      : null, // Use null if no image URL is available
-                  child: imageUrl == null ? const Icon(Icons.person) : null, // Placeholder icon
-                )
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewProfileScreen(userId: message.senderId),
+                  ),
+                );
+              },
+              child: CircleAvatar(
+                radius: 18,
+                backgroundImage: imageUrl != null
+                    ? NetworkImage(imageUrl) as ImageProvider<Object>?
+                    : null,
+                child: imageUrl == null ? const Icon(Icons.person) : null,
+              ),
             ),
           const SizedBox(width: 8.0),
           Expanded(
@@ -215,26 +217,41 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                 Container(
-                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
                   decoration: BoxDecoration(
-                    color: isMe ? Colors.blue : Colors.grey[300],
-                    borderRadius: BorderRadius.circular(8.0),
+                    color: isMe ? Colors.blueAccent : Colors.grey[300],
+                    borderRadius: BorderRadius.circular(12.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 2,
+                        offset: Offset(0, 1), // changes position of shadow
+                      ),
+                    ],
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-                  child: Text(
-                    message.text,
-                    style: TextStyle(
-                      color: isMe ? Colors.white : Colors.black,
-                      fontSize: 16.0,
+                  padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
+                  child: RichText(
+                    text: TextSpan(
+                      style: TextStyle(
+                        color: isMe ? Colors.white : Colors.black87,
+                        fontSize: 18.0, // Increased font size for text
+                        fontFamily: 'Arial', // Use a clean font style here
+                      ),
+                      children: _parseText(message.text),
                     ),
                   ),
                 ),
-                if (isMe)
-                  Text(
-                    status,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12.0,
+                if (isMe && isLatest)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Text(
+                      status,
+                      style: TextStyle(
+                        color: Colors.amber,
+                        fontSize: 12.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
               ],
@@ -243,6 +260,32 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  List<TextSpan> _parseText(String text) {
+    final emojiPattern = RegExp(
+      r'(\p{Emoji}|[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2300}-\u{23FF}\u{2B50}\u{2934}\u{2935}\u{2B06}\u{2194}-\u{21AA}])',
+      unicode: true,
+    );
+    final spans = <TextSpan>[];
+    final matches = emojiPattern.allMatches(text);
+    int lastMatchEnd = 0;
+
+    for (final match in matches) {
+      if (match.start > lastMatchEnd) {
+        spans.add(TextSpan(text: text.substring(lastMatchEnd, match.start)));
+      }
+      spans.add(TextSpan(
+        text: text.substring(match.start, match.end),
+        style: TextStyle(fontSize: 22.0), // Increased font size for emojis
+      ));
+      lastMatchEnd = match.end;
+    }
+    if (lastMatchEnd < text.length) {
+      spans.add(TextSpan(text: text.substring(lastMatchEnd)));
+    }
+
+    return spans;
   }
 
   Widget _buildMessageComposer() {

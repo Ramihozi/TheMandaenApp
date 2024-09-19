@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -10,31 +9,72 @@ import 'package:unicons/unicons.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'community_comment_widget.dart';
+import 'community_profile_controller.dart';
+import 'package:cloud_functions/cloud_functions.dart'; // Add this import for Firebase Functions
 
-class PostItem extends StatelessWidget {
+
+class PostItem extends StatefulWidget {
   const PostItem({
     super.key,
     required this.post,
     required this.onProfilePictureClick,
     required this.onNameClick,
-    this.profilePictureDecoration, // Add profilePictureDecoration parameter
+    this.profilePictureDecoration,
   });
 
   final Post post;
   final VoidCallback onProfilePictureClick;
   final VoidCallback onNameClick;
-  final BoxDecoration? profilePictureDecoration; // Optional decoration parameter
+  final BoxDecoration? profilePictureDecoration;
+
+  @override
+  _PostItemState createState() => _PostItemState();
+}
+
+
+class _PostItemState extends State<PostItem> {
+  String? translatedTitle;
+  bool isTranslating = false;
+  bool isTranslated = false; // Track translation state
+
+  final HomeController homeController = Get.find();
+  final ProfileController profileController = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+    // Listen to changes in language and update the state accordingly
+    ever(profileController.isEnglish, (_) {
+      setState(() {
+        // Reset translation state on language change
+        if (!isTranslated) {
+          translatedTitle = null; // Keep original if not translated
+        }
+      });
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    final HomeController homeController = Get.find(); // Use Get.find() to access the HomeController instance
-
-    final date = DateTime.fromMillisecondsSinceEpoch(post.time);
+    final date = DateTime.fromMillisecondsSinceEpoch(widget.post.time);
     final format = DateFormat.yMd();
     final dateString = format.format(date);
 
+    // Determine the post title based on the language and translation state
+    final postTitle = isTranslated
+        ? translatedTitle ?? widget.post.postTitle // Use translatedTitle if it's available
+        : (profileController.isEnglish.value
+        ? widget.post.postTitle // Original English title
+        : widget.post.postTitle); // Original Arabic title
+
+    // Determine button text
+    String buttonText = profileController.isEnglish.value
+        ? (isTranslated ? 'Revert to Original' : 'See Translation')
+        : (isTranslated ? 'العودة إلى الأصل' : 'عرض الترجمة');
+
     return Card(
-      color: Colors.white, // Set the background color to white
+      color: Colors.white,
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -45,26 +85,26 @@ class PostItem extends StatelessWidget {
           ListTile(
             contentPadding: const EdgeInsets.all(0),
             leading: Padding(
-              padding: const EdgeInsets.only(left: 10.0), // Add padding to move profile picture to the right
+              padding: const EdgeInsets.only(left: 10.0),
               child: GestureDetector(
-                onTap: onProfilePictureClick,
+                onTap: widget.onProfilePictureClick,
                 child: Container(
-                  decoration: profilePictureDecoration, // Apply the decoration if provided
-                  padding: EdgeInsets.all(2.0), // Add padding to create space between the border and image
+                  decoration: widget.profilePictureDecoration,
+                  padding: EdgeInsets.all(2.0),
                   child: CircleAvatar(
                     radius: 24,
-                    backgroundImage: CachedNetworkImageProvider(post.userUrl),
+                    backgroundImage: CachedNetworkImageProvider(widget.post.userUrl),
                     backgroundColor: Colors.grey.shade200,
                   ),
                 ),
               ),
             ),
             title: Padding(
-              padding: const EdgeInsets.only(left: 10.0), // Add padding to move name to the right
+              padding: const EdgeInsets.only(left: 10.0),
               child: GestureDetector(
-                onTap: onNameClick,
+                onTap: widget.onNameClick,
                 child: Text(
-                  post.userName,
+                  widget.post.userName,
                   style: Theme.of(context).textTheme.titleSmall!.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -72,10 +112,10 @@ class PostItem extends StatelessWidget {
               ),
             ),
             subtitle: Padding(
-              padding: const EdgeInsets.only(left: 10.0), // Add padding to move date to the right
+              padding: const EdgeInsets.only(left: 10.0),
               child: Text(dateString),
             ),
-            trailing: post.userUid == homeController.user?.uid
+            trailing: widget.post.userUid == homeController.user?.uid
                 ? PopupMenuButton(
               itemBuilder: (context) => [
                 const PopupMenuItem(
@@ -92,22 +132,37 @@ class PostItem extends StatelessWidget {
                 : IconButton(
               icon: const Icon(Icons.report),
               onPressed: () {
-                _showReportConfirmationDialog(context, post.postId);
+                _showReportConfirmationDialog(context, widget.post.postId);
               },
             ),
           ),
           // Post Content Section
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              post.postTitle,
-              style: Theme.of(context).textTheme.titleSmall,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  postTitle,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                if (!isTranslating)
+                  TextButton(
+                    onPressed: _toggleTranslation,
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.grey,
+                      minimumSize: Size(100, 30), // Size of the button
+                    ),
+                    child: Text(buttonText),
+                  ),
+                if (isTranslating) const CircularProgressIndicator(),
+              ],
             ),
           ),
           const SizedBox(height: 8),
-          if (post.postUrl.isNotEmpty)
+          if (widget.post.postUrl.isNotEmpty)
             FutureBuilder<Size>(
-              future: _calculateImageDimension(post.postUrl),
+              future: _calculateImageDimension(widget.post.postUrl),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
                   final size = snapshot.data!;
@@ -118,7 +173,7 @@ class PostItem extends StatelessWidget {
                     child: AspectRatio(
                       aspectRatio: aspectRatio,
                       child: CachedNetworkImage(
-                        imageUrl: post.postUrl,
+                        imageUrl: widget.post.postUrl,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
                         errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -141,21 +196,21 @@ class PostItem extends StatelessWidget {
                   children: [
                     LikeWidget(
                       likePressed: () {
-                        homeController.setLike(post.postId);
+                        homeController.setLike(widget.post.postId);
                       },
-                      likes: post.likes.length,
-                      isLiked: post.likes.contains(homeController.user?.uid),
-                      postId: post.postId,
+                      likes: widget.post.likes.length,
+                      isLiked: widget.post.likes.contains(homeController.user?.uid),
+                      postId: widget.post.postId,
                     ),
                     const SizedBox(width: 16),
                     CommentWidget(
-                      comments: post.commentsCount,
+                      comments: widget.post.commentsCount,
                       onPressed: () {
                         Get.toNamed('/comments_screen', arguments: [
-                          post.userName, //0
-                          post.userUrl, //1
-                          post.userUid, //2
-                          post.postId //3
+                          widget.post.userName, //0
+                          widget.post.userUrl, //1
+                          widget.post.userUid, //2
+                          widget.post.postId //3
                         ]);
                       },
                       child: Row(
@@ -169,11 +224,11 @@ class PostItem extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                post.commentsCount.toString(),
+                                widget.post.commentsCount.toString(),
                                 style: const TextStyle(color: Colors.black),
                               ),
                               Text(
-                                'comments',
+                                profileController.isEnglish.value ? 'comments' : 'تعليقات',
                                 style: TextStyle(color: Colors.black.withOpacity(0.5)),
                               ),
                             ],
@@ -185,7 +240,7 @@ class PostItem extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () {
-                    _sharePost(post); // Share post when the button is pressed
+                    _sharePost(widget.post);
                   },
                   icon: const Icon(
                     UniconsLine.telegram_alt,
@@ -199,6 +254,58 @@ class PostItem extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _translatePostTitle() async {
+    setState(() {
+      isTranslating = true;
+    });
+
+    try {
+      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('translateText');
+
+      // Determine target language based on current language setting
+      final targetLanguage = profileController.isEnglish.value ? 'en' : 'ar';
+
+      // Determine the source language (Arabic or English) based on current language setting
+      final sourceLanguage = profileController.isEnglish.value ? 'ar' : 'en';
+
+      final result = await callable.call(<String, dynamic>{
+        'text': widget.post.postTitle,
+        'sourceLanguage': sourceLanguage, // Specify source language
+        'targetLanguage': targetLanguage,
+      });
+
+      // Debugging: Print the result data
+      print('Translation Result: ${result.data}');
+
+      final translatedText = result.data['translation'] as String;
+      setState(() {
+        translatedTitle = translatedText;
+        isTranslated = true; // Set to true when translation is completed
+      });
+    } catch (e) {
+      // Debugging: Print any errors encountered
+      print('Error translating text: $e');
+    } finally {
+      setState(() {
+        isTranslating = false;
+      });
+    }
+  }
+
+  Future<void> _toggleTranslation() async {
+    if (isTranslated) {
+      // Revert to original text
+      setState(() {
+        translatedTitle = null;
+        isTranslated = false;
+      });
+    } else {
+      // Translate text
+      await _translatePostTitle();
+    }
+  }
+
 
   Future<Size> _calculateImageDimension(String url) {
     Completer<Size> completer = Completer();
@@ -234,7 +341,7 @@ class PostItem extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                Get.find<HomeController>().deletePost(post.postId);
+                Get.find<HomeController>().deletePost(widget.post.postId);
                 Navigator.of(context).pop();
               },
               child: const Text(

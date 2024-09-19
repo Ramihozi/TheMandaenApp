@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';
+import 'package:get/get.dart';
+
+import 'community_profile_controller.dart'; // Import GetX for localization
 
 class LikeWidget extends StatelessWidget {
   const LikeWidget({
@@ -17,6 +20,13 @@ class LikeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Assuming you have a ProfileController or similar to get the current language
+    final ProfileController profileController = Get.find<ProfileController>();
+    final bool isEnglish = profileController.isEnglish.value;
+
+    // Determine the text based on the language
+    final String likesText = isEnglish ? '$likes likes' : '$likes إعجابات';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -27,7 +37,7 @@ class LikeWidget extends StatelessWidget {
                   ? Colors.blue
                   : Theme.of(context).iconTheme.color),
         ),
-        Text('$likes likes'),
+        Text(likesText),
       ],
     );
   }

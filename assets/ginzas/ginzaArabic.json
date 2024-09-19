@@ -1,11 +1,11 @@
 {
   "books": [
     {
-      "book_name": "جينزا الأيمن",
-      "book_number": "1",
+      "book_name": "كتاب الكنزا الايمن الاول",
+      "book_number": "١",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "التوحيد",
           "verses": [
             {
@@ -179,7 +179,7 @@
           ]
         },
         {
-          "chapter_number": 2,
+          "chapter_number": "٢",
           "chapter_name": "التسبيح الثاني الوصايا",
           "verses": [
             {
@@ -695,11 +695,11 @@
       ]
     },
     {
-      "book_name": "الكبار الثاني",
-      "book_number": "2",
+      "book_name": "كتاب الكنزا الايمن الثاني",
+      "book_number": "٢",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "الصبيح الأول",
           "verses": [
             {
@@ -785,7 +785,7 @@
           ]
         },
         {
-          "chapter_number": 2,
+          "chapter_number": "٢",
           "chapter_name": "الشبيح الثاني",
           "verses": [
             {
@@ -883,7 +883,7 @@
           ]
         },
         {
-          "chapter_number": 3,
+          "chapter_number": "٣",
           "chapter_name": "التبيح الثالث",
           "verses": [
             {
@@ -997,7 +997,7 @@
           ]
         },
         {
-          "chapter_number": 4,
+          "chapter_number": "٤",
           "chapter_name": "التسبيح الرابع",
           "verses": [
             {
@@ -1045,11 +1045,11 @@
       ]
     },
     {
-      "book_name": "الكتاب الثالث",
-      "book_number": "3",
+      "book_name": "كتاب الكنزا الايمن الثالث",
+      "book_number": "٣",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "الشبيح الأول الخليقة",
           "verses": [
             {
@@ -1651,7 +1651,7 @@
           ]
         },
         {
-          "chapter_number": 2,
+          "chapter_number": "٢",
           "chapter_name": "الشبيح الثاني خلق آدم",
           "verses": [
             {
@@ -1849,7 +1849,7 @@
           ]
         },
         {
-          "chapter_number": 3,
+          "chapter_number": "٣",
           "chapter_name": "صباغة هيبل زيوا",
           "verses": [
             {
@@ -1873,11 +1873,11 @@
       ]
     },
     {
-      "book_name": "الكتاب الرابع",
-      "book_number": "4",
+      "book_name": "كتاب الكنزا الايمن الرابع",
+      "book_number": "٤",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "وبالنور غطيناه والقوة والثبات وَهَبْناه لِيُرْسِلَهُ إلى عالم الظلام يسيطر عليه ويُعيد إليه النظام",
           "verses": [
             {
@@ -2105,11 +2105,11 @@
       ]
     },
     {
-      "book_name": "الكِتانُ الخَمال",
-      "book_number": "5",
+      "book_name": "كتاب الكنزا الايمن الخامس",
+      "book_number": "٥",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "هبوط المخلص",
           "verses": [
             {
@@ -2733,11 +2733,11 @@
       ]
     },
     {
-      "book_name": "الكتاب السادس",
-      "book_number": "6",
+      "book_name": "كتاب الكنزا الايمن السادس",
+      "book_number": "٦",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "الصبيح الأول النواهي",
           "verses": [
             {
@@ -2903,7 +2903,7 @@
           ]
         },
         {
-          "chapter_number": "2",
+          "chapter_number": "٢",
           "chapter_name": "التسبيح الثاني",
           "verses": [
             {
@@ -3245,7 +3245,7 @@
           ]
         },
         {
-          "chapter_number": "3",
+          "chapter_number": "٣",
           "chapter_name": "التبيح الثالث",
           "verses": [
             {
@@ -3653,12 +3653,12 @@
       ]
     },
     {
-      "book_name": "الكتاب السابع",
-      "book_number": "7",
+      "book_name": "كتاب الكنزا الايمن السابع",
+      "book_number": "٧",
       "chapters": [
         {
-          "chapter_number": "1",
-          "chapter_name": "شلمایی",
+          "chapter_number": "١",
+          "chapter_name": "شلمای",
           "verses": [
             {
               "verse_number": 1,
@@ -3905,11 +3905,11 @@
       ]
     },
     {
-      "book_name": "الكبار الثامن",
-      "book_number": "8",
+      "book_name": "كتاب الكنزا الايمن الثامن",
+      "book_number": "٨",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "دنا نوخت",
           "verses": [
             {
@@ -4201,11 +4201,11 @@
       ]
     },
     {
-      "book_name": "الكتاب التاسع",
-      "book_number": "9",
+      "book_name": "كتاب الكنزا الايمن التاسع",
+      "book_number": "٩",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "تعالیم بحیی",
           "verses": [
             {
@@ -4477,11 +4477,11 @@
       ]
     },
     {
-      "book_name": "الكتاب العشاء",
-      "book_number": "10",
+      "book_name": "كتاب الكنزا الايمن العشاء",
+      "book_number": "١٠",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "تحذير منداد هي المؤمنين",
           "verses": [
             {
@@ -4581,11 +4581,11 @@
       ]
     },
     {
-      "book_name": "الكتاب الحادي عشر",
-      "book_number": "11",
+      "book_name": "كتاب الكنزا الايمن الحادي عشر",
+      "book_number": "١١",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "الضياء الأول",
           "verses": [
             {
@@ -4665,11 +4665,11 @@
       ]
     },
     {
-      "book_name": "الكتاب الثاني عشر",
-      "book_number": "12",
+      "book_name": "كتاب كنزا الايمن الثاني عشر",
+      "book_number": "١٢",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "الضياء الثاني",
           "verses": [
             {
@@ -4885,11 +4885,11 @@
       ]
     },
     {
-      "book_name": "الكتاب الثالث عشر",
-      "book_number": "13",
+      "book_name": "كتاب الكنزا الايمن الثالث عشر",
+      "book_number": "١٣",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "انوش",
           "verses": [
             {
@@ -5689,11 +5689,11 @@
       ]
     },
     {
-      "book_name": "الكتاب الرابع عشر",
-      "book_number": "14",
+      "book_name": "كتاب الكنزا الايمن الرابع عشر",
+      "book_number": "١٤",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "التسبيح الأول",
           "verses": [
             {
@@ -5795,7 +5795,7 @@
           ]
         },
         {
-          "chapter_number": "2",
+          "chapter_number": "٢",
           "chapter_name": "التسبيح الثاني",
           "verses": [
             {
@@ -5957,7 +5957,7 @@
           ]
         },
         {
-          "chapter_number": "3",
+          "chapter_number": "٣",
           "chapter_name": "الترنيم الثاني",
           "verses": [
             {
@@ -6051,7 +6051,7 @@
           ]
         },
         {
-          "chapter_number": "4",
+          "chapter_number": "٤",
           "chapter_name": "الترنيم الثالث",
           "verses": [
             {
@@ -6125,7 +6125,7 @@
           ]
         },
         {
-          "chapter_number": "5",
+          "chapter_number": "٥",
           "chapter_name": "الترنيم الرابع",
           "verses": [
             {
@@ -6207,7 +6207,7 @@
           ]
         },
         {
-          "chapter_number": "5",
+          "chapter_number": "٦",
           "chapter_name": "الصبيح الثالث",
           "verses": [
             {
@@ -6309,7 +6309,7 @@
           ]
         },
         {
-          "chapter_number": "6",
+          "chapter_number": "٧",
           "chapter_name": "الشبيح الرابع",
           "verses": [
             {
@@ -6365,11 +6365,11 @@
       ]
     },
     {
-      "book_name": "الكتاب الخامسة",
-      "book_number": "15",
+      "book_name": "كتاب الكنزا الايمن الخامسة عشر",
+      "book_number": "١٥",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "مواعظ للمندائيتينة",
           "verses": [
             {
@@ -6521,11 +6521,11 @@
       ]
     },
     {
-      "book_name": "الكتاب السادة عشرة",
-      "book_number": "16",
+      "book_name": "كتاب الكنزا الايمن السادسة عشرة",
+      "book_number": "١٦",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "نباط العظيم",
           "verses": [
             {
@@ -6745,11 +6745,11 @@
       ]
     },
     {
-      "book_name": "الكتان السابع عشرة",
-      "book_number": "17",
+      "book_name": "كتاب الكنزا الايمن السابع عشرة",
+      "book_number": "١٧",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "الشبيح الأول",
           "verses": [
             {
@@ -6895,7 +6895,7 @@
           ]
         },
         {
-          "chapter_number": "2",
+          "chapter_number": "٢",
           "chapter_name": "التسبيح الثاني",
           "verses": [
             {
@@ -7097,7 +7097,7 @@
           ]
         },
         {
-          "chapter_number": "3",
+          "chapter_number": "٣",
           "chapter_name": "الصبيح الثالث",
           "verses": [
             {
@@ -7287,7 +7287,7 @@
           ]
         },
         {
-          "chapter_number": "4",
+          "chapter_number": "٤",
           "chapter_name": "التسبيح الرابع",
           "verses": [
             {
@@ -7365,7 +7365,7 @@
           ]
         },
         {
-          "chapter_number": "5",
+          "chapter_number": "٥",
           "chapter_name": "الشبيح الخامس",
           "verses": [
             {
@@ -7439,7 +7439,7 @@
           ]
         },
         {
-          "chapter_number": "6",
+          "chapter_number": "٦",
           "chapter_name": "التسبيح السادس",
           "verses": [
             {
@@ -7557,7 +7557,7 @@
           ]
         },
         {
-          "chapter_number": "7",
+          "chapter_number": "٧",
           "chapter_name": "التسبيح السابع",
           "verses": [
             {
@@ -7651,7 +7651,7 @@
           ]
         },
         {
-          "chapter_number": "8",
+          "chapter_number": "٨",
           "chapter_name": "التسبيح الناس",
           "verses": [
             {
@@ -7673,7 +7673,7 @@
           ]
         },
         {
-          "chapter_number": "9",
+          "chapter_number": "٩",
           "chapter_name": "الصبيح التاسع",
           "verses": [
             {
@@ -7705,11 +7705,11 @@
       ]
     },
       {
-      "book_name": "الكتان التام عشرة",
-      "book_number": "18",
+      "book_name": "كتاب الكنزا الايمن ثمانية عشرة",
+      "book_number": "١٨",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "التبيع الأول",
           "verses": [
             {
@@ -7747,7 +7747,7 @@
           ]
         },
         {
-          "chapter_number": "2",
+          "chapter_number": "٢",
           "chapter_name": "التسبيح الثاني",
           "verses": [
             {
@@ -7777,7 +7777,7 @@
           ]
         },
         {
-          "chapter_number": "3",
+          "chapter_number": "٣",
           "chapter_name": "التسبيح الثالث",
           "verses": [
             {
@@ -7839,7 +7839,7 @@
           ]
         },
         {
-          "chapter_number": "4",
+          "chapter_number": "٤",
           "chapter_name": "التسبيح الرابع",
           "verses": [
             {
@@ -7887,11 +7887,11 @@
       ]
     },
     {
-      "book_name": "الكتاب التاسع",
-      "book_number": "19",
+      "book_name": "كتاب الكنزا الايمن التاسع عشرة",
+      "book_number": "١٩",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "الطوفان",
           "verses": [
             {
@@ -7991,11 +7991,11 @@
       ]
     },
     {
-      "book_name": "كتاب جينزا الأيسر واحد",
-      "book_number": "20",
+      "book_name": "كتاب الكنزا الأيسر الاول",
+      "book_number": "٢٠",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "التبيح الأول",
           "verses": [
             {
@@ -8265,7 +8265,7 @@
           ]
         },
         {
-          "chapter_number": "2",
+          "chapter_number": "٢",
           "chapter_name": "الشبيح الثاني",
           "verses": [
             {
@@ -8451,7 +8451,7 @@
           ]
         },
         {
-          "chapter_number": "3",
+          "chapter_number": "٣",
           "chapter_name": "التبيح الثالث",
           "verses": [
             {
@@ -8527,11 +8527,11 @@
       ]
     },
     {
-      "book_name": "كتاب جينزا الأيسر الثاني",
-      "book_number": "21",
+      "book_name": "كتاب الكنزا الأيسر الثاني",
+      "book_number": "٢١",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "التبيح الأول",
           "verses": [
             {
@@ -8565,7 +8565,7 @@
           ]
         },
         {
-          "chapter_number": "2",
+          "chapter_number": "٢",
           "chapter_name": "التسبيح الثاني",
           "verses": [
             {
@@ -8603,7 +8603,7 @@
           ]
         },
         {
-          "chapter_number": "3",
+          "chapter_number": "٣",
           "chapter_name": "التسبيح الثالث",
           "verses": [
             {
@@ -8645,7 +8645,7 @@
           ]
         },
         {
-          "chapter_number": "4",
+          "chapter_number":"٤",
           "chapter_name": "التسبيح الرابع",
           "verses": [
             {
@@ -8691,7 +8691,7 @@
           ]
         },
         {
-          "chapter_number": "5",
+          "chapter_number": "٥",
           "chapter_name": "التبيح الخامس",
           "verses": [
             {
@@ -8737,7 +8737,7 @@
           ]
         },
         {
-          "chapter_number": "6",
+          "chapter_number": "٦",
           "chapter_name": "التسبيح السادس",
           "verses": [
             {
@@ -8827,7 +8827,7 @@
           ]
         },
         {
-          "chapter_number": "7",
+          "chapter_number": "٧",
           "chapter_name": "التسبيح السابع",
           "verses": [
             {
@@ -8901,7 +8901,7 @@
           ]
         },
         {
-          "chapter_number": "8",
+          "chapter_number": "٨",
           "chapter_name": "التسبيح الثامن",
           "verses": [
             {
@@ -9035,7 +9035,7 @@
           ]
         },
         {
-          "chapter_number": "9",
+          "chapter_number": "٩",
           "chapter_name": "التسبيح الأول",
           "verses": [
             {
@@ -9087,11 +9087,11 @@
       ]
     },
     {
-      "book_name": "كتاب جينزا الأيسر الثالث",
-      "book_number": "22",
+      "book_name": "كتاب الكنزا الأيسر الثالث",
+      "book_number": "٢٢",
       "chapters": [
         {
-          "chapter_number": "1",
+          "chapter_number": "١",
           "chapter_name": "التبيح الأول",
           "verses": [
             {
@@ -9213,7 +9213,7 @@
           ]
         },
         {
-          "chapter_number": "2",
+          "chapter_number": "٢",
           "chapter_name": "التسبيح الثاني",
           "verses": [
             {
@@ -9243,7 +9243,7 @@
           ]
         },
         {
-          "chapter_number": "3",
+          "chapter_number": "٣",
           "chapter_name": "التسبيح الثالث",
           "verses": [
             {
@@ -9285,7 +9285,7 @@
           ]
         },
         {
-          "chapter_number": "4",
+          "chapter_number": "٤",
           "chapter_name": "التسبيح الرابع",
           "verses": [
             {
@@ -9323,7 +9323,7 @@
           ]
         },
         {
-          "chapter_number": "5",
+          "chapter_number": "٥",
           "chapter_name": "التسبيح الخامس",
           "verses": [
             {
@@ -9353,7 +9353,7 @@
           ]
         },
         {
-          "chapter_number": "6",
+          "chapter_number": "٦",
           "chapter_name": "التسبيح السادس",
           "verses": [
             {
@@ -9431,7 +9431,7 @@
           ]
         },
         {
-          "chapter_number": "7",
+          "chapter_number": "٧",
           "chapter_name": "الشبيح السابع",
           "verses": [
             {
@@ -9513,7 +9513,7 @@
           ]
         },
         {
-          "chapter_number": "8",
+          "chapter_number": "٨",
           "chapter_name": "التسبيح الثامن",
           "verses": [
             {
@@ -9583,7 +9583,7 @@
           ]
         },
         {
-          "chapter_number": "9",
+          "chapter_number": "٩",
           "chapter_name": "التبيح التاسع",
           "verses": [
             {
@@ -9669,7 +9669,7 @@
           ]
         },
         {
-          "chapter_number": "10",
+          "chapter_number": "١٠",
           "chapter_name": "التسبيح العاشر",
           "verses": [
             {
@@ -9735,7 +9735,7 @@
           ]
         },
         {
-          "chapter_number": "11",
+          "chapter_number": "١١",
           "chapter_name": "التبيح الحادي عشر",
           "verses": [
             {
@@ -9781,7 +9781,7 @@
           ]
         },
         {
-          "chapter_number": "12",
+          "chapter_number": "١٢",
           "chapter_name": "التسبيح الثاني عشر",
           "verses": [
             {
@@ -9847,7 +9847,7 @@
           ]
         },
         {
-          "chapter_number": "13",
+          "chapter_number": "١٣",
           "chapter_name": "الشبيح الثالث عشر",
           "verses": [
             {
@@ -9897,7 +9897,7 @@
           ]
         },
         {
-          "chapter_number": "14",
+          "chapter_number": "١٤",
           "chapter_name": "الشبيح الرابع عشر",
           "verses": [
             {
@@ -10011,7 +10011,7 @@
           ]
         },
         {
-          "chapter_number": "15",
+          "chapter_number": "١٥",
           "chapter_name": "التسبيح الخامس عشر",
           "verses": [
             {
@@ -10057,7 +10057,7 @@
           ]
         },
         {
-          "chapter_number": "16",
+          "chapter_number": "١٦",
           "chapter_name": "الشبيح السادس عشر",
           "verses": [
             {
@@ -10127,7 +10127,7 @@
           ]
         },
         {
-          "chapter_number": "17",
+          "chapter_number": "١٧",
           "chapter_name": "الشبيح السابع عشر",
           "verses": [
             {
@@ -10205,7 +10205,7 @@
           ]
         },
         {
-          "chapter_number": "18",
+          "chapter_number": "١٨",
           "chapter_name": "الشبح الناس عشر",
           "verses": [
             {
@@ -10307,7 +10307,7 @@
           ]
         },
         {
-          "chapter_number": "19",
+          "chapter_number": "١٩",
           "chapter_name": "التبيح التاسع عشر",
           "verses": [
             {
@@ -10369,7 +10369,7 @@
           ]
         },
         {
-          "chapter_number": "20",
+          "chapter_number": "٢٠",
           "chapter_name": "الشبيح العشرون",
           "verses": [
             {
@@ -10415,7 +10415,7 @@
           ]
         },
         {
-          "chapter_number": "21",
+          "chapter_number": "٢١",
           "chapter_name": "التسبيح الحادي والعشرون",
           "verses": [
             {
@@ -10481,7 +10481,7 @@
           ]
         },
         {
-          "chapter_number": "22",
+          "chapter_number": "٢٢",
           "chapter_name": "التسبيح الثاني والعشرون",
           "verses": [
             {
@@ -10527,7 +10527,7 @@
           ]
         },
         {
-          "chapter_number": "23",
+          "chapter_number": "٢٣",
           "chapter_name": "الشبيح الثالث والعشرون",
           "verses": [
             {
@@ -10573,7 +10573,7 @@
           ]
         },
         {
-          "chapter_number": "24",
+          "chapter_number": "٢٤",
           "chapter_name": "التسبيح الرابع والعشرون",
           "verses": [
             {
@@ -10651,7 +10651,7 @@
           ]
         },
         {
-          "chapter_number": "25",
+          "chapter_number": "٢٥",
           "chapter_name": "الشيخ الخامس والعشرون",
           "verses": [
             {
@@ -10709,7 +10709,7 @@
           ]
         },
         {
-          "chapter_number": "26",
+          "chapter_number": "٢٦",
           "chapter_name": "الشيخ السادس والعشرون",
           "verses": [
             {
@@ -10751,7 +10751,7 @@
           ]
         },
         {
-          "chapter_number": "27",
+          "chapter_number": "٢٧",
           "chapter_name": "التسبيح السابع والعشرون",
           "verses": [
             {
@@ -10805,7 +10805,7 @@
           ]
         },
         {
-          "chapter_number": "28",
+          "chapter_number": "٢٨",
           "chapter_name": "التسبيح الثامن والعشرون",
           "verses": [
             {
@@ -10907,7 +10907,7 @@
           ]
         },
         {
-          "chapter_number": "29",
+          "chapter_number": "٢٩",
           "chapter_name": "التسبيح التاسع والعشرون",
           "verses": [
             {
@@ -10949,7 +10949,7 @@
           ]
         },
         {
-          "chapter_number": "30",
+          "chapter_number": "٣٠",
           "chapter_name": "التسبيح الثلاثون",
           "verses": [
             {
@@ -10983,7 +10983,7 @@
           ]
         },
         {
-          "chapter_number": "31",
+          "chapter_number": "٣١",
           "chapter_name": "التسبيح الحادي والثلاثون",
           "verses": [
             {
@@ -11033,7 +11033,7 @@
           ]
         },
         {
-          "chapter_number": "32",
+          "chapter_number": "٣٢",
           "chapter_name": "الشبيح الثاني والثلاثون",
           "verses": [
             {
@@ -11227,7 +11227,7 @@
           ]
         },
         {
-          "chapter_number": "33",
+          "chapter_number": "٣٣",
           "chapter_name": "التسبيح الثالث والثلاثون",
           "verses": [
             {
@@ -11269,7 +11269,7 @@
           ]
         },
         {
-          "chapter_number": "34",
+          "chapter_number": "٣٤",
           "chapter_name": "التسبيح الرابع والثلاثون",
           "verses": [
             {
@@ -11307,7 +11307,7 @@
           ]
         },
         {
-          "chapter_number": "35",
+          "chapter_number": "٣٥",
           "chapter_name": "التسبيح الخامس والثلاثون",
           "verses": [
             {
@@ -11341,7 +11341,7 @@
           ]
         },
         {
-          "chapter_number": "36",
+          "chapter_number": "٣٦",
           "chapter_name": "التسبيح السادس والثلاثون",
           "verses": [
             {
@@ -11383,7 +11383,7 @@
           ]
         },
         {
-          "chapter_number": "37",
+          "chapter_number": "٣٧",
           "chapter_name": "التسبيح السابع والثلاثون",
           "verses": [
             {
@@ -11465,7 +11465,7 @@
           ]
         },
         {
-          "chapter_number": "38",
+          "chapter_number": "٣٨",
           "chapter_name": "التسبيح الثامن والثلاثون",
           "verses": [
             {
@@ -11611,7 +11611,7 @@
           ]
         },
         {
-          "chapter_number": "39",
+          "chapter_number": "٣٩",
           "chapter_name": "التسبيح التاسع والثلاثون",
           "verses": [
             {

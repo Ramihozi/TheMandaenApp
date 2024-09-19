@@ -1,5 +1,8 @@
 const functions = require('firebase-functions');
+const { Translate } = require('@google-cloud/translate').v2;
+const translate = new Translate();
 const admin = require('firebase-admin');
+
 admin.initializeApp();
 
 // Function to get localized message
@@ -80,3 +83,18 @@ exports.sendNewMessageNotification = functions.firestore
       return null; // Ensure function handles errors properly
     }
   });
+
+// Firebase Function to translate text
+exports.translateText = functions.https.onCall(async (data, context) => {
+  const text = data.text;
+  const targetLanguage = data.targetLanguage; // e.g., 'en' or 'ar'
+
+  try {
+    // Translate the text
+    const [translation] = await translate.translate(text, targetLanguage);
+    return { translation };
+  } catch (error) {
+    console.error('Error translating text:', error);
+    throw new functions.https.HttpsError('internal', 'Translation failed');
+  }
+});

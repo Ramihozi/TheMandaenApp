@@ -1,18 +1,15 @@
 import 'dart:ui';
 
 class Meeting {
-  Meeting(this.eventName, this.from, this.to, this.background, this.isAllDay);
-
-  String eventName;
-  DateTime from;
-  DateTime to;
-  Color background;
-  bool isAllDay;
-
+  final String titleEn;
+  final String titleAr;
+  final DateTime startTime;
+  final DateTime endTime;
+  final Color color;
+  final bool isAllDay;
 
 
+  Meeting(this.titleEn, this.titleAr, this.startTime, this.endTime, this.color, this.isAllDay);
 
-
-
-
+  String getTitle(bool isEnglish) => isEnglish ? titleEn : titleAr;
 }
