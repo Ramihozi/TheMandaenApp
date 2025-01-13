@@ -24,6 +24,7 @@ class _PrayerScreenState extends State<PrayerScreen> {
     _calendarController = CalendarController();
   }
 
+
   List<Meeting> _getDataSource() {
     final List<Meeting> meetings = <Meeting>[];
 
@@ -654,7 +655,7 @@ class _PrayerScreenState extends State<PrayerScreen> {
           backgroundColor: Colors.white,
           title: Text(
             isEnglish ? 'Mandaean Calendar' : 'التقويم المندائي',
-            style: TextStyle(color: Colors.black),
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
           elevation: 0,
         ),
@@ -677,8 +678,16 @@ class _PrayerScreenState extends State<PrayerScreen> {
               child: Container(
                 margin: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey.shade300),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 5,
+                      blurRadius: 10,
+                      offset: Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
                 ),
                 child: SfCalendar(
                   view: _calendarView,
@@ -688,16 +697,16 @@ class _PrayerScreenState extends State<PrayerScreen> {
                   dataSource: MeetingDataSource(_getDataSource(), isEnglish),
                   selectionDecoration: BoxDecoration(
                     color: Colors.transparent,
-                    border: Border.all(color: Colors.black, width: 2),
+                    border: Border.all(color: Colors.amber, width: 2),
                     borderRadius: const BorderRadius.all(Radius.circular(4)),
                   ),
                   monthViewSettings: MonthViewSettings(
                     appointmentDisplayMode: MonthAppointmentDisplayMode.indicator,
                     showAgenda: true,
-                    agendaItemHeight: 50, // Adjust this for bigger event cards
+                    agendaItemHeight: 60, // Adjust this for bigger event cards
                     monthCellStyle: MonthCellStyle(
                       backgroundColor: Colors.white,
-                      textStyle: TextStyle(color: Colors.black),
+                      textStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
                     ),
                     agendaStyle: AgendaStyle(
                       appointmentTextStyle: TextStyle(
@@ -717,8 +726,7 @@ class _PrayerScreenState extends State<PrayerScreen> {
     });
   }
 
-
- Widget _buildCalendarButton(String text, CalendarView view) {
+  Widget _buildCalendarButton(String text, CalendarView view) {
     return ElevatedButton(
       onPressed: () {
         setState(() {
@@ -727,14 +735,17 @@ class _PrayerScreenState extends State<PrayerScreen> {
         });
       },
       style: ElevatedButton.styleFrom(
-        foregroundColor: _calendarView == view ? Colors.amber : Colors.black,
-        backgroundColor: _calendarView == view ? Colors.white : Colors.white,
+        foregroundColor: _calendarView == view ? Colors.white : Colors.black, backgroundColor: _calendarView == view ? Colors.amber : Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Colors.black),
+          borderRadius: BorderRadius.circular(30),
+          side: BorderSide(color: Colors.grey.shade300),
         ),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       ),
-      child: Text(text),
+      child: Text(
+        text,
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

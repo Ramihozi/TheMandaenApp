@@ -24,19 +24,19 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           _buildPageViewModel(
             title: "Build Better Habits",
             body:
-            "Customize Your Reading View, Read In Multiple Language, Listen To different Audio",
-            image: 'assets/images/quran2.png',
+            "Customize Your Reading View, Read In Multiple Language, Listen To different Audio (coming soon...)",
+            image: 'assets/images/OnboardPicture1.jpeg',
           ),
           _buildPageViewModel(
             title: "Prayer Alerts",
-            body: "Choose When To Be Notified Of Prayer and How Often.",
-            image: 'assets/images/namaz2.png',
+            body: "Choose When To Be Notified Of Prayer and How Often. (coming soon...)",
+            image: 'assets/images/OnboardPicture2.jpeg',
           ),
           _buildPageViewModel(
             title: "Build Better Habits",
             body:
             "Make Mandeanism Practices a part of your daily life in a way that suits your life",
-            image: 'assets/images/zakat2.png',
+            image: 'assets/images/OnboardPicture3.jpeg',
           ),
         ],
         showNextButton: true,

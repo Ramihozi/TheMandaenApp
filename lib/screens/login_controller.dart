@@ -2,21 +2,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class LoginController extends GetxController{
-
+class LoginController extends GetxController {
   GlobalKey<FormState> formKey = GlobalKey();
-
   late TextEditingController emailController;
   late TextEditingController passwordController;
-
   var email = '';
   var password = '';
   var isLoading = false.obs;
+  var errorMessage = ''.obs; // Added to display error message
+
   final _auth = FirebaseAuth.instance;
 
   @override
   void onInit() {
-    // TODO: implement onInit
     super.onInit();
     emailController = TextEditingController();
     passwordController = TextEditingController();
@@ -31,14 +29,14 @@ class LoginController extends GetxController{
 
   String? validEmail(String value) {
     if (!GetUtils.isEmail(value.trim())) {
-      return "Please Provide Valid Email";
+      return "Please Provide a Valid Email";
     }
     return null;
   }
 
   String? validPassword(String value) {
     if (value.length < 6) {
-      return "Password must be of 6 characters";
+      return "Password must be at least 6 characters";
     }
     return null;
   }
@@ -46,31 +44,42 @@ class LoginController extends GetxController{
   Future<void> login() async {
     final isValid = formKey.currentState!.validate();
     if (!isValid) {
-      // if user credentials are not correct then user can't login
       return;
     }
     isLoading.value = true;
+    errorMessage.value = ''; // Clear any previous errors
 
     formKey.currentState!.save();
 
     try {
-
-      await _auth
-          .signInWithEmailAndPassword(email: email.trim(),
-          password: password.trim()).then((value) async {
-
+      await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      ).then((value) {
         Get.offAllNamed('/main_screen');
       });
-
     } on FirebaseAuthException catch (e) {
+      isLoading.value = false;
+
+      // Logging the error code to check if it's being correctly caught
+      print('FirebaseAuthException Code: ${e.code}');
+
+      // Error message handling based on FirebaseAuthException code
       if (e.code == 'user-not-found') {
-        print('User not found');
+        errorMessage.value = 'Email is incorrect';
       } else if (e.code == 'wrong-password') {
-        print('Wrong Password');
+        errorMessage.value = 'Password is incorrect';
+      } else if (e.code == 'invalid-credential') {
+        errorMessage.value = 'Invalid credentials provided. Please try again.';
+      } else {
+        errorMessage.value = 'An unexpected error occurred';
       }
     } catch (e) {
-      print(e);
+      isLoading.value = false;
+      errorMessage.value = 'An unexpected error occurred';
+      print('Catch Error: $e');
+    } finally {
+      isLoading.value = false;
     }
-    isLoading.value = false;
   }
 }

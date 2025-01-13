@@ -287,22 +287,37 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return spans;
   }
-
   Widget _buildMessageComposer() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: <Widget>[
           Expanded(
-            child: TextField(
-              controller: _controller,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration.collapsed(
-                hintText: 'Type a message...',
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[200], // Set a light grey background color for the chatbox
+                borderRadius: BorderRadius.circular(12.0), // Round the corners of the chatbox
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 2,
+                    offset: Offset(0, 1), // Changes position of shadow
+                  ),
+                ],
               ),
-              minLines: 1,
-              maxLines: null, // Expands the text field vertically as the user types more
-              keyboardType: TextInputType.multiline,
+              child: TextField(
+                controller: _controller,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(
+                  hintText: 'Type a message...',
+                  border: InputBorder.none, // Remove the default border
+                  contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), // Add padding
+                ),
+                minLines: 1,
+                maxLines: null, // Expands the text field vertically as the user types more
+                keyboardType: TextInputType.multiline,
+              ),
             ),
           ),
           IconButton(

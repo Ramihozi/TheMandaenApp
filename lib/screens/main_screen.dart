@@ -5,6 +5,7 @@ import 'package:the_mandean_app/screens/bookSelection.dart';
 import 'package:the_mandean_app/screens/community_main_screen.dart';
 import 'package:the_mandean_app/screens/home_screen.dart';
 import 'package:the_mandean_app/screens/calendar_screen.dart';
+import 'package:the_mandean_app/screens/prayer_screen.dart';
 import 'community_profile.dart';
 import 'community_profile_controller.dart'; // Import for ProfileScreen and ProfileController
 
@@ -22,9 +23,9 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _widgetOptions = <Widget>[
     const HomeScreen(),
+    PrayerTab(),
     const BooksSelectionScreen(),
-    CommunityMainScreen(),
-    const PrayerScreen(),
+    CommunityMainScreen(), // Add PrayerScreen here
     ProfileScreen(userId: null), // Add ProfileScreen here
   ];
 
@@ -50,16 +51,16 @@ class _MainScreenState extends State<MainScreen> {
               label: _profileController.isEnglish.value ? 'Home' : 'الرئيسية',
             ),
             BottomNavigationBarItem(
+              icon: Icon(Icons.self_improvement), // Prayer icon
+              label: _profileController.isEnglish.value ? 'Prayer' : 'الصلاة',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.book),
               label: _profileController.isEnglish.value ? 'Books' : 'الكتب',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.people),
               label: _profileController.isEnglish.value ? 'Community' : 'المجتمع',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today),
-              label: _profileController.isEnglish.value ? 'Calendar' : 'التقويم',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
@@ -76,3 +77,4 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
+

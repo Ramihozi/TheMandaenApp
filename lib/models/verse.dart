@@ -10,6 +10,7 @@ class Verse {
     required this.chapter,
     required this.verse,
     required this.text,
+    
   });
   //Factory Method To Create a Verse Object From JSON Data
   factory Verse.fromJson(Map<String, dynamic> json) {

@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_mandean_app/models/book.dart';
 import 'package:the_mandean_app/models/verse.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-
-
-
-// MainProvider class extends ChangeNotifier for state management
 
 class MainProvider extends ChangeNotifier {
   // Controllers and Listeners for managing scroll positions and items
@@ -17,14 +14,26 @@ class MainProvider extends ChangeNotifier {
   // List to store Verse objects
   List<Verse> verses = [];
 
+  // List to store Book objects
+  List<Book> books = [];
+
+  // Variable to store the current Verse
+  Verse? currentVerse;
+
+  // Variables to store the current chapter and book indices
+  int currentChapterIndex = 0; // Tracks the current chapter index
+  int currentBookIndex = 0;    // Tracks the current book index
+
+  // Initialize the provider and load saved data
+  MainProvider() {
+    _loadSavedPosition();
+  }
+
   // Method to add a Verse to the list and notify listeners
   void addVerse({required Verse verse}) {
     verses.add(verse);
     notifyListeners();
   }
-
-  // List to store Book objects
-  List<Book> books = [];
 
   // Method to add a Book to the list and notify listeners
   void addBook({required Book book}) {
@@ -32,12 +41,39 @@ class MainProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Variable to store the current Verse
-  Verse? currentVerse;
-
   // Method to update the current Verse and notify listeners
   void updateCurrentVerse({required Verse verse}) {
     currentVerse = verse;
+    notifyListeners();
+  }
+
+  List<Verse> get currentChapterVerses {
+    if (books.isEmpty || currentBookIndex >= books.length) return [];
+    if (currentChapterIndex >= books[currentBookIndex].chapters.length) return [];
+    return verses.where((verse) =>
+    verse.book == books[currentBookIndex].title &&
+        verse.chapter == currentChapterIndex + 1).toList();
+  }
+
+  void nextChapter() {
+    if (currentChapterIndex + 1 < books[currentBookIndex].chapters.length) {
+      currentChapterIndex++;
+    } else if (currentBookIndex + 1 < books.length) {
+      currentBookIndex++;
+      currentChapterIndex = 0; // Reset chapter index for the new book
+    }
+    _saveCurrentPosition();
+    notifyListeners();
+  }
+
+  void previousChapter() {
+    if (currentChapterIndex > 0) {
+      currentChapterIndex--;
+    } else if (currentBookIndex > 0) {
+      currentBookIndex--;
+      currentChapterIndex = books[currentBookIndex].chapters.length - 1; // Go to the last chapter of the previous book
+    }
+    _saveCurrentPosition();
     notifyListeners();
   }
 
@@ -65,6 +101,21 @@ class MainProvider extends ChangeNotifier {
   // Method to clear the selected Verse list and notify listeners
   void clearSelectedVerses() {
     selectedVerses.clear();
+    notifyListeners();
+  }
+
+  // Save the current position in SharedPreferences
+  Future<void> _saveCurrentPosition() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('currentBookIndex', currentBookIndex);
+    await prefs.setInt('currentChapterIndex', currentChapterIndex);
+  }
+
+  // Load the saved position from SharedPreferences
+  Future<void> _loadSavedPosition() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    currentBookIndex = prefs.getInt('currentBookIndex') ?? 0;
+    currentChapterIndex = prefs.getInt('currentChapterIndex') ?? 0;
     notifyListeners();
   }
 }

@@ -18,7 +18,7 @@ fonts:
       - asset: fonts/Merriweather-Bold.ttf
       - weight: 700
 
-version: 1.0.0+2
+version: 1.0.6+6
 environment:
   sdk: '>=3.3.1 <4.0.0'
 
@@ -63,6 +63,9 @@ dependencies:
   firebase_messaging: ^15.0.4
   dotted_border: ^2.1.0
   cloud_functions: ^5.1.0
+  flutter_animate: ^4.5.2
+  flutter_compass: ^0.8.1
+  sensors_plus: ^6.1.1
 
 
 
@@ -76,9 +79,6 @@ flutter:
   assets:
     - assets/
     - assets/images/mandean.png
-    - assets/images/quran2.png
-    - assets/images/namaz2.png
-    - assets/images/zakat2.png
     - assets/ginzas/al-saadiENG.json
     - assets/images/darfesh2.png
     - assets/images/masbutta.jpeg
@@ -93,4 +93,11 @@ flutter:
     - assets/images/english.png
     - assets/images/ginzaBook.jpg
     - assets/images/bookVector.png
+    - assets/images/OnboardPicture1.jpeg
+    - assets/images/OnboardPicture2.jpeg
+    - assets/images/OnboardPicture3.jpeg
+    - assets/images/rushama.avif
+    - assets/prayers/rushama.json
+
+
 

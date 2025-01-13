@@ -14,9 +14,6 @@ import 'community_post.dart';
 import 'community_view_profile.dart';
 import 'edit_story_screen.dart';
 
-
-
-
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
@@ -130,15 +127,16 @@ class HomeScreen extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.only(top: 12.0),
                               child: Container(
-                                height: size.height * 0.20,
+                                height: size.height * 0.22, // Increase height for better spacing
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Colors.grey[100], // Light blue background for contrast
                                   borderRadius: BorderRadius.circular(12.0),
+                                  border: Border.all(color: Colors.amber, width: 0.5), // Blue border for distinction
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.grey.withOpacity(0.3),
-                                      spreadRadius: 3,
-                                      blurRadius: 5,
+                                      color: Colors.grey.withOpacity(0.5), // Slightly darker shadow
+                                      spreadRadius: 4,
+                                      blurRadius: 10,
                                       offset: Offset(0, 3),
                                     ),
                                   ],
@@ -171,8 +169,8 @@ class HomeScreen extends StatelessWidget {
                                             children: [
                                               // Profile picture (larger)
                                               Container(
-                                                width: size.height * 0.12,
-                                                height: size.height * 0.12,
+                                                width: size.height * 0.15, // Increased size
+                                                height: size.height * 0.15,
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
                                                   border: Border.all(
@@ -190,7 +188,7 @@ class HomeScreen extends StatelessWidget {
                                               Text(
                                                 friend.name,
                                                 style: TextStyle(
-                                                  fontSize: 16.0,
+                                                  fontSize: 18.0, // Increased font size
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.black87,
                                                 ),

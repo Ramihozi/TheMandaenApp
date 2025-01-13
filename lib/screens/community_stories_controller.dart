@@ -39,15 +39,20 @@ class StoriesController extends GetxController {
         .map((snapshot) {
       List<Story> stories = snapshot.docs.map((doc) => Story.fromDocumentSnapshot(doc)).toList();
 
+      // Sort stories: unviewed stories first, then by creation date
       stories.sort((a, b) {
-        DateTime? dateA = a.createdAt?.toDate();
-        DateTime? dateB = b.createdAt?.toDate();
+        if (a.isViewed == b.isViewed) {
+          // If both are viewed/unviewed, sort by creation date
+          DateTime? dateA = a.createdAt?.toDate();
+          DateTime? dateB = b.createdAt?.toDate();
 
-        if (dateA == null && dateB == null) return 0;
-        if (dateA == null) return 1;
-        if (dateB == null) return -1;
+          if (dateA == null && dateB == null) return 0;
+          if (dateA == null) return 1;
+          if (dateB == null) return -1;
 
-        return dateB.compareTo(dateA);
+          return dateB.compareTo(dateA);
+        }
+        return a.isViewed ? 1 : -1; // Unviewed stories come first
       });
 
       return stories;
@@ -187,17 +192,24 @@ class StoriesController extends GetxController {
 
         if (storyDoc.exists) {
           final viewers = storyDoc.get('viewers') as Map<String, dynamic>? ?? {};
-
           final storyViewers = viewers[storyUrl] as Map<String, dynamic>? ?? {};
 
-          final storyViewersMap = Map<String, bool>.from(
-              storyViewers.map((key, value) => MapEntry(key, value is bool ? value : false))
-          );
+          if (!storyViewers.containsKey(currentUserUid)) {
+            storyViewers[currentUserUid] = true;
+            viewers[storyUrl] = storyViewers;
 
-          if (!storyViewersMap.containsKey(currentUserUid)) {
-            storyViewersMap[currentUserUid] = true;
-            viewers[storyUrl] = storyViewersMap;
-            transaction.update(storyRef, {'viewers': viewers});
+            // Mark the story as viewed
+            Story story = stories.firstWhere((s) => s.storyUrl == storyUrl);
+            story.markAsViewed(); // Update the isViewed property
+
+            transaction.update(storyRef, {
+              'viewers': viewers,
+              'isViewed': true, // Update the Firestore document
+            });
+
+            // Move the viewed story to the end of the list
+            stories.remove(story);
+            stories.add(story);
           }
         }
       });

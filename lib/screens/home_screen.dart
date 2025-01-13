@@ -19,12 +19,16 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   Map<String, String>? dailyVerse;
   final ProfileController profileController = Get.find(); // Access ProfileController
 
+  // Donation URL
+  final String donationUrl = "https://ramihozi.github.io/GinzAppPage/donations.html"; // Replace with your actual donation link
+
+
   List<Map<String, dynamic>> informationalItems = [
     {
       'title': 'History',
       'title_ar': 'التاريخ',
       'paragraphs': [
-        'Mandaeaism is the oldest surviving religion that can be traced back to the pre-Christian era. A large number of the Mandaeans lived in the Jordan valley, Syria and its surrounding areas. Other communities of the Mandaeans had also long settled throughout the Mesopotamian and Persian lands. '
+        'Mandaeanism is the oldest surviving religion that can be traced back to the pre-Christian era. A large number of the Mandaeans lived in the Jordan valley, Syria and its surrounding areas. Other communities of the Mandaeans had also long settled throughout the Mesopotamian and Persian lands. '
             'They are considered as the indigenous Mesopotamian people. After the death of their last great Teacher, John the Baptist, '
             'the communities in Jordan and Palestine came under persecution and eventually migrated to join other Mandaeans. '
             'They settled in Iraq and Iran, especially around the upper middle and lower Euphrates, the Tigris and the Kāron Rivers in Khuzestan Province. Today, the Mandaeans number more than 80,000 strong believers, but no longer concentrate in Iraq and Iran.',
@@ -199,23 +203,17 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       loadRandomVerse();
     });
   }
-
   Future<void> loadRandomVerse() async {
     final isEnglish = profileController.isEnglish.value;
 
     if (isEnglish) {
-      // Load English version
-      String data = await rootBundle.loadString('assets/ginzas/al-saadiENG.json');
-      List verses = json.decode(data);
-      final random = Random();
-      int randomIndex = random.nextInt(verses.length);
-
+      // Instead of loading the verse, display the "Coming Soon" message
       setState(() {
         dailyVerse = {
-          'book': verses[randomIndex]['book'],
-          'chapter': verses[randomIndex]['chapter'],
-          'verse': verses[randomIndex]['verse'],
-          'text': verses[randomIndex]['text'],
+          'book': '',
+          'chapter': '',
+          'verse': '',
+          'text': 'The English Ginza Is Coming Soon, Sorry For The Inconvenience',
         };
       });
     } else {
@@ -252,7 +250,6 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       });
     }
   }
-
   void copyToClipboard() {
     if (dailyVerse != null) {
       final quote = '${dailyVerse!['text']} - ${dailyVerse!['book']} ${dailyVerse!['chapter']}:${dailyVerse!['verse']}';
@@ -278,18 +275,34 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     final resourceTitle = isEnglish ? 'Resources' : 'الموارد';
     final infoTitle = isEnglish ? 'Information' : 'معلومات';
 
-
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('GinzApp'),
           backgroundColor: Colors.white,
           iconTheme: const IconThemeData(color: Colors.black),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center, // Center the title
+            children: [
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: const Text(
+                    'GinzApp',
+                    style: TextStyle(color: Colors.black), // Ensure text color matches your design
+                  ),
+                ),
+              ),
+            ],
+          ),
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh, color: Colors.black),
               onPressed: loadRandomVerse,
-            )
+            ),
+            IconButton(
+              icon: const Icon(Icons.attach_money, color: Colors.amber),
+              onPressed: () => _launchURL(donationUrl),
+            ),
           ],
         ),
         backgroundColor: Colors.white,

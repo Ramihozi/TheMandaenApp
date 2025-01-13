@@ -96,6 +96,11 @@ class LoginScreen extends StatelessWidget {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 10),
+                      Obx(() => Text(
+                        _loginController.errorMessage.value,
+                        style: TextStyle(color: Colors.red, fontSize: 14),
+                      )), // Display error message
                       const SizedBox(height: 30),
                       Padding(
                         padding: const EdgeInsets.all(8.0),

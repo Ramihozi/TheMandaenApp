@@ -23,6 +23,7 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
   late final Story story;
   final StoryController controller = StoryController();
   final List<StoryItem> storyItems = [];
+  List<Story> allStories = []; // Store all stories in chronological order
   bool _isAppBarVisible = true;
   bool _isPaused = false;
   bool _isXButtonVisible = true;
@@ -304,14 +305,34 @@ class _StoryViewFullScreenState extends State<StoryViewFullScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
-        onTap: () {
-          if (_isPaused) {
-            controller.play();
-            setState(() {
-              _isPaused = false;
-              _isTextFieldFocused = false;
-            });
-          }
+        onTapDown: (details) {
+          final width = MediaQuery.of(context).size.width;
+          final dx = details.globalPosition.dx;
+
+          setState(() {
+            // Right tap: Go to the next story if not on the last one
+            if (dx > width / 2) {
+              if (_currentIndex < storyItems.length - 1) {
+                // Move to the next story if there is one
+                _currentIndex++;
+                controller.next();
+              } else {
+                // Only exit when on the last story
+                print("Reached the last story. Exiting...");
+                Get.back();
+              }
+            } else {
+              // Left tap: Go to the previous story if not on the first one
+              if (_currentIndex > 0) {
+                _currentIndex--;
+                controller.previous();
+              }
+            }
+
+            // Debugging outputs for better visibility
+            print('Current Index: $_currentIndex');
+            print('Story Count: ${storyItems.length}');
+          });
         },
         onLongPressStart: _onLongPressStart,
         onLongPressEnd: _onLongPressEnd,

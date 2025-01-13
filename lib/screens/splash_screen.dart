@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart'; // Import shared_pr
 import 'package:get/get.dart'; // For routing
 import 'package:firebase_auth/firebase_auth.dart'; // For Firebase Authentication
 import 'package:the_mandean_app/screens/onboarding_screen.dart';
+import 'package:firebase_messaging/firebase_messaging.dart'; // Import Firebase Messaging
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -17,8 +18,26 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _requestNotificationPermissions(); // Request notification permissions here
       _checkOnboardingStatus();
     });
+  }
+
+  Future<void> _requestNotificationPermissions() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    // Request permission for notifications
+    NotificationSettings settings = await messaging.requestPermission();
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted notification permissions');
+      // Get and store the FCM token here if needed
+      String? token = await messaging.getToken();
+      print("FCM Token: $token");
+      // Optionally save this token to your backend
+    } else {
+      print('User declined or has not accepted notification permissions');
+    }
   }
 
   Future<void> _checkOnboardingStatus() async {
