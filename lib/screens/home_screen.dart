@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart'; // Import GetX
 
-import 'community_profile_controller.dart';
+import 'profile_tab/community_profile_controller.dart';
 import 'infoDetailedScreen.dart';
 
 class HomeScreen extends StatefulWidget {

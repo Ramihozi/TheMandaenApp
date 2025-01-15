@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';
 import 'package:get/get.dart';
 
-import 'community_profile_controller.dart'; // Import GetX for localization
+import 'profile_tab/community_profile_controller.dart'; // Import GetX for localization
 
 class LikeWidget extends StatelessWidget {
   const LikeWidget({

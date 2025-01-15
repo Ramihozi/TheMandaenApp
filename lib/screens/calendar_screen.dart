@@ -3,7 +3,7 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:the_mandean_app/calendar/meeting.dart';
 import 'package:the_mandean_app/calendar/meeting_data_source.dart';
 import 'package:get/get.dart';
-import 'community_profile_controller.dart'; // For RxBool and state management
+import 'profile_tab/community_profile_controller.dart'; // For RxBool and state management
 
 class PrayerScreen extends StatefulWidget {
   const PrayerScreen({super.key});

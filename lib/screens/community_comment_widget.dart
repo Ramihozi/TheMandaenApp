@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';
 import 'package:get/get.dart';
-import 'community_profile_controller.dart'; // Import your profile controller
+import 'profile_tab/community_profile_controller.dart'; // Import your profile controller
 
 class CommentWidget extends StatelessWidget {
   const CommentWidget({

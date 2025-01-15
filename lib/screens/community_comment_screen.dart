@@ -5,7 +5,7 @@ import 'package:the_mandean_app/screens/community_comment_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_functions/cloud_functions.dart'; // Import for Firebase Functions
 import 'community_comment.dart';
-import 'community_profile_controller.dart'; // Import ProfileController
+import 'profile_tab/community_profile_controller.dart'; // Import ProfileController
 
 class CommentsScreen extends StatelessWidget {
   CommentsScreen({super.key});

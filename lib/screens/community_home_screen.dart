@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:the_mandean_app/screens/community_create_story.dart';
 import 'package:the_mandean_app/screens/community_home_screen_controller.dart';
 import 'package:the_mandean_app/screens/community_post_item.dart';
-import 'package:the_mandean_app/screens/community_profile_controller.dart';
+import 'package:the_mandean_app/screens/profile_tab/community_profile_controller.dart';
 import 'package:the_mandean_app/screens/community_stories_controller.dart';
 import 'package:the_mandean_app/screens/community_story_widget.dart';
 

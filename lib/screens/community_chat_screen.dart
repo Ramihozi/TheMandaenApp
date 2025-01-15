@@ -8,7 +8,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'Community_dm_screen.dart';
 import 'community_friends_tab.dart';
 import 'community_chat_service.dart';
-import 'community_profile_controller.dart';
+import 'profile_tab/community_profile_controller.dart';
 
 class CommunityChatScreen extends StatefulWidget {
   const CommunityChatScreen({super.key});

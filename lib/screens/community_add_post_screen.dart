@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:the_mandean_app/screens/community_add_post_controller.dart';
-import 'package:the_mandean_app/screens/community_profile_controller.dart';
+import 'package:the_mandean_app/screens/profile_tab/community_profile_controller.dart';
 
 class AddPostScreen extends StatelessWidget {
   AddPostScreen({super.key});

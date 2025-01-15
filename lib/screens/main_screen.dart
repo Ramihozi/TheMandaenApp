@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart'; // Import for CupertinoTabBar
 import 'package:get/get.dart'; // Import for using reactive variables and Obx widget
-import 'package:the_mandean_app/screens/bookSelection.dart';
+import 'package:the_mandean_app/screens/books_tab/bookSelection.dart';
 import 'package:the_mandean_app/screens/community_main_screen.dart';
 import 'package:the_mandean_app/screens/home_screen.dart';
 import 'package:the_mandean_app/screens/calendar_screen.dart';
-import 'package:the_mandean_app/screens/prayer_screen.dart';
-import 'community_profile.dart';
-import 'community_profile_controller.dart'; // Import for ProfileScreen and ProfileController
+import 'package:the_mandean_app/screens/prayer_tab/prayer_screen.dart';
+import 'profile_tab/community_profile.dart';
+import 'profile_tab/community_profile_controller.dart'; // Import for ProfileScreen and ProfileController
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);

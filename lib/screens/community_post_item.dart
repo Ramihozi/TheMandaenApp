@@ -9,7 +9,7 @@ import 'package:unicons/unicons.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'community_comment_widget.dart';
-import 'community_profile_controller.dart';
+import 'profile_tab/community_profile_controller.dart';
 import 'package:cloud_functions/cloud_functions.dart'; // Add this import for Firebase Functions
 
 

@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:the_mandean_app/constants/constants.dart';
 import 'package:the_mandean_app/routes/routes.dart';
-import 'package:the_mandean_app/screens/ginza_screen.dart';
+import 'package:the_mandean_app/screens/books_tab/ginza_screen.dart';
 import 'package:the_mandean_app/screens/splash_screen.dart';
 import 'package:the_mandean_app/services/fetch_books.dart';
 import 'package:the_mandean_app/services/fetch_verses.dart';

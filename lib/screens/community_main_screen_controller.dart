@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'community_add_post_screen.dart';
 import 'community_chat_screen.dart';
 import 'community_home_screen.dart';
-import 'community_profile.dart';
+import 'profile_tab/community_profile.dart';
 
 class MainScreenController extends GetxController {
   RxInt selectedIndex = 0.obs;

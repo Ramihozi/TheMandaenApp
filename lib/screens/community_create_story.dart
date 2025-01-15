@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
-import 'community_profile_controller.dart';
+import 'profile_tab/community_profile_controller.dart';
 
 class CreateStory extends StatelessWidget {
   const CreateStory({super.key, required this.onTap});

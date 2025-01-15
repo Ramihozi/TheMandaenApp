@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:the_mandean_app/screens/user.dart';
-import 'community_profile_controller.dart';
+import 'profile_tab/community_profile_controller.dart';
 import 'firebase_service.dart';
 import 'community_dm_screen.dart'; // Import the ChatScreen or your desired DM screen
 import 'package:get/get.dart'; // Import GetX package

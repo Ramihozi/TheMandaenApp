@@ -98,6 +98,16 @@ flutter:
     - assets/images/OnboardPicture3.jpeg
     - assets/images/rushama.avif
     - assets/prayers/rushama.json
+    - assets/prayers/sunday.json
+    - assets/prayers/tuesday.json
+    - assets/prayers/wednesday.json
+    - assets/prayers/thursday.json
+    - assets/prayers/friday.json
+    - assets/prayers/saturday.json
+    - assets/prayers/monday.json
+    - assets/images/prayer_picture_2.png
+    - assets/images/prayer_picture_3.png
+    - assets/images/prayer_picture_4.png
 
 
 
